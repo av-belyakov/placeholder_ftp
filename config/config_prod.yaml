@@ -1,0 +1,16 @@
+COMMONINFO:
+  file_name: "config_prod"
+  name_regional_object: "gcm"
+NATS:
+  prefix: "test"
+  host: "nats.cloud.gcm"
+  port: 4222
+  cacheTtl: 3600
+  subscriptions:
+    listener_command: "phftp.commands"
+LOCALFTP:
+  host: "127.0.0.1"
+  username: "userlocalftp"
+MAINFTP:
+  host: "127.0.0.1"
+  username: "usermainftp"

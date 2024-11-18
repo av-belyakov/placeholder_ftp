@@ -1,0 +1,55 @@
+LOGGING:
+  - {
+      msgTypeName: "error",
+      writingFile: true,
+      pathDirectory: "../../logs",
+      writingStdout: true,
+      maxFileSize: 1000000,
+    }
+  - {
+      msgTypeName: "warning",
+      writingFile: true,
+      pathDirectory: "../../logs",
+      writingStdout: true,
+      maxFileSize: 1000000,
+    }
+  - {
+      msgTypeName: "info",
+      writingFile: true,
+      pathDirectory: "../../logs",
+      writingStdout: true,
+      maxFileSize: 1000000,
+    }
+  - {
+      msgTypeName: "log_for_test",
+      writingFile: true,
+      pathDirectory: "../../logs",
+      writingStdout: false,
+      maxFileSize: 1000000,
+    }
+ZABBIX:
+  networkHost: "192.168.9.45"
+  networkPort: 10051
+  zabbixHost: "test-uchet-db.cloud.gcm"
+  eventTypes:
+    # для отслеживания ошибок
+    - eventType: "error"
+      zabbixKey: "placeholder_ftp.error"
+      isTransmit: true
+      handshake:
+        timeInterval: 0
+        message: ""
+    # для информационных сообщений о выполненной работе
+    - eventType: "info"
+      zabbixKey: "placeholder_ftp.info"
+      isTransmit: true
+      handshake:
+        timeInterval: 0
+        message: "I'm still alive"
+    # для регулярного отстукивания что модуль еще работает
+    - eventType: "handshake"
+      zabbixKey: "placeholder_ftp.handshake"
+      isTransmit: true
+      handshake:
+        timeInterval: 1
+        message: "0"
