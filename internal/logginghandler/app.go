@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/av-belyakov/zabbixapicommunicator"
-
-	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+	"placeholder_ftp/cmd/commoninterfaces"
 )
 
 // LoggingHandler обработчик и распределитель логов
@@ -29,17 +27,19 @@ func LoggingHandler(
 			_ = writerLoggingData.WriteLoggingData(msg.GetMessage(), msg.GetType())
 
 			if msg.GetType() == "error" || msg.GetType() == "warning" {
-				channelZabbix <- &zabbixapicommunicator.MessageSettings{
-					EventType: "error",
-					Message:   fmt.Sprintf("%s: %s", msg.GetType(), msg.GetMessage()),
-				}
+				msg := NewMessageLogging()
+				msg.SetType("error")
+				msg.SetMessage(fmt.Sprintf("%s: %s", msg.GetType(), msg.GetMessage()))
+
+				channelZabbix <- msg
 			}
 
 			if msg.GetType() == "info" {
-				channelZabbix <- &zabbixapicommunicator.MessageSettings{
-					EventType: "info",
-					Message:   msg.GetMessage(),
-				}
+				msg := NewMessageLogging()
+				msg.SetType("info")
+				msg.SetMessage(msg.GetMessage())
+
+				channelZabbix <- msg
 			}
 		}
 	}

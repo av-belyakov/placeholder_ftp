@@ -1,6 +1,6 @@
 package logginghandler
 
-import "github.com/av-belyakov/thehivehook_go_package/cmd/commoninterfaces"
+import "placeholder_ftp/cmd/commoninterfaces"
 
 func New() *LoggingChan {
 	return &LoggingChan{
