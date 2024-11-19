@@ -28,11 +28,13 @@ func New(rootDir, confDir string) (*AppConfig, error) {
 
 			//Подключение к локальному FTP серверу
 			"GO_PHFTP_LOCALFTP_HOST":     "",
+			"GO_PHFTP_LOCALFTP_PORT":     "",
 			"GO_PHFTP_LOCALFTP_USERNAME": "",
 			"GO_PHFTP_LOCALFTP_PASSWD":   "",
 
 			//Подключение к FTP серверу агрегатору
 			"GO_PHFTP_MAINFTP_HOST":     "",
+			"GO_PHFTP_MAINFTP_PORT":     "",
 			"GO_PHFTP_MAINFTP_USERNAME": "",
 			"GO_PHFTP_MAINFTP_PASSWD":   "",
 		}
@@ -111,6 +113,11 @@ func New(rootDir, confDir string) (*AppConfig, error) {
 	if envList["GO_PHFTP_LOCALFTP_HOST"] != "" {
 		conf.LocalFTP.Host = envList["GO_PHFTP_LOCALFTP_HOST"]
 	}
+	if envList["GO_PHFTP_LOCALFTP_PORT"] != "" {
+		if p, err := strconv.Atoi(envList["GO_PHFTP_LOCALFTP_PORT"]); err == nil {
+			conf.LocalFTP.Port = p
+		}
+	}
 	if envList["GO_PHFTP_LOCALFTP_USERNAME"] != "" {
 		conf.LocalFTP.Username = envList["GO_PHFTP_LOCALFTP_USERNAME"]
 	}
@@ -121,6 +128,11 @@ func New(rootDir, confDir string) (*AppConfig, error) {
 	//Настройки FTP сервера агрегатора
 	if envList["GO_PHFTP_MAINFTP_HOST"] != "" {
 		conf.MainFTP.Host = envList["GO_PHFTP_MAINFTP_HOST"]
+	}
+	if envList["GO_PHFTP_MAINFTP_PORT"] != "" {
+		if p, err := strconv.Atoi(envList["GO_PHFTP_MAINFTP_PORT"]); err == nil {
+			conf.MainFTP.Port = p
+		}
 	}
 	if envList["GO_PHFTP_MAINFTP_USERNAME"] != "" {
 		conf.MainFTP.Username = envList["GO_PHFTP_MAINFTP_USERNAME"]
@@ -238,6 +250,9 @@ func setSpecial(filename string, conf *AppConfig) error {
 	if viper.IsSet("LOCALFTP.host") {
 		conf.LocalFTP.Host = viper.GetString("LOCALFTP.host")
 	}
+	if viper.IsSet("LOCALFTP.port") {
+		conf.LocalFTP.Port = viper.GetInt("LOCALFTP.port")
+	}
 	if viper.IsSet("LOCALFTP.username") {
 		conf.LocalFTP.Username = viper.GetString("LOCALFTP.username")
 	}
@@ -245,6 +260,9 @@ func setSpecial(filename string, conf *AppConfig) error {
 	//Настройки FTP сервера агрегатора
 	if viper.IsSet("MAINFTP.host") {
 		conf.MainFTP.Host = viper.GetString("MAINFTP.host")
+	}
+	if viper.IsSet("MAINFTP.port") {
+		conf.MainFTP.Port = viper.GetInt("MAINFTP.port")
 	}
 	if viper.IsSet("MAINFTP.username") {
 		conf.MainFTP.Username = viper.GetString("MAINFTP.username")

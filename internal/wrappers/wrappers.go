@@ -69,3 +69,30 @@ func WrappersZabbixInteraction(
 
 	return nil
 }
+
+// NewWrapperFtpClient формирует обертку для взаимодействия с FTP клиентами
+func NewWrapperFtpClient(settings commoninterfaces.SimpleNetworkConsumer) (*WrapperFtpClient, error) {
+	ftpClient := &WrapperFtpClient{}
+
+	if settings.GetHost() == "" {
+		return ftpClient, fmt.Errorf("the value 'Host' should not be empty")
+	}
+	ftpClient.setHost(settings.GetHost())
+
+	if settings.GetPort() == 0 {
+		return ftpClient, fmt.Errorf("the value 'Port' should not be equal '0'")
+	}
+	ftpClient.setPort(settings.GetPort())
+
+	if settings.GetUsername() == "" {
+		return ftpClient, fmt.Errorf("the value 'Username' should not be empty")
+	}
+	ftpClient.setUsername(settings.GetUsername())
+
+	if settings.GetPasswd() == "" {
+		return ftpClient, fmt.Errorf("the value 'Passwd' should not be empty")
+	}
+	ftpClient.setPasswd(settings.GetPasswd())
+
+	return ftpClient, nil
+}

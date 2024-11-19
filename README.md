@@ -40,12 +40,14 @@ GO_PHFTP_NSUBLISTENERCOMMAND - канал для приема команд
 #### Переменные окружения отвечающие за подключение к локальному FTP сервреру
 
 GO_PHFTP_LOCALFTP_HOST
+GO_PHFTP_LOCALFTP_PORT
 GO_PHFTP_LOCALFTP_USERNAME
 GO_PHFTP_LOCALFTP_PASSWD
 
 #### Переменные окружения отвечающие за подключение к FTP сервреру агрегатору файлов
 
 GO_PHFTP_MAINFTP_HOST
+GO_PHFTP_MAINFTP_PORT
 GO_PHFTP_MAINFTP_USERNAME
 GO_PHFTP_MAINFTP_PASSWD
 

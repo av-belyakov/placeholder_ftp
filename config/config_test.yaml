@@ -10,7 +10,9 @@ NATS:
     listener_command: "phftp.commands.test"
 LOCALFTP:
   host: "127.0.0.1"
+  port: 21
   username: "userlocalftp.test"
 MAINFTP:
   host: "127.0.0.1"
+  port: 21
   username: "usermainftp.test"

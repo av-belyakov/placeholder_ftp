@@ -19,3 +19,11 @@ type Handshake struct {
 	TimeInterval int
 	Message      string
 }
+
+// WrapperFtpClient для настройки и взаимодействия с FTP сервером
+type WrapperFtpClient struct {
+	port     int
+	host     string
+	username string
+	passwd   string
+}

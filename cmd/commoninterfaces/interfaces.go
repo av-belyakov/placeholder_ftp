@@ -42,3 +42,32 @@ type Messager interface {
 type WriterLoggingData interface {
 	WriteLoggingData(str, typeLogFile string) bool
 }
+
+//************** простой сетевой клиент ***************
+
+type SimpleNetworkConsumer interface {
+	HostHandler
+	PortHandler
+	UsernameHandler
+	PasswdHandler
+}
+
+type HostHandler interface {
+	GetHost() string
+	SetHost(v string)
+}
+
+type PortHandler interface {
+	GetPort() int
+	SetPort(v int)
+}
+
+type UsernameHandler interface {
+	GetUsername() string
+	SetUsername(v string)
+}
+
+type PasswdHandler interface {
+	GetPasswd() string
+	SetPasswd(v string)
+}

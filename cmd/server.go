@@ -92,5 +92,5 @@ func server(ctx context.Context) {
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
 
-	router(chNatsAPIReq)
+	router(ctx, chNatsAPIReq)
 }

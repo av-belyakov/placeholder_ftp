@@ -49,11 +49,13 @@ func TestConfigHandler(t *testing.T) {
 
 	confLocalFTP := conf.GetConfigLocalFTP()
 	assert.Equal(t, confLocalFTP.Host, "127.0.0.1")
+	assert.Equal(t, confLocalFTP.Port, 21)
 	assert.Equal(t, confLocalFTP.Username, "userlocalftp.test")
 	assert.Equal(t, confLocalFTP.Passwd, LFTP_PASSWD)
 
 	confMainFTP := conf.GetConfigMainFTP()
 	assert.Equal(t, confMainFTP.Host, "127.0.0.1")
+	assert.Equal(t, confMainFTP.Port, 21)
 	assert.Equal(t, confMainFTP.Username, "usermainftp.test")
 	assert.Equal(t, confMainFTP.Passwd, MFTP_PASSWD)
 
@@ -72,17 +74,21 @@ func TestConfigHandler(t *testing.T) {
 
 	//Подключение к локальному FTP серверу
 	os.Setenv("GO_PHFTP_LOCALFTP_HOST", "34.56.232.5")
+	os.Setenv("GO_PHFTP_LOCALFTP_PORT", "23")
 	os.Setenv("GO_PHFTP_LOCALFTP_USERNAME", "local_user_name")
 	defer func() {
 		os.Unsetenv("GO_PHFTP_LOCALFTP_HOST")
+		os.Unsetenv("GO_PHFTP_LOCALFTP_PORT")
 		os.Unsetenv("GO_PHFTP_LOCALFTP_USERNAME")
 	}()
 
 	//Подключение к FTP серверу агрегатору
 	os.Setenv("GO_PHFTP_MAINFTP_HOST", "67.43.123.33")
+	os.Setenv("GO_PHFTP_MAINFTP_PORT", "24")
 	os.Setenv("GO_PHFTP_MAINFTP_USERNAME", "main_user_name")
 	defer func() {
 		os.Unsetenv("GO_PHFTP_MAINFTP_HOST")
+		os.Unsetenv("GO_PHFTP_MAINFTP_PORT")
 		os.Unsetenv("GO_PHFTP_MAINFTP_USERNAME")
 	}()
 
@@ -98,10 +104,12 @@ func TestConfigHandler(t *testing.T) {
 
 	confLocalFTP = conf.GetConfigLocalFTP()
 	assert.Equal(t, confLocalFTP.Host, "34.56.232.5")
+	assert.Equal(t, confLocalFTP.Port, 23)
 	assert.Equal(t, confLocalFTP.Username, "local_user_name")
 
 	confMainFTP = conf.GetConfigMainFTP()
 	assert.Equal(t, confMainFTP.Host, "67.43.123.33")
+	assert.Equal(t, confMainFTP.Port, 24)
 	assert.Equal(t, confMainFTP.Username, "main_user_name")
 
 }

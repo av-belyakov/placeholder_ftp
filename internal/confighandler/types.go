@@ -75,6 +75,7 @@ type SubscriptionsNATS struct {
 }
 
 type ConfigFtp struct {
+	Port     int    `validate:"required" yaml:"port"`
 	Host     string `validate:"required" yaml:"host"`
 	Username string `validate:"required" yaml:"username"`
 	Passwd   string `validate:"required" yaml:"passwd"`
