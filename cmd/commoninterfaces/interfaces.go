@@ -1,5 +1,30 @@
 package commoninterfaces
 
+//************ каналы *************
+
+type ChannelResponser interface {
+	RequestIdHandler
+	GetStatusCode() int
+	SetStatusCode(int)
+	GetError() error
+	SetError(error)
+	GetData() []byte
+	SetData([]byte)
+}
+
+type ChannelRequester interface {
+	RequestIdHandler
+	GetData() interface{}
+	SetData(interface{})
+	GetChanOutput() chan ChannelResponser
+	SetChanOutput(chan ChannelResponser)
+}
+
+type RequestIdHandler interface {
+	GetRequestId() string
+	SetRequestId(string)
+}
+
 //************** логирование ***************
 
 type Logger interface {

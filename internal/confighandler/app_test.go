@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"placeholder_ftp/internal/confighandler"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/av-belyakov/placeholder_ftp/internal/confighandler"
 )
 
 const (

@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"placeholder_ftp/cmd/commoninterfaces"
+	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 )
 
 // LoggingHandler обработчик и распределитель логов
 func LoggingHandler(
 	ctx context.Context,
 	writerLoggingData commoninterfaces.WriterLoggingData,
-	channelZabbix chan<- commoninterfaces.Messager,
+	chanSystemMonitoring chan<- commoninterfaces.Messager,
 	logging <-chan commoninterfaces.Messager) {
 
 	for {
@@ -31,7 +31,7 @@ func LoggingHandler(
 				msg.SetType("error")
 				msg.SetMessage(fmt.Sprintf("%s: %s", msg.GetType(), msg.GetMessage()))
 
-				channelZabbix <- msg
+				chanSystemMonitoring <- msg
 			}
 
 			if msg.GetType() == "info" {
@@ -39,7 +39,7 @@ func LoggingHandler(
 				msg.SetType("info")
 				msg.SetMessage(msg.GetMessage())
 
-				channelZabbix <- msg
+				chanSystemMonitoring <- msg
 			}
 		}
 	}

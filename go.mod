@@ -1,11 +1,13 @@
-module placeholder_ftp
+module github.com/av-belyakov/placeholder_ftp
 
 go 1.23.3
 
 require (
-	github.com/go-playground/assert/v2 v2.2.0
+	github.com/av-belyakov/simplelogger v0.0.0-20241025122435-67bb4d6f6ae4
+	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20241119103208-79c3b0ff4c2b
 	github.com/go-playground/validator/v10 v10.23.0
-	github.com/magiconair/properties v1.8.7
+	github.com/google/uuid v1.4.0
+	github.com/nats-io/nats.go v1.34.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 )
@@ -17,8 +19,12 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/klauspost/compress v1.17.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/nats-io/nkeys v0.4.7 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect

@@ -10,7 +10,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 
-	"placeholder_ftp/internal/supportingfunctions"
+	"github.com/av-belyakov/placeholder_ftp/internal/supportingfunctions"
 )
 
 func New(rootDir, confDir string) (*AppConfig, error) {
