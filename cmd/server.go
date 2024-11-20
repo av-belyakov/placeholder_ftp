@@ -121,20 +121,27 @@ func server(ctx context.Context) {
 	}
 	//*******************************************************************************
 
+	ftpho := handlers.FtpHandlerOptions{
+		TmpDir:       TMP_FILES,
+		ConfLocalFtp: &confLocalFtp,
+		ConfMainFtp:  &confMainFtp,
+		Logger:       logging,
+	}
 	handlers := map[string]func(commoninterfaces.ChannelRequester){
 		"copy_file": func(req commoninterfaces.ChannelRequester) {
-			handlers.HandlerCopyFile(ctx, req, &confLocalFtp, &confMainFtp, logging)
+			ftpho.HandlerCopyFile(ctx, req)
 		},
 		"convert_and_copy_file": func(req commoninterfaces.ChannelRequester) {
-			handlers.HandlerConvertAndCopyFile(ctx, req, &confLocalFtp, &confMainFtp, logging)
+			ftpho.HandlerConvertAndCopyFile(ctx, req)
 		},
 	}
 
 	//создание временной директории если ее нет
-	//	!!!!!!
-	//	эта функция не протестированна
-	//	!!!!!!
-	createTmpDirectory(ROOT_DIR, "tmp_file")
+	if err := supportingfunctions.CreateDirectory(ROOT_DIR, TMP_FILES); err != nil {
+		_, f, l, _ := runtime.Caller(0)
+		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("error create tmp directory '%s' %s:%d", err.Error(), f, l-1), "error")
+		log.Fatalf("error create tmp directory '%s'\n", err.Error())
+	}
 
 	router(ctx, handlers, chNatsAPIReq)
 }

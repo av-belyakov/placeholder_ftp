@@ -6,12 +6,8 @@ import (
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 )
 
-func HandlerConvertAndCopyFile(
-	ctx context.Context,
-	req commoninterfaces.ChannelRequester,
-	confLocalFTP commoninterfaces.SimpleNetworkConsumer,
-	confMainFTP commoninterfaces.SimpleNetworkConsumer,
-	logger commoninterfaces.Logger) {
+// HandlerConvertAndCopyFile обработчик копирования и преобразования ффайлов
+func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req commoninterfaces.ChannelRequester) {
 
 	//здесь все тоже самое что и в обработчике HandlerCopyFile
 	// однако здесь еще необходимо выполнить обработку получаемых
