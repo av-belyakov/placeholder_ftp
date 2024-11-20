@@ -9,6 +9,7 @@ import (
 	"github.com/av-belyakov/simplelogger"
 
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+	"github.com/av-belyakov/placeholder_ftp/cmd/handlers"
 	"github.com/av-belyakov/placeholder_ftp/cmd/messagebrokers/natsapi"
 	"github.com/av-belyakov/placeholder_ftp/internal/confighandler"
 	"github.com/av-belyakov/placeholder_ftp/internal/logginghandler"
@@ -61,7 +62,7 @@ func server(ctx context.Context) {
 
 	if err := wrappers.WrappersZabbixInteraction(ctx, simpleLogger, wzis, channelZabbix); err != nil {
 		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf(" '%s' %s:%d", err.Error(), f, l-1), "error")
+		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-1), "error")
 	}
 
 	//******************************************************************
@@ -80,17 +81,60 @@ func server(ctx context.Context) {
 	apiNats, err := natsapi.New(logging, natsOptsAPI...)
 	if err != nil {
 		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf(" '%s' %s:%d", err.Error(), f, l-3), "error")
+		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-3), "error")
 
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
 	chNatsAPIReq, err := apiNats.Start(ctx)
 	if err != nil {
 		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf(" '%s' %s:%d", err.Error(), f, l-3), "error")
+		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-3), "error")
 
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
 
-	router(ctx, chNatsAPIReq)
+	confLocalFtp := confApp.GetConfigLocalFTP()
+	confMainFtp := confApp.GetConfigMainFTP()
+
+	//****************** проверка наличия доступа к FTP серверам ********************
+	msgErr := "access initialization error"
+	localFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
+	_, f, l, _ := runtime.Caller(0)
+	if err != nil {
+		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
+		log.Fatalf("%s LOCALFTP '%s': %s\n", msgErr, err.Error())
+	}
+	if err := localFtp.CheckConn(); err != nil {
+		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
+		log.Fatalf("%s LOCALFTP '%s': %s\n", msgErr, err.Error())
+	}
+
+	mainFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
+	_, f, l, _ = runtime.Caller(0)
+	if err != nil {
+		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
+		log.Fatalf("%s MAINFTP '%s': %s\n", msgErr, err.Error())
+	}
+	if err = mainFtp.CheckConn(); err != nil {
+		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
+		log.Fatalf("%s MAINFTP '%s': %s\n", msgErr, err.Error())
+	}
+	//*******************************************************************************
+
+	handlers := map[string]func(commoninterfaces.ChannelRequester){
+		"copy_file": func(req commoninterfaces.ChannelRequester) {
+			handlers.HandlerCopyFile(ctx, req, &confLocalFtp, &confMainFtp, logging)
+		},
+		"convert_and_copy_file": func(req commoninterfaces.ChannelRequester) {
+			handlers.HandlerConvertAndCopyFile(ctx, req, &confLocalFtp, &confMainFtp, logging)
+		},
+	}
+
+	//создание временной директории если ее нет
+	//	!!!!!!
+	//	эта функция не протестированна
+	//	!!!!!!
+	createTmpDirectory(ROOT_DIR, "tmp_file")
+
+	router(ctx, handlers, chNatsAPIReq)
 }

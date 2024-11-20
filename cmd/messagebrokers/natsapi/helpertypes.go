@@ -12,7 +12,7 @@ type RequestFromNats struct {
 	CaseId      string                                 //идентификатор кейса в TheHive
 	Command     string                                 //команда
 	Order       string                                 //распоряжение
-	Data        interface{}                            //набор данных
+	Data        []byte                                 //набор данных
 	ChanOutput  chan commoninterfaces.ChannelResponser //канал ответа реализующий интерфейс commoninterfaces.ChannelResponser
 }
 

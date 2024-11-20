@@ -20,8 +20,8 @@ type Handshake struct {
 	Message      string
 }
 
-// WrapperFtpClient для настройки и взаимодействия с FTP сервером
-type WrapperFtpClient struct {
+// WrapperSimplyNetworkClient обертка с настройками для взаимодействия с простым сетевым клиентом
+type WrapperSimplyNetworkClient struct {
 	port     int
 	host     string
 	username string

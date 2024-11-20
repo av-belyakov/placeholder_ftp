@@ -34,3 +34,35 @@ func (c AppConfig) GetConfigLocalFTP() ConfigFtp {
 func (c AppConfig) GetConfigMainFTP() ConfigFtp {
 	return c.MainFTP
 }
+
+func (conf *ConfigFtp) GetHost() string {
+	return conf.Host
+}
+
+func (conf *ConfigFtp) SetHost(v string) {
+	conf.Host = v
+}
+
+func (conf *ConfigFtp) GetPort() int {
+	return conf.Port
+}
+
+func (conf *ConfigFtp) SetPort(v int) {
+	conf.Port = v
+}
+
+func (conf *ConfigFtp) GetUsername() string {
+	return conf.Username
+}
+
+func (conf *ConfigFtp) SetUsername(v string) {
+	conf.Username = v
+}
+
+func (conf *ConfigFtp) GetPasswd() string {
+	return conf.Passwd
+}
+
+func (conf *ConfigFtp) SetPasswd(v string) {
+	conf.Passwd = v
+}

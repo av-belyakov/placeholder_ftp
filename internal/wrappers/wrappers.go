@@ -70,29 +70,29 @@ func WrappersZabbixInteraction(
 	return nil
 }
 
-// NewWrapperFtpClient формирует обертку для взаимодействия с FTP клиентами
-func NewWrapperFtpClient(settings commoninterfaces.SimpleNetworkConsumer) (*WrapperFtpClient, error) {
-	ftpClient := &WrapperFtpClient{}
+// NewWrapperSimpleNetworkClient формирует обертку для взаимодействия с FTP клиентами
+func NewWrapperSimpleNetworkClient(settings commoninterfaces.SimpleNetworkConsumer) (*WrapperSimplyNetworkClient, error) {
+	netClient := &WrapperSimplyNetworkClient{}
 
 	if settings.GetHost() == "" {
-		return ftpClient, fmt.Errorf("the value 'Host' should not be empty")
+		return netClient, fmt.Errorf("the value 'Host' should not be empty")
 	}
-	ftpClient.setHost(settings.GetHost())
+	netClient.setHost(settings.GetHost())
 
 	if settings.GetPort() == 0 {
-		return ftpClient, fmt.Errorf("the value 'Port' should not be equal '0'")
+		return netClient, fmt.Errorf("the value 'Port' should not be equal '0'")
 	}
-	ftpClient.setPort(settings.GetPort())
+	netClient.setPort(settings.GetPort())
 
 	if settings.GetUsername() == "" {
-		return ftpClient, fmt.Errorf("the value 'Username' should not be empty")
+		return netClient, fmt.Errorf("the value 'Username' should not be empty")
 	}
-	ftpClient.setUsername(settings.GetUsername())
+	netClient.setUsername(settings.GetUsername())
 
 	if settings.GetPasswd() == "" {
-		return ftpClient, fmt.Errorf("the value 'Passwd' should not be empty")
+		return netClient, fmt.Errorf("the value 'Passwd' should not be empty")
 	}
-	ftpClient.setPasswd(settings.GetPasswd())
+	netClient.setPasswd(settings.GetPasswd())
 
-	return ftpClient, nil
+	return netClient, nil
 }

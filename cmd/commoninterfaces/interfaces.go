@@ -14,8 +14,12 @@ type ChannelResponser interface {
 
 type ChannelRequester interface {
 	RequestIdHandler
-	GetData() interface{}
-	SetData(interface{})
+	GetCommand() string
+	SetCommand(v string)
+	GetOrder() string
+	SetOrder(v string)
+	GetData() []byte
+	SetData([]byte)
 	GetChanOutput() chan ChannelResponser
 	SetChanOutput(chan ChannelResponser)
 }
