@@ -27,3 +27,11 @@ type WrapperSimplyNetworkClient struct {
 	username string
 	passwd   string
 }
+
+// WrapperReadWriteFileOptions опции для обертки методов чтения или записи файла
+type WrapperReadWriteFileOptions struct {
+	SrcFilePath string
+	SrcFileName string
+	DstFilePath string
+	DstFileName string
+}
