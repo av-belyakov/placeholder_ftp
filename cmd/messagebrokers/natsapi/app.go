@@ -75,7 +75,7 @@ func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 		rc := RequestCommand{}
 		if err := json.Unmarshal(m.Data, &rc); err != nil {
 			_, f, l, _ := runtime.Caller(0)
-			api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-2))
+			api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
 
 			return
 		}

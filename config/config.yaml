@@ -2,28 +2,28 @@ LOGGING:
   - {
       msgTypeName: "error",
       writingFile: true,
-      pathDirectory: "../../logs",
+      pathDirectory: "logs",
       writingStdout: true,
       maxFileSize: 1000000,
     }
   - {
       msgTypeName: "warning",
       writingFile: true,
-      pathDirectory: "../../logs",
+      pathDirectory: "logs",
       writingStdout: true,
       maxFileSize: 1000000,
     }
   - {
       msgTypeName: "info",
       writingFile: true,
-      pathDirectory: "../../logs",
+      pathDirectory: "logs",
       writingStdout: true,
       maxFileSize: 1000000,
     }
   - {
       msgTypeName: "log_for_test",
       writingFile: true,
-      pathDirectory: "../../logs",
+      pathDirectory: "logs",
       writingStdout: false,
       maxFileSize: 1000000,
     }

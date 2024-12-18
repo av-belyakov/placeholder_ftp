@@ -38,6 +38,7 @@ func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req commonint
 	}
 
 	for _, fileName := range request.Parameters.Files {
+		_, f, l, _ := runtime.Caller(0)
 		countByteRead, err := localFtp.ReadFile(
 			ctx,
 			wrappers.WrapperReadWriteFileOptions{
@@ -47,8 +48,7 @@ func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req commonint
 				DstFileName: fileName,
 			})
 		if err != nil {
-			_, f, l, _ := runtime.Caller(0)
-			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-2))
+			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l+1))
 
 			return
 		}

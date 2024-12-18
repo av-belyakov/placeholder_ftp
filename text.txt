@@ -1,0 +1,4 @@
+Для тестов ftp можно использовать
+https://hub.docker.com/r/delfer/alpine-ftp-server
+
+docker run -d -p 21:21 -p 21000-21010:21000-21010 --name ftp-server -e USERS="someuser|somepasswd" delfer/alpine-ftp-server

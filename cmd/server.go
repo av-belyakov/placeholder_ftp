@@ -11,6 +11,8 @@ import (
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 	"github.com/av-belyakov/placeholder_ftp/cmd/handlers"
 	"github.com/av-belyakov/placeholder_ftp/cmd/messagebrokers/natsapi"
+	"github.com/av-belyakov/placeholder_ftp/internal/appname"
+	"github.com/av-belyakov/placeholder_ftp/internal/appversion"
 	"github.com/av-belyakov/placeholder_ftp/internal/confighandler"
 	"github.com/av-belyakov/placeholder_ftp/internal/logginghandler"
 	"github.com/av-belyakov/placeholder_ftp/internal/supportingfunctions"
@@ -102,22 +104,26 @@ func server(ctx context.Context) {
 	_, f, l, _ := runtime.Caller(0)
 	if err != nil {
 		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
-		log.Fatalf("%s LOCALFTP '%s': %s\n", msgErr, err.Error())
+		log.Fatalf("%s LOCALFTP '%s' %s:%d\n", msgErr, err.Error(), f, l-1)
 	}
+
+	//проверяем доступ к локальному ftp серверу
 	if err := localFtp.CheckConn(); err != nil {
 		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
-		log.Fatalf("%s LOCALFTP '%s': %s\n", msgErr, err.Error())
+		log.Fatalf("%s LOCALFTP '%s': %s:%d\n", msgErr, err.Error(), f, l-1)
 	}
 
 	mainFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
 	_, f, l, _ = runtime.Caller(0)
 	if err != nil {
 		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
-		log.Fatalf("%s MAINFTP '%s': %s\n", msgErr, err.Error())
+		log.Fatalf("%s MAINFTP '%s': %s:%d\n", msgErr, err.Error(), f, l-1)
 	}
+
+	//проверяем доступ к удаленному ftp серверу
 	if err = mainFtp.CheckConn(); err != nil {
 		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
-		log.Fatalf("%s MAINFTP '%s': %s\n", msgErr, err.Error())
+		log.Fatalf("%s MAINFTP '%s': %s:%d\n", msgErr, err.Error(), f, l-1)
 	}
 	//*******************************************************************************
 
@@ -142,6 +148,10 @@ func server(ctx context.Context) {
 		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("error create tmp directory '%s' %s:%d", err.Error(), f, l-1), "error")
 		log.Fatalf("error create tmp directory '%s'\n", err.Error())
 	}
+
+	msg := fmt.Sprintf("Application '%s' v%s was successfully launched", appname.GetAppName(), appversion.GetAppVersion())
+	log.Printf("%v%v%v%s%v\n", Ansi_DarkRedbackground, Bold_Font, Ansi_White, msg, Ansi_Reset)
+	logging.Send("info", msg)
 
 	router(ctx, handlers, chNatsAPIReq)
 }

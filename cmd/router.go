@@ -10,6 +10,7 @@ func router(
 	ctx context.Context,
 	handlers map[string]func(commoninterfaces.ChannelRequester),
 	chNats <-chan commoninterfaces.ChannelRequester) {
+
 	for {
 		select {
 		case <-ctx.Done():

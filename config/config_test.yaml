@@ -11,8 +11,8 @@ NATS:
 LOCALFTP:
   host: "127.0.0.1"
   port: 21
-  username: "userlocalftp.test"
+  username: "someuser"
 MAINFTP:
   host: "127.0.0.1"
   port: 21
-  username: "usermainftp.test"
+  username: "simeuser"
