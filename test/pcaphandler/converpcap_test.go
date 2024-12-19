@@ -13,6 +13,7 @@ import (
 )
 
 func TestConverFilePcap(t *testing.T) {
+	//handler, err := pcap.OpenOffline("../test_files/1616152209_2021_03_19____14_10_09_51841.tdp")
 	f, err := os.OpenFile("../test_files/1616152209_2021_03_19____14_10_09_51841.tdp", os.O_RDONLY, os.ModePerm)
 	assert.NoError(t, err)
 
