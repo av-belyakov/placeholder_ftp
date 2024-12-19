@@ -80,6 +80,8 @@ func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 			return
 		}
 
+		fmt.Println("func 'subscriptionHandler' incoming", rc)
+
 		go api.handlerIncomingCommands(ctx, rc, m)
 	})
 }

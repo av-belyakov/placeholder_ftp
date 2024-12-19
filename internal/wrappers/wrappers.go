@@ -63,7 +63,7 @@ func WrappersZabbixInteraction(
 	go func() {
 		for err := range zc.GetChanErr() {
 			_, f, l, _ := runtime.Caller(0)
-			writerLoggingData.WriteLoggingData(fmt.Sprintf("zabbix module: '%w' %s:%d", err, f, l-1), "error")
+			writerLoggingData.WriteLoggingData(fmt.Sprintf("zabbix module: '%s' %s:%d", err.Error(), f, l-1), "error")
 		}
 	}()
 

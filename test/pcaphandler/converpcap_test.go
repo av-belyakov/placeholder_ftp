@@ -1,0 +1,33 @@
+package pcaphandler_test
+
+import (
+	"bufio"
+	"bytes"
+	"fmt"
+	"os"
+	"testing"
+
+	"github.com/google/gopacket"
+	"github.com/google/gopacket/layers"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestConverFilePcap(t *testing.T) {
+	f, err := os.OpenFile("../test_files/1616152209_2021_03_19____14_10_09_51841.tdp", os.O_RDONLY, os.ModePerm)
+	assert.NoError(t, err)
+
+	var wr bytes.Buffer
+	sc := bufio.NewScanner(f)
+	for sc.Scan() {
+		_, err := wr.Write(sc.Bytes())
+		assert.NoError(t, err)
+	}
+
+	gp := gopacket.NewPacket(wr.Bytes(), layers.LayerTypeEthernet, gopacket.Default)
+
+	fmt.Println("RESULT", gp.String())
+
+	f.Close()
+
+	assert.True(t, true)
+}
