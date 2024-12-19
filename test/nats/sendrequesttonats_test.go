@@ -107,8 +107,8 @@ func TestSendMsgToNats(t *testing.T) {
 			"service": "test_service",
 			"command": "copy_file",
 			"parameters": {
-				"path_local_ftp": "/someuser/folder_one",
-				"path_main_ftp": "/someuser/folder_two",
+				"path_local_ftp": "/ftp/someuser/folder_one",
+				"path_main_ftp": "/ftp/someuser/folder_two",
 				"files": ["book.pdf"]
 			}
 		}`, uuid.New().String())))
