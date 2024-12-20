@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"github.com/google/gopacket/pcap"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,6 +30,20 @@ func TestConverFilePcap(t *testing.T) {
 	fmt.Println("RESULT", gp.String())
 
 	f.Close()
+
+	assert.True(t, true)
+}
+
+func TestReadPcapFile(t *testing.T) {
+	handle, err := pcap.OpenOffline("../test_files/1616152209_2021_03_19____14_10_09_51841.tdp")
+	assert.NoError(t, err)
+
+	packets := gopacket.NewPacketSource(handle, handle.LinkType()).Packets()
+	for pkt := range packets {
+		fmt.Println(string(pkt.Data()))
+	}
+
+	handle.Close()
 
 	assert.True(t, true)
 }

@@ -3,8 +3,10 @@ package test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/joho/godotenv"
@@ -14,7 +16,7 @@ import (
 )
 
 var (
-	localFtp *wrappers.WrapperSimplyNetworkClient
+	srcFtp, dstFtp *wrappers.WrapperSimplyNetworkClient
 
 	err error
 )
@@ -89,18 +91,27 @@ func TestMain(m *testing.M) {
 		log.Fatalln(err)
 	}
 
-	localFtp, err = wrappers.NewWrapperSimpleNetworkClient(conf)
+	srcFtp, err = wrappers.NewWrapperSimpleNetworkClient(conf)
+	if err != nil {
+		log.Fatalln("src ftp error:", err)
+	}
+
+	dstFtp, err = wrappers.NewWrapperSimpleNetworkClient(conf)
+	if err != nil {
+		log.Fatalln("dst ftp error:", err)
+	}
 
 	os.Exit(m.Run())
 }
 
 func TestRequestFTPServer(t *testing.T) {
 	t.Run("Test 1. Соединения с ftp", func(t *testing.T) {
-		assert.NoError(t, localFtp.CheckConn())
+		assert.NoError(t, srcFtp.CheckConn())
+		assert.NoError(t, dstFtp.CheckConn())
 	})
 
 	t.Run("Test 2. Скачивание файла с ftp", func(t *testing.T) {
-		num, err := localFtp.ReadFile(context.Background(), wrappers.WrapperReadWriteFileOptions{
+		num, err := srcFtp.ReadFile(context.Background(), wrappers.WrapperReadWriteFileOptions{
 			SrcFilePath: "/ftp/someuser/folder_one",
 			SrcFileName: "book.pdf",
 			DstFilePath: "../../tmp_files/",
@@ -112,14 +123,22 @@ func TestRequestFTPServer(t *testing.T) {
 	})
 
 	t.Run("Test 3. Загрузка файла на ftp", func(t *testing.T) {
-		num, err := localFtp.WriteFile(context.Background(), wrappers.WrapperReadWriteFileOptions{
+		_, err := os.Stat(path.Join("../../tmp_files/", "book.pdf"))
+		assert.False(t, errors.Is(err, os.ErrNotExist))
+
+		err = dstFtp.WriteFile(context.Background(), wrappers.WrapperReadWriteFileOptions{
 			SrcFilePath: "../../tmp_files/",
 			SrcFileName: "book.pdf",
 			DstFilePath: "/ftp/someuser/folder_two",
 			DstFileName: "book_new.pdf",
 		})
 
+		fmt.Println("ERROR:", err)
+
 		assert.NoError(t, err)
-		assert.Greater(t, num, 1)
+
+		//удаление файла из временной директории
+		err = os.Remove(path.Join("../../tmp_files/", "book.pdf"))
+		assert.NoError(t, err)
 	})
 }

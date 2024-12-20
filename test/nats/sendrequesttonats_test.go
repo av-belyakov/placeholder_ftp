@@ -26,7 +26,7 @@ var (
 	chMsg chan bool
 	nc    *nats.Conn
 
-	chNatsAPIReq <-chan commoninterfaces.ChannelRequester
+	chReq <-chan commoninterfaces.ChannelRequester
 
 	ctx       context.Context
 	ctxCancel context.CancelFunc
@@ -91,7 +91,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
-	chNatsAPIReq, err = apiNats.Start(ctx)
+	chReq, err = apiNats.Start(ctx)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -117,7 +117,7 @@ func TestSendMsgToNats(t *testing.T) {
 	})
 
 	t.Run("Тест 2. Проверка приема сообщения", func(t *testing.T) {
-		msg := <-chNatsAPIReq
+		msg := <-chReq
 
 		data := map[string]interface{}{}
 		err := json.Unmarshal(msg.GetData(), &data)

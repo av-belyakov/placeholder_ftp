@@ -12,16 +12,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 
-	cint "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+	ci "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 )
 
 // New настраивает новый модуль взаимодействия с API NATS
-func New(logger cint.Logger, opts ...NatsApiOptions) (*apiNatsModule, error) {
-	api := &apiNatsModule{
-		cachettl: 10,
-		logger:   logger,
-		//передача запросов из NATS
-		sendingChannel: make(chan cint.ChannelRequester),
+func New[T any](logger ci.Logger, opts ...NatsApiOptions[T]) (*apiNatsModule[T], error) {
+	api := &apiNatsModule[T]{
+		cachettl:       10,
+		logger:         logger,
+		sendingChannel: make(chan ci.ChannelRequester[T]),
 	}
 
 	for _, opt := range opts {
@@ -36,7 +35,7 @@ func New(logger cint.Logger, opts ...NatsApiOptions) (*apiNatsModule, error) {
 // Start инициализирует новый модуль взаимодействия с API NATS
 // при инициализации возращается канал для взаимодействия с модулем, все
 // запросы к модулю выполняются через данный канал
-func (api *apiNatsModule) Start(ctx context.Context) (<-chan cint.ChannelRequester, error) {
+func (api *apiNatsModule[T]) Start(ctx context.Context) (<-chan ci.ChannelRequester[T], error) {
 	nc, err := nats.Connect(
 		fmt.Sprintf("%s:%d", api.host, api.port),
 		nats.MaxReconnects(-1),
@@ -61,6 +60,10 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan cint.ChannelRequest
 	//обработчик подписки
 	go api.subscriptionHandler(ctx)
 
+	//
+	// надо сделать обработчик данных из api.receivingChannel
+	//
+
 	go func(ctx context.Context, nc *nats.Conn) {
 		<-ctx.Done()
 		nc.Close()
@@ -70,7 +73,7 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan cint.ChannelRequest
 }
 
 // subscriptionHandler обработчик команд
-func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
+func (api *apiNatsModule[T]) subscriptionHandler(ctx context.Context) {
 	api.natsConnection.Subscribe(api.subscriptions.listenerCommand, func(m *nats.Msg) {
 		rc := RequestCommand{}
 		if err := json.Unmarshal(m.Data, &rc); err != nil {
@@ -87,20 +90,20 @@ func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 }
 
 // handlerIncomingCommands обработчик входящих, через NATS, команд
-func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc RequestCommand, m *nats.Msg) {
+func (api *apiNatsModule[T]) handlerIncomingCommands(ctx context.Context, rc RequestCommand, m *nats.Msg) {
 	id := uuid.New().String()
-	chRes := make(chan cint.ChannelResponser)
+	chRes := make(chan ci.ChannelResponser[T])
 
 	ttlTime := (time.Duration(api.cachettl) * time.Second)
 	ctxTimeout, ctxTimeoutCancel := context.WithTimeout(ctx, ttlTime)
-	defer func(cancel context.CancelFunc, ch chan cint.ChannelResponser) {
+	defer func(cancel context.CancelFunc, ch chan ci.ChannelResponser[T]) {
 		cancel()
 
 		close(ch)
 		ch = nil
 	}(ctxTimeoutCancel, chRes)
 
-	req := RequestFromNats{
+	req := RequestFromNats[T]{
 		RequestId:  id,
 		Command:    "send_command",
 		Order:      rc.Command,
@@ -149,8 +152,8 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 }
 
 // WithHost метод устанавливает имя или ip адрес хоста API
-func WithHost(v string) NatsApiOptions {
-	return func(n *apiNatsModule) error {
+func WithHost[T any](v string) NatsApiOptions[T] {
+	return func(n *apiNatsModule[T]) error {
 		if v == "" {
 			return errors.New("the value of 'host' cannot be empty")
 		}
@@ -162,8 +165,8 @@ func WithHost(v string) NatsApiOptions {
 }
 
 // WithPort метод устанавливает порт API
-func WithPort(v int) NatsApiOptions {
-	return func(n *apiNatsModule) error {
+func WithPort[T any](v int) NatsApiOptions[T] {
+	return func(n *apiNatsModule[T]) error {
 		if v <= 0 || v > 65535 {
 			return errors.New("an incorrect network port value was received")
 		}
@@ -176,8 +179,8 @@ func WithPort(v int) NatsApiOptions {
 
 // WithCacheTTL устанавливает время жизни для кэша хранящего функции-обработчики
 // запросов к модулю
-func WithCacheTTL(v int) NatsApiOptions {
-	return func(th *apiNatsModule) error {
+func WithCacheTTL[T any](v int) NatsApiOptions[T] {
+	return func(th *apiNatsModule[T]) error {
 		if v <= 10 || v > 86400 {
 			return errors.New("the lifetime of a cache entry should be between 10 and 86400 seconds")
 		}
@@ -189,8 +192,8 @@ func WithCacheTTL(v int) NatsApiOptions {
 }
 
 // WithSubSenderCase устанавливает канал в который будут отправлятся объекты типа 'case'
-func WithSubSenderCase(v string) NatsApiOptions {
-	return func(n *apiNatsModule) error {
+func WithSubSenderCase[T any](v string) NatsApiOptions[T] {
+	return func(n *apiNatsModule[T]) error {
 		if v == "" {
 			return errors.New("the value of 'sender_case' cannot be empty")
 		}
@@ -202,8 +205,8 @@ func WithSubSenderCase(v string) NatsApiOptions {
 }
 
 // WithSubSenderAlert устанавливает канал в который будут отправлятся объекты типа 'alert'
-func WithSubSenderAlert(v string) NatsApiOptions {
-	return func(n *apiNatsModule) error {
+func WithSubSenderAlert[T any](v string) NatsApiOptions[T] {
+	return func(n *apiNatsModule[T]) error {
 		if v == "" {
 			return errors.New("the value of 'sender_alert' cannot be empty")
 		}
@@ -216,8 +219,8 @@ func WithSubSenderAlert(v string) NatsApiOptions {
 
 // WithSubListenerCommand устанавливает канал через которые будут приходить команды для
 // выполнения определенных действий в TheHive
-func WithSubListenerCommand(v string) NatsApiOptions {
-	return func(n *apiNatsModule) error {
+func WithSubListenerCommand[T any](v string) NatsApiOptions[T] {
+	return func(n *apiNatsModule[T]) error {
 		if v == "" {
 			return errors.New("the value of 'listener_command' cannot be empty")
 		}

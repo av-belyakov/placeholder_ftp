@@ -1,0 +1,91 @@
+package handlers
+
+// ******* ResultRequestCopyFileFromFtpServer *******
+func NewResultRequestCopyFileFromFtpServer[T any]() *ResultRequestCopyFileFromFtpServer[T] {
+	return &ResultRequestCopyFileFromFtpServer[T]{StatusCode: 200}
+}
+
+// GetRequestId возвращает идентификатор запроса
+func (obj *ResultRequestCopyFileFromFtpServer[T]) GetRequestId() string {
+	return obj.TaskId
+}
+
+// SetRequestId устанавливает идентификатор запроса
+func (obj *ResultRequestCopyFileFromFtpServer[T]) SetRequestId(v string) {
+	obj.TaskId = v
+}
+
+// GetStatusCode возвращает код статуса выполненной задачи
+func (obj *ResultRequestCopyFileFromFtpServer[T]) GetStatusCode() int {
+	return obj.StatusCode
+}
+
+// SetStatusCode устанавливает код статуса выполненной задачи
+func (obj *ResultRequestCopyFileFromFtpServer[T]) SetStatusCode(v int) {
+	obj.StatusCode = v
+}
+
+// GetError возвращает глобальную ошибку которая может возникнут при выполнении задачи
+func (obj *ResultRequestCopyFileFromFtpServer[T]) GetError() error {
+	return obj.Error
+}
+
+// SetError устанавливает глобальную ошибку которая может возникнут при выполнении задачи
+func (obj *ResultRequestCopyFileFromFtpServer[T]) SetError(v error) {
+	obj.Error = v
+}
+
+// GetData возвращает данные
+func (obj *ResultRequestCopyFileFromFtpServer[T]) GetData() T {
+	return obj.Data
+}
+
+// SetData устанавливает данные
+func (obj *ResultRequestCopyFileFromFtpServer[T]) SetData(v T) {
+	obj.Data = v
+}
+
+// ******* *******
+func NewProcessedFiles() *ProcessedFiles {
+	return &ProcessedFiles{}
+}
+
+// GetError возвращает ошибку возникшую при обработки файла
+func (obj *ProcessedFiles) GetError() error {
+	return obj.Error
+}
+
+// SetError устанавливает ошибку возникшую при обработки файла
+func (obj *ProcessedFiles) SetError(v error) {
+	obj.Error = v
+}
+
+// GetFileName возвращает имя файла
+func (obj *ProcessedFiles) GetFileName() string {
+	return obj.FileName
+}
+
+// SetFileName устанавливает имя файла
+func (obj *ProcessedFiles) SetFileName(v string) {
+	obj.FileName = v
+}
+
+// GetSizeBeforProcessing возвращает размер файла перед обработкой
+func (obj *ProcessedFiles) GetSizeBeforProcessing() int {
+	return obj.SizeBeforProcessing
+}
+
+// SetSizeBeforProcessing устанавливает размер файла перед обработкой
+func (obj *ProcessedFiles) SetSizeBeforProcessing(v int) {
+	obj.SizeBeforProcessing = v
+}
+
+// GetSizeAfterProcessing возвращает размер файла после обработки
+func (obj *ProcessedFiles) GetSizeAfterProcessing() int {
+	return obj.SizeAfterProcessing
+}
+
+// SetSizeAfterProcessing устанавливает размер файла после обработки
+func (obj *ProcessedFiles) SetSizeAfterProcessing(v int) {
+	obj.SizeAfterProcessing = v
+}

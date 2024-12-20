@@ -107,12 +107,15 @@ func (client *WrapperSimplyNetworkClient) ReadFile(ctx context.Context, opts Wra
 }
 
 // WriteFile запись файла
-func (client *WrapperSimplyNetworkClient) WriteFile(ctx context.Context, opts WrapperReadWriteFileOptions) (int, error) {
-	var size int
+func (client *WrapperSimplyNetworkClient) WriteFile(ctx context.Context, opts WrapperReadWriteFileOptions) error {
+	filePath := path.Join(opts.SrcFilePath, opts.SrcFileName)
+	if _, err := os.Stat(filePath); err != nil {
+		return err
+	}
 
-	f, err := os.Open(path.Join(opts.SrcFilePath, opts.SrcFileName))
+	f, err := os.Open(filePath)
 	if err != nil {
-		return size, err
+		return err
 	}
 	defer func(f *os.File, err error) {
 		if errClose := f.Close(); errClose != nil {
@@ -125,7 +128,7 @@ func (client *WrapperSimplyNetworkClient) WriteFile(ctx context.Context, opts Wr
 		ftp.DialWithContext(ctx),
 		ftp.DialWithTimeout(5*time.Second))
 	if err != nil {
-		return 0, err
+		return err
 	}
 	defer func(c *ftp.ServerConn, err error) {
 		if errQuite := c.Quit(); errQuite != nil {
@@ -135,12 +138,12 @@ func (client *WrapperSimplyNetworkClient) WriteFile(ctx context.Context, opts Wr
 
 	err = c.Login(client.username, client.passwd)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	err = c.Stor(path.Join(opts.DstFilePath, opts.DstFileName), f)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	defer func(c *ftp.ServerConn, err error) {
 		if errQuite := c.Quit(); errQuite != nil {
@@ -148,5 +151,5 @@ func (client *WrapperSimplyNetworkClient) WriteFile(ctx context.Context, opts Wr
 		}
 	}(c, err)
 
-	return size, nil
+	return nil
 }

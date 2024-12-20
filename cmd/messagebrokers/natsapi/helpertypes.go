@@ -1,19 +1,19 @@
 package natsapi
 
 import (
-	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+	ci "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 )
 
 // RequestFromNats структура запроса из модуля
-type RequestFromNats struct {
-	RequestId   string                                 //id запроса
-	ElementType string                                 //тип элемента
-	RootId      string                                 //идентификатор по которому в TheHive будет выполнятся поиск
-	CaseId      string                                 //идентификатор кейса в TheHive
-	Command     string                                 //команда
-	Order       string                                 //распоряжение
-	Data        []byte                                 //набор данных
-	ChanOutput  chan commoninterfaces.ChannelResponser //канал ответа реализующий интерфейс commoninterfaces.ChannelResponser
+type RequestFromNats[T any] struct {
+	RequestId   string                      //id запроса
+	ElementType string                      //тип элемента
+	RootId      string                      //идентификатор по которому в TheHive будет выполнятся поиск
+	CaseId      string                      //идентификатор кейса в TheHive
+	Command     string                      //команда
+	Order       string                      //распоряжение
+	Data        []byte                      //набор данных
+	ChanOutput  chan ci.ChannelResponser[T] //канал ответа реализующий интерфейс commoninterfaces.ChannelResponser
 }
 
 // ResponsToNats структура ответа в модуля

@@ -6,16 +6,16 @@ import (
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 )
 
-func router(
+func router[T any](
 	ctx context.Context,
-	handlers map[string]func(commoninterfaces.ChannelRequester),
-	chNats <-chan commoninterfaces.ChannelRequester) {
+	handlers map[string]func(commoninterfaces.ChannelRequester[T]),
+	chNatsIn <-chan commoninterfaces.ChannelRequester[T]) {
 
 	for {
 		select {
 		case <-ctx.Done():
 
-		case msg := <-chNats:
+		case msg := <-chNatsIn:
 			if msg.GetCommand() == "send_command" {
 				if f, ok := handlers[msg.GetOrder()]; ok {
 					go f(msg)

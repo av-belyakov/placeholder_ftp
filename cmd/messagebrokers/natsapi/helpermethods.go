@@ -1,6 +1,6 @@
 package natsapi
 
-import "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+import ci "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 
 //********************* Response ********************
 
@@ -42,88 +42,88 @@ func (r *ResponsToNats) SetData(v []byte) {
 //******************* Request *********************
 
 // NewChannelRequest конструктор формирующий структуру для выполнения запросов к модулю apithehive
-func NewChannelRequest() *RequestFromNats {
-	return &RequestFromNats{}
+func NewChannelRequest[T any]() *RequestFromNats[T] {
+	return &RequestFromNats[T]{}
 }
 
 // GetRequestId метод возвращает уникальный идентификатор запроса
-func (r *RequestFromNats) GetRequestId() string {
+func (r *RequestFromNats[T]) GetRequestId() string {
 	return r.RequestId
 }
 
 // SetRequestId метод устанавливает уникальный идентификатор запроса
-func (r *RequestFromNats) SetRequestId(v string) {
+func (r *RequestFromNats[T]) SetRequestId(v string) {
 	r.RequestId = v
 }
 
 // GetElementType метод возвращает тип элемента
-func (r *RequestFromNats) GetElementType() string {
+func (r *RequestFromNats[T]) GetElementType() string {
 	return r.ElementType
 }
 
 // SetElementType метод устанавливает тип элемента
-func (r *RequestFromNats) SetElementType(v string) {
+func (r *RequestFromNats[T]) SetElementType(v string) {
 	r.ElementType = v
 }
 
 // GetRootId метод возвращает основной идентификатор кейса или алерта
-func (r *RequestFromNats) GetRootId() string {
+func (r *RequestFromNats[T]) GetRootId() string {
 	return r.RootId
 }
 
 // SetRootId метод устанавливает основной идентификатор кейса или алерта
-func (r *RequestFromNats) SetRootId(v string) {
+func (r *RequestFromNats[T]) SetRootId(v string) {
 	r.RootId = v
 }
 
 // GetCaseId метод возвращает идентификатор кейса
-func (r *RequestFromNats) GetCaseId() string {
+func (r *RequestFromNats[T]) GetCaseId() string {
 	return r.CaseId
 }
 
 // SetCaseId метод устанавливает идентификатор кейса
-func (r *RequestFromNats) SetCaseId(v string) {
+func (r *RequestFromNats[T]) SetCaseId(v string) {
 	r.CaseId = v
 }
 
 // GetCommand метод возвращает команду, на основе которой выполняются определенные действия
-func (r *RequestFromNats) GetCommand() string {
+func (r *RequestFromNats[T]) GetCommand() string {
 	return r.Command
 }
 
 // SetCommand метод устанавливает команду, на основе которой выполняются определенные действия
-func (r *RequestFromNats) SetCommand(v string) {
+func (r *RequestFromNats[T]) SetCommand(v string) {
 	r.Command = v
 }
 
 // GetOrder метод возвращает распоряжение
-func (r *RequestFromNats) GetOrder() string {
+func (r *RequestFromNats[T]) GetOrder() string {
 	return r.Order
 }
 
 // SetOrder метод устанавливает распоряжение
-func (r *RequestFromNats) SetOrder(v string) {
+func (r *RequestFromNats[T]) SetOrder(v string) {
 	r.Order = v
 }
 
 // GetData метод возвращает некий набор данных
-func (r *RequestFromNats) GetData() []byte {
+func (r *RequestFromNats[T]) GetData() []byte {
 	return r.Data
 }
 
 // SetData метод устанавливает некий набор данных
-func (r *RequestFromNats) SetData(i []byte) {
+func (r *RequestFromNats[T]) SetData(i []byte) {
 	r.Data = i
 }
 
 // GetChanOutput метод возвращает канал через который ответ от модуля apithehive передается
 // источнику запроса
-func (r *RequestFromNats) GetChanOutput() chan commoninterfaces.ChannelResponser {
+func (r *RequestFromNats[T]) GetChanOutput() chan ci.ChannelResponser[T] {
 	return r.ChanOutput
 }
 
 // SetChanOutput метод устанавливает канал через который ответ от модуля apithehive передается
 // источнику запроса
-func (r *RequestFromNats) SetChanOutput(v chan commoninterfaces.ChannelResponser) {
+func (r *RequestFromNats[T]) SetChanOutput(v chan ci.ChannelResponser[T]) {
 	r.ChanOutput = v
 }
