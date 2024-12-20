@@ -56,7 +56,7 @@ func (opts FtpHandlerOptions[T]) HandlerCopyFile(
 		return
 	}
 
-	listProcessedFile := []*ProcessedFiles{}
+	listProcessedFile := []T{}
 	for _, fileName := range request.Parameters.Files {
 		pf := NewProcessedFiles()
 		pf.SetFileName(fileName)
