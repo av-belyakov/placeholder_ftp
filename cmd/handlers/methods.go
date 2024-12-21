@@ -1,47 +1,49 @@
 package handlers
 
+import "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+
 // ******* ResultRequestCopyFileFromFtpServer *******
-func NewResultRequestCopyFileFromFtpServer[T any]() *ResultRequestCopyFileFromFtpServer[T] {
-	return &ResultRequestCopyFileFromFtpServer[T]{StatusCode: 200}
+func NewResultRequestCopyFileFromFtpServer() *ResultRequestCopyFileFromFtpServer {
+	return &ResultRequestCopyFileFromFtpServer{StatusCode: 200}
 }
 
 // GetRequestId возвращает идентификатор запроса
-func (obj *ResultRequestCopyFileFromFtpServer[T]) GetRequestId() string {
+func (obj *ResultRequestCopyFileFromFtpServer) GetRequestId() string {
 	return obj.TaskId
 }
 
 // SetRequestId устанавливает идентификатор запроса
-func (obj *ResultRequestCopyFileFromFtpServer[T]) SetRequestId(v string) {
+func (obj *ResultRequestCopyFileFromFtpServer) SetRequestId(v string) {
 	obj.TaskId = v
 }
 
 // GetStatusCode возвращает код статуса выполненной задачи
-func (obj *ResultRequestCopyFileFromFtpServer[T]) GetStatusCode() int {
+func (obj *ResultRequestCopyFileFromFtpServer) GetStatusCode() int {
 	return obj.StatusCode
 }
 
 // SetStatusCode устанавливает код статуса выполненной задачи
-func (obj *ResultRequestCopyFileFromFtpServer[T]) SetStatusCode(v int) {
+func (obj *ResultRequestCopyFileFromFtpServer) SetStatusCode(v int) {
 	obj.StatusCode = v
 }
 
 // GetError возвращает глобальную ошибку которая может возникнут при выполнении задачи
-func (obj *ResultRequestCopyFileFromFtpServer[T]) GetError() error {
+func (obj *ResultRequestCopyFileFromFtpServer) GetError() error {
 	return obj.Error
 }
 
 // SetError устанавливает глобальную ошибку которая может возникнут при выполнении задачи
-func (obj *ResultRequestCopyFileFromFtpServer[T]) SetError(v error) {
+func (obj *ResultRequestCopyFileFromFtpServer) SetError(v error) {
 	obj.Error = v
 }
 
 // GetData возвращает данные
-func (obj *ResultRequestCopyFileFromFtpServer[T]) GetData() T {
+func (obj *ResultRequestCopyFileFromFtpServer) GetData() []commoninterfaces.FileInformationTransfer {
 	return obj.Data
 }
 
 // SetData устанавливает данные
-func (obj *ResultRequestCopyFileFromFtpServer[T]) SetData(v T) {
+func (obj *ResultRequestCopyFileFromFtpServer) SetData(v []commoninterfaces.FileInformationTransfer) {
 	obj.Data = v
 }
 

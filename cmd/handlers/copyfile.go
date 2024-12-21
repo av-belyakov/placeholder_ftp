@@ -13,11 +13,11 @@ import (
 )
 
 // /HandlerCopyFile обработчик копирования файлов
-func (opts FtpHandlerOptions[T]) HandlerCopyFile(
+func (opts FtpHandlerOptions) HandlerCopyFile(
 	ctx context.Context,
-	req ci.ChannelRequester[T]) {
+	req ci.ChannelRequester) {
 
-	result := NewResultRequestCopyFileFromFtpServer[T]()
+	result := NewResultRequestCopyFileFromFtpServer()
 	result.SetRequestId(req.GetRequestId())
 
 	// исходный ftp сервер
@@ -56,7 +56,7 @@ func (opts FtpHandlerOptions[T]) HandlerCopyFile(
 		return
 	}
 
-	listProcessedFile := []T{}
+	listProcessedFile := []*ProcessedFiles{}
 	for _, fileName := range request.Parameters.Files {
 		pf := NewProcessedFiles()
 		pf.SetFileName(fileName)

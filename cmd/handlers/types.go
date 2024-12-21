@@ -10,11 +10,11 @@ type RequestCopyFileFromFtpServer struct {
 	Parameters ParameterCopyFileFromFtpServer `json:"parameters"` //дополнительные параметры
 }
 
-type ResultRequestCopyFileFromFtpServer[T any] struct {
-	Data       T      `json:"data"`        //содержит данные
-	Error      error  `json:"error"`       //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
-	TaskId     string `json:"task_id"`     //идентификатор задачи
-	StatusCode int    `json:"status_code"` //код статуса выполнения задачи
+type ResultRequestCopyFileFromFtpServer struct {
+	Data       []commoninterfaces.FileInformationTransfer `json:"data"`        //содержит данные
+	Error      error                                      `json:"error"`       //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
+	TaskId     string                                     `json:"task_id"`     //идентификатор задачи
+	StatusCode int                                        `json:"status_code"` //код статуса выполнения задачи
 }
 
 type ProcessedFiles struct {
@@ -31,7 +31,7 @@ type ParameterCopyFileFromFtpServer struct {
 	Files        []string `json:"files"`
 }
 
-type FtpHandlerOptions[T any] struct {
+type FtpHandlerOptions struct {
 	TmpDir       string
 	ConfLocalFtp commoninterfaces.SimpleNetworkConsumer
 	ConfMainFtp  commoninterfaces.SimpleNetworkConsumer

@@ -6,10 +6,10 @@ import (
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 )
 
-func router[T any](
+func router(
 	ctx context.Context,
-	handlers map[string]func(commoninterfaces.ChannelRequester[T]),
-	chNatsIn <-chan commoninterfaces.ChannelRequester[T]) {
+	handlers map[string]func(commoninterfaces.ChannelRequester),
+	chNatsIn <-chan commoninterfaces.ChannelRequester) {
 
 	for {
 		select {

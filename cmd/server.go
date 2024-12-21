@@ -8,7 +8,7 @@ import (
 
 	"github.com/av-belyakov/simplelogger"
 
-	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+	ci "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 	"github.com/av-belyakov/placeholder_ftp/cmd/handlers"
 	"github.com/av-belyakov/placeholder_ftp/cmd/messagebrokers/natsapi"
 	"github.com/av-belyakov/placeholder_ftp/internal/appname"
@@ -42,7 +42,7 @@ func server(ctx context.Context) {
 	//*****************************************************************
 	//********** инициализация модуля взаимодействия с Zabbix **********
 	zabbixConf := confApp.GetZabbixAPI()
-	channelZabbix := make(chan commoninterfaces.Messager)
+	channelZabbix := make(chan ci.Messager)
 	wzis := wrappers.WrappersZabbixInteractionSettings{
 		NetworkPort: zabbixConf.NetworkPort,
 		NetworkHost: zabbixConf.NetworkHost,
@@ -75,12 +75,12 @@ func server(ctx context.Context) {
 	//***************************************************
 	//********** инициализация NATS API модуля **********
 	confNatsSAPI := confApp.GetConfigNATS()
-	natsOptsAPI := []natsapi.NatsApiOptions[[]commoninterfaces.FileInformationTransfer]{
-		natsapi.WithHost[[]commoninterfaces.FileInformationTransfer](confNatsSAPI.Host),
-		natsapi.WithPort[[]commoninterfaces.FileInformationTransfer](confNatsSAPI.Port),
-		natsapi.WithCacheTTL[[]commoninterfaces.FileInformationTransfer](confNatsSAPI.CacheTTL),
-		natsapi.WithSubListenerCommand[[]commoninterfaces.FileInformationTransfer](confNatsSAPI.Subscriptions.ListenerCommand)}
-	apiNats, err := natsapi.New[[]commoninterfaces.FileInformationTransfer](logging, natsOptsAPI...)
+	natsOptsAPI := []natsapi.NatsApiOptions{
+		natsapi.WithHost(confNatsSAPI.Host),
+		natsapi.WithPort(confNatsSAPI.Port),
+		natsapi.WithCacheTTL(confNatsSAPI.CacheTTL),
+		natsapi.WithSubListenerCommand(confNatsSAPI.Subscriptions.ListenerCommand)}
+	apiNats, err := natsapi.New(logging, natsOptsAPI...)
 	if err != nil {
 		_, f, l, _ := runtime.Caller(0)
 		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-3), "error")
@@ -133,11 +133,11 @@ func server(ctx context.Context) {
 		ConfMainFtp:  &confMainFtp,
 		Logger:       logging,
 	}
-	handlers := map[string]func(commoninterfaces.ChannelRequester[[]commoninterfaces.FileInformationTransfer]){
-		"copy_file": func(req commoninterfaces.ChannelRequester[[]commoninterfaces.FileInformationTransfer]) {
+	handlerList := map[string]func(ci.ChannelRequester){
+		"copy_file": func(req ci.ChannelRequester) {
 			ftpho.HandlerCopyFile(ctx, req)
 		},
-		"convert_and_copy_file": func(req commoninterfaces.ChannelRequester[[]commoninterfaces.FileInformationTransfer]) {
+		"convert_and_copy_file": func(req ci.ChannelRequester) {
 			ftpho.HandlerConvertAndCopyFile(ctx, req)
 		},
 	}
@@ -153,5 +153,5 @@ func server(ctx context.Context) {
 	log.Printf("%v%v%v%s%v\n", Ansi_DarkRedbackground, Bold_Font, Ansi_White, msg, Ansi_Reset)
 	logging.Send("info", msg)
 
-	router[[]commoninterfaces.FileInformationTransfer](ctx, handlers, chNatsReqApi)
+	router(ctx, handlerList, chNatsReqApi)
 }

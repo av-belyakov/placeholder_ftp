@@ -7,13 +7,11 @@ import (
 )
 
 // apiNatsSettings настройки для API NATS
-type apiNatsModule[T any] struct {
-	subscriptions subscription
-	logger        commoninterfaces.Logger
-	//передача запросов из NATS
-	sendingChannel chan commoninterfaces.ChannelRequester[T]
-	//соединение с NATS
-	natsConnection *nats.Conn
+type apiNatsModule struct {
+	natsConnection *nats.Conn                             //соединение с NATS
+	logger         commoninterfaces.Logger                // интерфейс логирования
+	sendingChannel chan commoninterfaces.ChannelRequester //канал для передачи запросов из NATS
+	subscriptions  subscription
 	host           string
 	port           int
 	cachettl       int
@@ -26,7 +24,7 @@ type subscription struct {
 }
 
 // NatsApiOptions функциональные опции
-type NatsApiOptions[T any] func(*apiNatsModule[T]) error
+type NatsApiOptions func(*apiNatsModule) error
 
 // ModuleNATS инициализированный модуль
 type ModuleNATS struct {
