@@ -133,7 +133,7 @@ func server(ctx context.Context) {
 		ConfMainFtp:  &confMainFtp,
 		Logger:       logging,
 	}
-	handlers := map[string]func(commoninterfaces.ChannelRequester[[]commoninterfaces.FileInformationTransfer]){
+	handlerList := map[string]func(commoninterfaces.ChannelRequester[[]commoninterfaces.FileInformationTransfer]){
 		"copy_file": func(req commoninterfaces.ChannelRequester[[]commoninterfaces.FileInformationTransfer]) {
 			ftpho.HandlerCopyFile(ctx, req)
 		},
@@ -153,5 +153,5 @@ func server(ctx context.Context) {
 	log.Printf("%v%v%v%s%v\n", Ansi_DarkRedbackground, Bold_Font, Ansi_White, msg, Ansi_Reset)
 	logging.Send("info", msg)
 
-	router[[]commoninterfaces.FileInformationTransfer](ctx, handlers, chNatsReqApi)
+	router[[]commoninterfaces.FileInformationTransfer](ctx, handlerList, chNatsReqApi)
 }
