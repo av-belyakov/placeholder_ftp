@@ -2,19 +2,19 @@ package commoninterfaces
 
 //************ каналы *************
 
-type ChannelResponser[T any] interface {
+type ChannelResponser interface {
 	RequestIdHandler
 	GetStatusCode() int
 	SetStatusCode(int)
 	GetError() error
 	SetError(error)
-	GetData() T
-	SetData(T)
+	GetData() []FileInformationTransfer
+	SetData([]FileInformationTransfer)
 	//GetData() []T
 	//SetData([]T)
 }
 
-type ChannelRequester[T any] interface {
+type ChannelRequester interface {
 	RequestIdHandler
 	GetCommand() string
 	SetCommand(v string)
@@ -22,18 +22,18 @@ type ChannelRequester[T any] interface {
 	SetOrder(v string)
 	GetData() []byte
 	SetData([]byte)
-	GetChanOutput() chan ChannelResponser[T]
-	SetChanOutput(chan ChannelResponser[T])
+	GetChanOutput() chan ChannelResponser
+	SetChanOutput(chan ChannelResponser)
 }
 
 type FileInformationTransfer interface {
 	ErrorHandler
 	GetFileName() string
 	SetFileName(v string)
-	GetSizeBeforProcessing(int)
-	SetSizeBeforProcessing() int
-	GetSizeAfterProcessing(int)
-	SetSizeAfterProcessing() int
+	GetSizeBeforProcessing() int
+	SetSizeBeforProcessing(int)
+	GetSizeAfterProcessing() int
+	SetSizeAfterProcessing(int)
 }
 
 type RequestIdHandler interface {

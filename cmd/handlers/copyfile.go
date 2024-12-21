@@ -8,16 +8,17 @@ import (
 	"path"
 	"runtime"
 
+	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 	ci "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 	"github.com/av-belyakov/placeholder_ftp/internal/wrappers"
 )
 
 // /HandlerCopyFile обработчик копирования файлов
-func (opts FtpHandlerOptions[T]) HandlerCopyFile(
+func (opts FtpHandlerOptions) HandlerCopyFile(
 	ctx context.Context,
-	req ci.ChannelRequester[T]) {
+	req ci.ChannelRequester) {
 
-	result := NewResultRequestCopyFileFromFtpServer[T]()
+	result := NewResultRequestCopyFileFromFtpServer()
 	result.SetRequestId(req.GetRequestId())
 
 	// исходный ftp сервер
@@ -56,7 +57,7 @@ func (opts FtpHandlerOptions[T]) HandlerCopyFile(
 		return
 	}
 
-	listProcessedFile := []T{}
+	listProcessedFile := []commoninterfaces.FileInformationTransfer{}
 	for _, fileName := range request.Parameters.Files {
 		pf := NewProcessedFiles()
 		pf.SetFileName(fileName)
@@ -123,24 +124,4 @@ func (opts FtpHandlerOptions[T]) HandlerCopyFile(
 
 	ch := req.GetChanOutput()
 	ch <- result
-	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	//**********
-	//сюда нужно отправить результат работы по взаимодействию с ftp
-	// затем он попадет в NATS канал req.SetChanOutput()
-	//task_id: "" //идентификатор задачи
-	//error: "" //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
-	//processed_command: "" //обработанная команда
-	//processed_files: [
-	//	{
-	//	  file_name: "" //имя файла
-	//	  error: "" //ошибка возникшая при обработки файла
-	//	  size_befor_processing: int //размер файла до обработки
-	//	  size_after_processing: int //размер файла после обработки
-	//	}
-	//  ]
-
-	//req.GetCommand()
-	//req.GetRequestId()
-
-	//req.SetChanOutput()
 }
