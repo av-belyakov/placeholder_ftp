@@ -30,10 +30,10 @@ type FileInformationTransfer interface {
 	ErrorHandler
 	GetFileName() string
 	SetFileName(v string)
-	GetSizeBeforProcessing(int)
-	SetSizeBeforProcessing() int
-	GetSizeAfterProcessing(int)
-	SetSizeAfterProcessing() int
+	GetSizeBeforProcessing() int
+	SetSizeBeforProcessing(int)
+	GetSizeAfterProcessing() int
+	SetSizeAfterProcessing(int)
 }
 
 type RequestIdHandler interface {

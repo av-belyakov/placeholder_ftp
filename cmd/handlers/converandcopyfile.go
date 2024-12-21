@@ -20,5 +20,5 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(
 	//сюда нужно отправить результат работы по взаимодействию с ftp
 	// затем он попадет в NATS канал req.SetChanOutput()
 
-	req.SetChanOutput()
+	//req.SetChanOutput()
 }

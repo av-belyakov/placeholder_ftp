@@ -47,7 +47,7 @@ func (obj *ResultRequestCopyFileFromFtpServer) SetData(v []commoninterfaces.File
 	obj.Data = v
 }
 
-// ******* *******
+// ******* ProcessedFiles *******
 func NewProcessedFiles() *ProcessedFiles {
 	return &ProcessedFiles{}
 }

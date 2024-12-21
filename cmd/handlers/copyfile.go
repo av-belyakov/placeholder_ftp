@@ -8,6 +8,7 @@ import (
 	"path"
 	"runtime"
 
+	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 	ci "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 	"github.com/av-belyakov/placeholder_ftp/internal/wrappers"
 )
@@ -56,7 +57,7 @@ func (opts FtpHandlerOptions) HandlerCopyFile(
 		return
 	}
 
-	listProcessedFile := []*ProcessedFiles{}
+	listProcessedFile := []commoninterfaces.FileInformationTransfer{}
 	for _, fileName := range request.Parameters.Files {
 		pf := NewProcessedFiles()
 		pf.SetFileName(fileName)
