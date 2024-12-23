@@ -75,18 +75,16 @@ GO_PHFTP_MAINFTP_PASSWD
 
 ```
 {
-    task_id: "" //идентификатор задачи
-    error: "" //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
-    processed_command: "" //обработанная команда
-    parameters: {
-      processed_files: [
-        {
-          file_name: "" //имя файла
-          error: "" //ошибка возникшая при обработки файла
-          size_befor_processing: int //размер файла до обработки
-          size_after_processing: int //размер файла после обработки
-        }
-      ]
+  request_id:"", //идентификатор задачи
+  error: "", //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
+  status_code: "", //код статуса выполнения задачи
+  processed_files: [
+    {
+      file_name: "" //имя файла
+      error: "" //ошибка возникшая при обработки файла
+      size_befor_processing: int //размер файла до обработки
+      size_after_processing: int //размер файла после обработки
     }
+  ]
 }
 ```

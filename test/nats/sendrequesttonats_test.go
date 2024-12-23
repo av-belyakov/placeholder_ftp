@@ -1,4 +1,4 @@
-package test
+package nats_test
 
 import (
 	"context"
@@ -9,12 +9,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
-	"github.com/av-belyakov/placeholder_ftp/cmd/messagebrokers/natsapi"
-	"github.com/av-belyakov/placeholder_ftp/internal/logginghandler"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+	"github.com/av-belyakov/placeholder_ftp/cmd/messagebrokers/natsapi"
+	"github.com/av-belyakov/placeholder_ftp/internal/logginghandler"
 )
 
 const (
@@ -112,7 +113,6 @@ func TestSendMsgToNats(t *testing.T) {
 				"files": ["book.pdf"]
 			}
 		}`, uuid.New().String())))
-
 		assert.NoError(t, err)
 	})
 
@@ -123,7 +123,7 @@ func TestSendMsgToNats(t *testing.T) {
 		err := json.Unmarshal(msg.GetData(), &data)
 		assert.NoError(t, err)
 
-		fmt.Println("RECEIVED MESSAGE FROM NATS:", data)
+		fmt.Println("RECEIVED REQUEST MESSAGE FROM NATS:", data)
 
 		assert.True(t, true)
 	})

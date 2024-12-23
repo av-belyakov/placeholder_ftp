@@ -28,7 +28,6 @@ func (opts FtpHandlerOptions) HandlerCopyFile(
 		msgErr := fmt.Errorf("local FTP %s", err)
 		opts.Logger.Send("error", fmt.Sprintf("%v %s:%d", msgErr, f, l-2))
 
-		result.SetStatusCode(500)
 		result.SetError(msgErr)
 
 		return
@@ -40,7 +39,6 @@ func (opts FtpHandlerOptions) HandlerCopyFile(
 		msgErr := fmt.Errorf("main FTP %s", err)
 		opts.Logger.Send("error", fmt.Sprintf("%v %s:%d", msgErr, f, l-2))
 
-		result.SetStatusCode(500)
 		result.SetError(msgErr)
 
 		return
@@ -51,13 +49,12 @@ func (opts FtpHandlerOptions) HandlerCopyFile(
 		_, f, l, _ := runtime.Caller(0)
 		opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-2))
 
-		result.SetStatusCode(500)
 		result.SetError(err)
 
 		return
 	}
 
-	listProcessedFile := []commoninterfaces.FileInformationTransfer{}
+	listProcessedFile := []commoninterfaces.FileInformationTransfer(nil)
 	for _, fileName := range request.Parameters.Files {
 		pf := NewProcessedFiles()
 		pf.SetFileName(fileName)

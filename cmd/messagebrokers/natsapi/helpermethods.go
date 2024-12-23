@@ -8,37 +8,37 @@ import (
 //********************* Response ********************
 
 // NewChannelRespons конструктор ответа
-func NewChannelRespons() *ResponsToNats {
-	return &ResponsToNats{}
+func NewChannelResponse() *ResponseToNats {
+	return &ResponseToNats{}
 }
 
 // GetStatusCode метод возвращает статус кода ответа
-func (r *ResponsToNats) GetStatusCode() int {
+func (r *ResponseToNats) GetStatusCode() int {
 	return r.StatusCode
 }
 
 // SetStatusCode метод устанавливает статус кода ответа
-func (r *ResponsToNats) SetStatusCode(v int) {
+func (r *ResponseToNats) SetStatusCode(v int) {
 	r.StatusCode = v
 }
 
 // GetRequestId метод возвращает уникальный идентификатор запроса
-func (r *ResponsToNats) GetRequestId() string {
+func (r *ResponseToNats) GetRequestId() string {
 	return r.RequestId
 }
 
 // SetRequestId метод устанавливает уникальный идентификатор запроса
-func (r *ResponsToNats) SetRequestId(v string) {
+func (r *ResponseToNats) SetRequestId(v string) {
 	r.RequestId = v
 }
 
 // GetData метод возвращает данные
-func (r *ResponsToNats) GetData() []commoninterfaces.FileInformationTransfer {
+func (r *ResponseToNats) GetData() []commoninterfaces.FileInformationTransfer {
 	return r.Data
 }
 
 // SetData метод устанавливает определенные данные
-func (r *ResponsToNats) SetData(v []commoninterfaces.FileInformationTransfer) {
+func (r *ResponseToNats) SetData(v []commoninterfaces.FileInformationTransfer) {
 	r.Data = v
 }
 

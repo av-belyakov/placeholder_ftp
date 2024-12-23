@@ -11,7 +11,7 @@ type apiNatsModule struct {
 	natsConnection *nats.Conn                             //соединение с NATS
 	logger         commoninterfaces.Logger                // интерфейс логирования
 	sendingChannel chan commoninterfaces.ChannelRequester //канал для передачи запросов из NATS
-	subscriptions  subscription
+	subscriptions  subscription                           //настройки подписки
 	host           string
 	port           int
 	cachettl       int

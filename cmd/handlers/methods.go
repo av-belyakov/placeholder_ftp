@@ -1,10 +1,14 @@
 package handlers
 
-import "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+import (
+	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+)
 
 // ******* ResultRequestCopyFileFromFtpServer *******
+
+// NewResultRequestCopyFileFromFtpServer результат запроса на копирование файла с ftp сервера
 func NewResultRequestCopyFileFromFtpServer() *ResultRequestCopyFileFromFtpServer {
-	return &ResultRequestCopyFileFromFtpServer{StatusCode: 200}
+	return &ResultRequestCopyFileFromFtpServer{}
 }
 
 // GetRequestId возвращает идентификатор запроса
@@ -15,16 +19,6 @@ func (obj *ResultRequestCopyFileFromFtpServer) GetRequestId() string {
 // SetRequestId устанавливает идентификатор запроса
 func (obj *ResultRequestCopyFileFromFtpServer) SetRequestId(v string) {
 	obj.TaskId = v
-}
-
-// GetStatusCode возвращает код статуса выполненной задачи
-func (obj *ResultRequestCopyFileFromFtpServer) GetStatusCode() int {
-	return obj.StatusCode
-}
-
-// SetStatusCode устанавливает код статуса выполненной задачи
-func (obj *ResultRequestCopyFileFromFtpServer) SetStatusCode(v int) {
-	obj.StatusCode = v
 }
 
 // GetError возвращает глобальную ошибку которая может возникнут при выполнении задачи
@@ -48,6 +42,8 @@ func (obj *ResultRequestCopyFileFromFtpServer) SetData(v []commoninterfaces.File
 }
 
 // ******* ProcessedFiles *******
+
+// NewProcessedFiles описание обработанного файла
 func NewProcessedFiles() *ProcessedFiles {
 	return &ProcessedFiles{}
 }

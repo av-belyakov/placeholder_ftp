@@ -45,6 +45,11 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 		return api.sendingChannel, fmt.Errorf("'%w' %s:%d", err, f, l-4)
 	}
 
+	go func(ctx context.Context, nc *nats.Conn) {
+		<-ctx.Done()
+		nc.Close()
+	}(ctx, nc)
+
 	//обработка разрыва соединения с NATS
 	nc.SetDisconnectErrHandler(func(c *nats.Conn, err error) {
 		api.logger.Send("error", fmt.Sprintf("the connection with NATS has been disconnected (%s) %s:%d", err.Error(), f, l-4))
@@ -60,11 +65,6 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 	//обработчик подписки
 	go api.subscriptionHandler(ctx)
 
-	go func(ctx context.Context, nc *nats.Conn) {
-		<-ctx.Done()
-		nc.Close()
-	}(ctx, nc)
-
 	return api.sendingChannel, nil
 }
 
@@ -78,8 +78,6 @@ func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 
 			return
 		}
-
-		fmt.Println("func 'subscriptionHandler' incoming", rc)
 
 		go api.handlerIncomingCommands(ctx, rc, m)
 	})
@@ -113,60 +111,40 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 			return
 
 		case msg := <-chRes:
-			api.logger.Send("info", fmt.Sprintf("the command '%s' from service '%s' returned a status code '%d'", rc.Command, rc.Service, msg.GetStatusCode()))
-
-			//ответ от модулей ftp отвечающих за обработку файлов
-			fmt.Println("RequestId (task_id из json ответа): ", msg.GetRequestId())
-			fmt.Println("Error (глобальная ошибка если она есть):", msg.GetError())
-			fmt.Println("Status code:", msg.GetStatusCode())
-			fmt.Println("нужно processed_command, а может не надо это значение?")
-			fmt.Println("список результатов по обработке каждого файла", msg.GetData())
-
-			/*
-				Тут надо сформировать ответ на примерно с такой структурой
-
-				{
-				    task_id: "" //идентификатор задачи
-				    error: "" //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
-				    processed_command: "" //обработанная команда
-				    parameters: {
-				      processed_files: [
-				        {
-				          file_name: "" //имя файла
-				          error: "" //ошибка возникшая при обработки файла
-				          size_befor_processing: int //размер файла до обработки
-				          size_after_processing: int //размер файла после обработки
-				        }
-				      ]
-				    }
+			listProcessedFile := []ProcessedFile(nil)
+			for _, v := range msg.GetData() {
+				processedFile := ProcessedFile{
+					FileName:            v.GetFileName(),
+					SizeBeforProcessing: v.GetSizeBeforProcessing(),
+					SizeAfterProcessing: v.GetSizeAfterProcessing(),
 				}
-			*/
-			//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			//**********
-			//сюда нужно отправить результат работы по взаимодействию с ftp
-			// затем он попадет в NATS канал req.SetChanOutput()
-			//task_id: "" //идентификатор задачи
-			//error: "" //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
-			//processed_command: "" //обработанная команда
-			//processed_files: [
-			//	{
-			//	  file_name: "" //имя файла
-			//	  error: "" //ошибка возникшая при обработки файла
-			//	  size_befor_processing: int //размер файла до обработки
-			//	  size_after_processing: int //размер файла после обработки
-			//	}
-			//  ]
 
-			//req.GetCommand()
-			//req.GetRequestId()
+				if v.GetError() != nil {
+					processedFile.Error = v.GetError().Error()
+				}
 
-			//req.SetChanOutput()
-
-			res := []byte(fmt.Sprintf("{id: \"%s\", status_code: \"%d\", data: %v}", msg.GetRequestId(), msg.GetStatusCode(), msg.GetData()))
-			if err := api.natsConnection.Publish(m.Reply, res); err != nil {
-				_, f, l, _ := runtime.Caller(0)
-				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-2))
+				listProcessedFile = append(listProcessedFile, processedFile)
 			}
+
+			mainResponse := MainResponse{RequestId: msg.GetRequestId(), ListProcessedFile: listProcessedFile}
+			if msg.GetError() != nil {
+				mainResponse.Error = msg.GetError().Error()
+			}
+
+			res, err := json.Marshal(mainResponse)
+			if err != nil {
+				_, f, l, _ := runtime.Caller(0)
+				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+
+				return
+			}
+
+			if err := m.Respond(res); err != nil {
+				_, f, l, _ := runtime.Caller(0)
+				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+			}
+
+			api.logger.Send("info", fmt.Sprintf("task id '%s' the command '%s' from service '%s' returned %+v", msg.GetRequestId(), rc.Command, rc.Service, listProcessedFile))
 
 			return
 		}

@@ -113,10 +113,12 @@ func TestRequestFTPServer(t *testing.T) {
 	t.Run("Test 2. Скачивание файла с ftp", func(t *testing.T) {
 		num, err := srcFtp.ReadFile(context.Background(), wrappers.WrapperReadWriteFileOptions{
 			SrcFilePath: "/ftp/someuser/folder_one",
-			SrcFileName: "book.pdf",
+			SrcFileName: "book.pdf1",
 			DstFilePath: "../../tmp_files/",
 			DstFileName: "book.pdf",
 		})
+
+		fmt.Println("ERROR:", err)
 
 		assert.NoError(t, err)
 		assert.Greater(t, num, 1)

@@ -6,6 +6,7 @@ require (
 	github.com/av-belyakov/simplelogger v0.0.0-20241025122435-67bb4d6f6ae4
 	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20241119103208-79c3b0ff4c2b
 	github.com/go-playground/validator/v10 v10.23.0
+	github.com/google/gopacket v1.1.19
 	github.com/google/uuid v1.4.0
 	github.com/jlaffaye/ftp v0.2.0
 	github.com/joho/godotenv v1.5.1
@@ -20,7 +21,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/google/gopacket v1.1.19 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

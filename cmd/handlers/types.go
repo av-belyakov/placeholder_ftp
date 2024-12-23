@@ -11,10 +11,9 @@ type RequestCopyFileFromFtpServer struct {
 }
 
 type ResultRequestCopyFileFromFtpServer struct {
-	Data       []commoninterfaces.FileInformationTransfer `json:"data"`        //содержит данные
-	Error      error                                      `json:"error"`       //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
-	TaskId     string                                     `json:"task_id"`     //идентификатор задачи
-	StatusCode int                                        `json:"status_code"` //код статуса выполнения задачи
+	Data   []commoninterfaces.FileInformationTransfer `json:"data"`    //содержит данные
+	Error  error                                      `json:"error"`   //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
+	TaskId string                                     `json:"task_id"` //идентификатор задачи
 }
 
 type ProcessedFiles struct {
