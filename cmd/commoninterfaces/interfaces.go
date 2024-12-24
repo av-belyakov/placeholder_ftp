@@ -24,8 +24,10 @@ type ChannelRequester interface {
 
 type FileInformationTransfer interface {
 	ErrorHandler
-	GetFileName() string
-	SetFileName(v string)
+	GetFileNameNew() string
+	SetFileNameNew(v string)
+	GetFileNameOld() string
+	SetFileNameOld(v string)
 	GetSizeBeforProcessing() int
 	SetSizeBeforProcessing(int)
 	GetSizeAfterProcessing() int

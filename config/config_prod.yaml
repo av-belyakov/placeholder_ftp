@@ -9,10 +9,10 @@ NATS:
   subscriptions:
     listener_command: "phftp.commands"
 LOCALFTP:
-  host: "127.0.0.1"
+  host: "ftp-users.cloud.gcm"
   port: 21
-  username: "userlocalftp"
+  username: "ftp-user"
 MAINFTP:
-  host: "127.0.0.1"
+  host: "ftp-users.cloud.gcm"
   port: 21
-  username: "usermainftp"
+  username: "ftp-user"

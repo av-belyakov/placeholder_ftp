@@ -114,7 +114,8 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 			listProcessedFile := []ProcessedFile(nil)
 			for _, v := range msg.GetData() {
 				processedFile := ProcessedFile{
-					FileName:            v.GetFileName(),
+					FileNameOld:         v.GetFileNameOld(),
+					FileNameNew:         v.GetFileNameNew(),
 					SizeBeforProcessing: v.GetSizeBeforProcessing(),
 					SizeAfterProcessing: v.GetSizeAfterProcessing(),
 				}

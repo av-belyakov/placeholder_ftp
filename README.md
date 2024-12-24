@@ -80,7 +80,8 @@ GO_PHFTP_MAINFTP_PASSWD
   status_code: "", //код статуса выполнения задачи
   processed_files: [
     {
-      file_name: "" //имя файла
+      file_name_old: "" //старое имя файла
+      file_name_new: "" //новое имя файла (которое формируется на основе старого, после обработки файла декодером)
       error: "" //ошибка возникшая при обработки файла
       size_befor_processing: int //размер файла до обработки
       size_after_processing: int //размер файла после обработки

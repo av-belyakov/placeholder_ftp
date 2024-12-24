@@ -17,10 +17,11 @@ type ResultRequestCopyFileFromFtpServer struct {
 }
 
 type ProcessedFiles struct {
-	Error               error  `json:"error"`                 //ошибка возникшая при обработки файла
-	FileName            string `json:"file_name"`             //имя файла
-	SizeBeforProcessing int    `json:"size_befor_processing"` //размер файла до обработки
-	SizeAfterProcessing int    `json:"size_after_processing"` //размер файла после обработки
+	err                 error  `json:"error"`                 //ошибка возникшая при обработки файла
+	fileNameOld         string `json:"file_name_old"`         //старое имя файла
+	fileNameNew         string `json:"file_name_new"`         //новое имя файла (которое формируется на основе старого, после обработки файла декодером)
+	sizeBeforProcessing int    `json:"size_befor_processing"` //размер файла до обработки
+	sizeAfterProcessing int    `json:"size_after_processing"` //размер файла после обработки
 }
 
 // ParameterCopyFileFromFtpServer подробные параметры

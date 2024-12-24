@@ -1,32 +1,42 @@
 package pcaphandler_test
 
 import (
+	"fmt"
 	"os"
+	"path"
 	"testing"
 
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/pcap"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/av-belyakov/placeholder_ftp/internal/logginghandler"
+	"github.com/av-belyakov/placeholder_ftp/internal/supportingfunctions"
 )
 
 func TestConvertPcapToText(t *testing.T) {
-	handle, err := pcap.OpenOffline("../test_files/test_pcap_file.pcap")
+	var (
+		filePath      string = "../test_files/"
+		readFileName  string = "test_pcap_file.pcap"
+		writeFileName string = "test_pcap_file.pcap.txt"
+	)
+
+	logging := logginghandler.New()
+	go func() {
+		for msgErr := range logging.GetChan() {
+			fmt.Println("ERROR:", msgErr)
+		}
+	}()
+
+	// для файла по которому выполняется декодирование пакетов
+	readFile, err := os.Open(path.Join(filePath, readFileName))
 	assert.NoError(t, err)
 
-	f, err := os.OpenFile("../test_files/test_pcap_file.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	// для файла в который выполняется запись информации полученной в результате декодирования
+	writeFile, err := os.OpenFile(path.Join(filePath, writeFileName), os.O_RDWR|os.O_CREATE, 0666)
 	assert.NoError(t, err)
 
-	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-	packets := packetSource.Packets()
+	err = supportingfunctions.NetworkTrafficDecoder(readFileName, readFile, writeFile, logging)
+	assert.NoError(t, err)
 
-	for packet := range packets {
-		_, err := f.WriteString(packet.String())
-		assert.NoError(t, err)
-
-		appLayer := packet.ApplicationLayer()
-
-	}
-
-	f.Close()
-	handle.Close()
+	readFile.Close()
+	writeFile.Close()
 }

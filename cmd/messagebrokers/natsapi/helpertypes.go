@@ -41,7 +41,8 @@ type MainResponse struct {
 
 // ProcessedFile подробное описание результата по обработке файла
 type ProcessedFile struct {
-	FileName            string `json:"file_name"`
+	FileNameOld         string `json:"file_name_old"`
+	FileNameNew         string `json:"file_name_new"`
 	Error               string `json:"error"`
 	SizeBeforProcessing int    `json:"size_befor_processing"`
 	SizeAfterProcessing int    `json:"size_after_processing"`

@@ -41,11 +41,11 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 		[]byte(fmt.Sprintf(`{
 	"task_id": "%s",
 	"service": "test_service",
-	"command": "copy_file",
+	"command": "convert_and_copy_file",
 	"parameters": {
 		"path_local_ftp": "/ftp/someuser/folder_one",
 		"path_main_ftp": "/ftp/someuser/folder_two",
-		"files": ["book.pdf"]
+		"files": ["test_pcap_file.pcap", "test_pcap_file_http.pcap"]
 	}
 }`, uuid.New().String())))
 	assert.NoError(t, err)

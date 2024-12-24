@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 
 	"github.com/av-belyakov/simplelogger"
@@ -149,7 +150,13 @@ func server(ctx context.Context) {
 		log.Fatalf("error create tmp directory '%s'\n", err.Error())
 	}
 
-	msg := fmt.Sprintf("Application '%s' v%s was successfully launched", appname.GetAppName(), appversion.GetAppVersion())
+	appStatus := "production"
+	envValue, ok := os.LookupEnv("GO_PHFTP_MAIN")
+	if ok && envValue == "development" {
+		appStatus = envValue
+	}
+
+	msg := fmt.Sprintf("Application '%s' v%s was successfully launched. Application status is '%s'.", appname.GetAppName(), appversion.GetAppVersion(), appStatus)
 	log.Printf("%v%v%v%s%v\n", Ansi_DarkRedbackground, Bold_Font, Ansi_White, msg, Ansi_Reset)
 	logging.Send("info", msg)
 

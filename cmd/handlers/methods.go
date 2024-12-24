@@ -50,40 +50,50 @@ func NewProcessedFiles() *ProcessedFiles {
 
 // GetError возвращает ошибку возникшую при обработки файла
 func (obj *ProcessedFiles) GetError() error {
-	return obj.Error
+	return obj.err
 }
 
 // SetError устанавливает ошибку возникшую при обработки файла
 func (obj *ProcessedFiles) SetError(v error) {
-	obj.Error = v
+	obj.err = v
 }
 
-// GetFileName возвращает имя файла
-func (obj *ProcessedFiles) GetFileName() string {
-	return obj.FileName
+// GetFileNameOld возвращает старое имя файла
+func (obj *ProcessedFiles) GetFileNameOld() string {
+	return obj.fileNameOld
 }
 
-// SetFileName устанавливает имя файла
-func (obj *ProcessedFiles) SetFileName(v string) {
-	obj.FileName = v
+// SetFileNameOld устанавливает старое имя файла
+func (obj *ProcessedFiles) SetFileNameOld(v string) {
+	obj.fileNameOld = v
+}
+
+// GetFileNameNew возвращает новое имя файла
+func (obj *ProcessedFiles) GetFileNameNew() string {
+	return obj.fileNameNew
+}
+
+// SetFileNameNew устанавливает новое имя файла
+func (obj *ProcessedFiles) SetFileNameNew(v string) {
+	obj.fileNameNew = v
 }
 
 // GetSizeBeforProcessing возвращает размер файла перед обработкой
 func (obj *ProcessedFiles) GetSizeBeforProcessing() int {
-	return obj.SizeBeforProcessing
+	return obj.sizeBeforProcessing
 }
 
 // SetSizeBeforProcessing устанавливает размер файла перед обработкой
 func (obj *ProcessedFiles) SetSizeBeforProcessing(v int) {
-	obj.SizeBeforProcessing = v
+	obj.sizeBeforProcessing = v
 }
 
 // GetSizeAfterProcessing возвращает размер файла после обработки
 func (obj *ProcessedFiles) GetSizeAfterProcessing() int {
-	return obj.SizeAfterProcessing
+	return obj.sizeAfterProcessing
 }
 
 // SetSizeAfterProcessing устанавливает размер файла после обработки
 func (obj *ProcessedFiles) SetSizeAfterProcessing(v int) {
-	obj.SizeAfterProcessing = v
+	obj.sizeAfterProcessing = v
 }

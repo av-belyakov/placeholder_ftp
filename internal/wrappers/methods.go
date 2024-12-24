@@ -1,10 +1,10 @@
 package wrappers
 
 import (
-	"bufio"
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"time"
@@ -82,7 +82,7 @@ func (client *WrapperSimplyNetworkClient) ReadFile(ctx context.Context, opts Wra
 		}
 	}(r, err)
 
-	f, err := os.OpenFile(path.Join(opts.DstFilePath, opts.DstFileName), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(path.Join(opts.DstFilePath, opts.DstFileName), os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		return size, err
 	}
@@ -92,7 +92,20 @@ func (client *WrapperSimplyNetworkClient) ReadFile(ctx context.Context, opts Wra
 		}
 	}(f, err)
 
-	scanner := bufio.NewScanner(r)
+	b, err := io.ReadAll(r)
+
+	//fmt.Println("___ func 'ReadFile', ReadAll size:", len(b))
+
+	num, err := f.Write(b)
+	if err != nil {
+		return size, err
+	}
+
+	//fmt.Println("___ func 'ReadFile', f.Write size:", num)
+
+	size += num
+
+	/*scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		b := scanner.Bytes()
 		num, err := f.Write(b)
@@ -101,7 +114,7 @@ func (client *WrapperSimplyNetworkClient) ReadFile(ctx context.Context, opts Wra
 		}
 
 		size += num
-	}
+	}*/
 
 	return size, nil
 }

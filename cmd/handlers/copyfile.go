@@ -14,10 +14,7 @@ import (
 )
 
 // /HandlerCopyFile обработчик копирования файлов
-func (opts FtpHandlerOptions) HandlerCopyFile(
-	ctx context.Context,
-	req ci.ChannelRequester) {
-
+func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req ci.ChannelRequester) {
 	result := NewResultRequestCopyFileFromFtpServer()
 	result.SetRequestId(req.GetRequestId())
 
@@ -57,8 +54,10 @@ func (opts FtpHandlerOptions) HandlerCopyFile(
 	listProcessedFile := []commoninterfaces.FileInformationTransfer(nil)
 	for _, fileName := range request.Parameters.Files {
 		pf := NewProcessedFiles()
-		pf.SetFileName(fileName)
+		pf.SetFileNameOld(fileName)
+		pf.SetFileNameNew(fileName)
 
+		//чтение файла с ftp сервера источника
 		_, f, l, _ := runtime.Caller(0)
 		countByteRead, err := localFtp.ReadFile(
 			ctx,
@@ -70,7 +69,7 @@ func (opts FtpHandlerOptions) HandlerCopyFile(
 			})
 		if err != nil {
 			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l+1))
-			pf.Error = err
+			pf.SetError(err)
 			listProcessedFile = append(listProcessedFile, pf)
 
 			continue
@@ -82,6 +81,7 @@ func (opts FtpHandlerOptions) HandlerCopyFile(
 		opts.Logger.Send("info", fmt.Sprintf("%d byte file '%s' has been successfully created", countByteRead, fileName))
 		//********************************
 
+		//запись загрузка файла на ftp сервер назначения
 		_, f, l, _ = runtime.Caller(0)
 		err = mainFtp.WriteFile(
 			ctx,
@@ -93,7 +93,7 @@ func (opts FtpHandlerOptions) HandlerCopyFile(
 			})
 		if err != nil {
 			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l+1))
-			pf.Error = err
+			pf.SetError(err)
 			listProcessedFile = append(listProcessedFile, pf)
 
 			continue
@@ -105,20 +105,20 @@ func (opts FtpHandlerOptions) HandlerCopyFile(
 		opts.Logger.Send("info", fmt.Sprintf("file '%s' has been successfully copied to FTP", fileName))
 		//********************************
 
+		//удаление файла из временной директории на локальном диске
 		_, f, l, _ = runtime.Caller(0)
 		if err = os.Remove(path.Join(opts.TmpDir, fileName)); err != nil {
 			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l+1))
-			pf.Error = err
+			pf.SetError(err)
 		}
 
-		pf.SizeBeforProcessing = countByteRead
-		pf.SizeAfterProcessing = countByteRead
+		pf.SetSizeBeforProcessing(countByteRead)
+		pf.SetSizeAfterProcessing(countByteRead)
 
 		listProcessedFile = append(listProcessedFile, pf)
 	}
 
 	result.SetData(listProcessedFile)
 
-	ch := req.GetChanOutput()
-	ch <- result
+	req.GetChanOutput() <- result
 }

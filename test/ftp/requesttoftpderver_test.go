@@ -28,27 +28,34 @@ type ConfFtp struct {
 	port     int
 }
 
-func NewConfFtp(username, host string, port int) (*ConfFtp, error) {
+func NewConfFtp(host string, port int, isLocalFtp bool) (*ConfFtp, error) {
 	conf := &ConfFtp{}
 
 	if err := godotenv.Load(".env"); err != nil {
 		return conf, err
 	}
 
-	if username == "" || host == "" || port == 0 {
-		return conf, errors.New("invalide parameter 'username', 'host' or 'port'")
+	username := os.Getenv("GO_PHFTP_MAINFTP_USERNAME")
+	passwd := os.Getenv("GO_PHFTP_MAINFTP_PASSWD")
+
+	if isLocalFtp {
+		username = os.Getenv("GO_PHFTP_LOCALFTP_USERNAME")
+		passwd = os.Getenv("GO_PHFTP_LOCALFTP_PASSWD")
+	}
+
+	if host == "" || port == 0 {
+		return conf, errors.New("invalide parameter 'host' or 'port'")
 	}
 
 	conf.host = host
-	conf.username = username
 	conf.port = port
 
-	passwd := os.Getenv("GO_PHFTP_LOCALFTP_PASSWD")
-	if passwd == "" {
-		return conf, errors.New("'passwd' it should not be empty")
+	if username == "" || passwd == "" {
+		return conf, errors.New("'username' or 'passwd' it should not be empty")
 	}
 
 	conf.password = passwd
+	conf.username = username
 
 	return conf, nil
 }
@@ -86,17 +93,22 @@ func (conf *ConfFtp) SetUsername(v string) {
 }
 
 func TestMain(m *testing.M) {
-	conf, err := NewConfFtp("someuser", "127.0.0.1", 21)
+	confLocalFtp, err := NewConfFtp("127.0.0.1", 21, true)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	srcFtp, err = wrappers.NewWrapperSimpleNetworkClient(conf)
+	confMainFtp, err := NewConfFtp("ftp-users.cloud.gcm", 21, false)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	srcFtp, err = wrappers.NewWrapperSimpleNetworkClient(confLocalFtp)
 	if err != nil {
 		log.Fatalln("src ftp error:", err)
 	}
 
-	dstFtp, err = wrappers.NewWrapperSimpleNetworkClient(conf)
+	dstFtp, err = wrappers.NewWrapperSimpleNetworkClient(confMainFtp)
 	if err != nil {
 		log.Fatalln("dst ftp error:", err)
 	}
@@ -113,34 +125,34 @@ func TestRequestFTPServer(t *testing.T) {
 	t.Run("Test 2. Скачивание файла с ftp", func(t *testing.T) {
 		num, err := srcFtp.ReadFile(context.Background(), wrappers.WrapperReadWriteFileOptions{
 			SrcFilePath: "/ftp/someuser/folder_one",
-			SrcFileName: "book.pdf1",
+			SrcFileName: "test_pcap_file.pcap",
 			DstFilePath: "../../tmp_files/",
-			DstFileName: "book.pdf",
+			DstFileName: "test_pcap_file.pcap",
 		})
 
-		fmt.Println("ERROR:", err)
+		fmt.Println("111 ERROR:", err)
 
 		assert.NoError(t, err)
 		assert.Greater(t, num, 1)
 	})
 
 	t.Run("Test 3. Загрузка файла на ftp", func(t *testing.T) {
-		_, err := os.Stat(path.Join("../../tmp_files/", "book.pdf"))
+		_, err := os.Stat(path.Join("../../tmp_files/", "test_pcap_file.pcap"))
 		assert.False(t, errors.Is(err, os.ErrNotExist))
 
 		err = dstFtp.WriteFile(context.Background(), wrappers.WrapperReadWriteFileOptions{
 			SrcFilePath: "../../tmp_files/",
-			SrcFileName: "book.pdf",
-			DstFilePath: "/ftp/someuser/folder_two",
-			DstFileName: "book_new.pdf",
+			SrcFileName: "test_pcap_file.pcap",
+			DstFilePath: "/net_traff_txt",
+			DstFileName: "_test_pcap_file.pcap",
 		})
 
-		fmt.Println("ERROR:", err)
+		fmt.Println("222 ERROR:", err)
 
 		assert.NoError(t, err)
 
 		//удаление файла из временной директории
-		err = os.Remove(path.Join("../../tmp_files/", "book.pdf"))
-		assert.NoError(t, err)
+		//err = os.Remove(path.Join("../../tmp_files/", "book.pdf"))
+		//assert.NoError(t, err)
 	})
 }
