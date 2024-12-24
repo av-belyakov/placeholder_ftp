@@ -25,31 +25,31 @@
 
 #### Переменная окружения отвечающая за тип запуска приложения "test", "development" или "production"
 
-GO_PHFTP_MAIN
+- GO_PHFTP_MAIN
 
 #### Переменные окружения отвечающие за подключение к NATS
 
-GO_PHFTP_NPREFIX
-GO_PHFTP_NHOST
-GO_PHFTP_NPORT
-GO_PHFTP_NCACHETTL - данный параметр должен содержать время жизни записи
-кэша, по истечение которого запись автоматически удаляется, значение задается
-в секундах в диапазоне от 10 до 86400 секунд
-GO_PHFTP_NSUBLISTENERCOMMAND - канал для приема команд
+- GO_PHFTP_NPREFIX
+- GO_PHFTP_NHOST
+- GO_PHFTP_NPORT
+- GO_PHFTP_NCACHETTL - данный параметр должен содержать время жизни записи
+  кэша, по истечение которого запись автоматически удаляется, значение задается
+  в секундах в диапазоне от 10 до 86400 секунд
+- GO_PHFTP_NSUBLISTENERCOMMAND - канал для приема команд
 
 #### Переменные окружения отвечающие за подключение к локальному FTP сервреру
 
-GO_PHFTP_LOCALFTP_HOST
-GO_PHFTP_LOCALFTP_PORT
-GO_PHFTP_LOCALFTP_USERNAME
-GO_PHFTP_LOCALFTP_PASSWD
+- GO_PHFTP_LOCALFTP_HOST
+- GO_PHFTP_LOCALFTP_PORT
+- GO_PHFTP_LOCALFTP_USERNAME
+- GO_PHFTP_LOCALFTP_PASSWD
 
 #### Переменные окружения отвечающие за подключение к FTP сервреру агрегатору файлов
 
-GO_PHFTP_MAINFTP_HOST
-GO_PHFTP_MAINFTP_PORT
-GO_PHFTP_MAINFTP_USERNAME
-GO_PHFTP_MAINFTP_PASSWD
+- GO_PHFTP_MAINFTP_HOST
+- GO_PHFTP_MAINFTP_PORT
+- GO_PHFTP_MAINFTP_USERNAME
+- GO_PHFTP_MAINFTP_PASSWD
 
 ## Структура JSON запроса
 
