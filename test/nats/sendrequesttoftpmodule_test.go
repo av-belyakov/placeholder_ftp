@@ -38,16 +38,27 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 	err = nc.PublishRequest(
 		"phftp.commands",
 		replyTo,
+		/*[]byte(fmt.Sprintf(`{
+			"task_id": "%s",
+			"service": "test_service",
+			"command": "convert_and_copy_file",
+			"parameters": {
+				"path_local_ftp": "/ftp/someuser/folder_one",
+				"path_main_ftp": "/ftp/someuser/folder_two",
+				"files": ["test_pcap_file.pcap", "test_pcap_file_http.pcap"]
+			}
+		}`, uuid.New().String()))*/
 		[]byte(fmt.Sprintf(`{
 	"task_id": "%s",
 	"service": "test_service",
 	"command": "convert_and_copy_file",
 	"parameters": {
-		"path_local_ftp": "/ftp/someuser/folder_one",
-		"path_main_ftp": "/ftp/someuser/folder_two",
+		"path_local_ftp": "/net_traff",
+		"path_main_ftp": "/net_traff_txt",
 		"files": ["test_pcap_file.pcap", "test_pcap_file_http.pcap"]
 	}
-}`, uuid.New().String())))
+}`, uuid.New().String())),
+	)
 	assert.NoError(t, err)
 
 	sub, err := nc.SubscribeSync(replyTo)
