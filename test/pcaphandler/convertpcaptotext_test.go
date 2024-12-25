@@ -14,9 +14,11 @@ import (
 
 func TestConvertPcapToText(t *testing.T) {
 	var (
-		filePath      string = "../test_files/"
-		readFileName  string = "test_pcap_file.pcap"
+		filePath     string = "../test_files/"
+		readFileName string = "test_pcap_file.pcap"
+		//readFileName string = "1616152425_2021_03_19____14_13_45_24636.tdp"
 		writeFileName string = "test_pcap_file.pcap.txt"
+		//writeFileName string = "1616152425_2021_03_19____14_13_45_24636.tdp.txt"
 	)
 
 	logging := logginghandler.New()

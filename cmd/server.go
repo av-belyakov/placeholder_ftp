@@ -158,7 +158,7 @@ func server(ctx context.Context) {
 
 	msg := fmt.Sprintf("Application '%s' v%s was successfully launched. Application status is '%s'.", appname.GetAppName(), appversion.GetAppVersion(), appStatus)
 	log.Printf("%v%v%v%s%v\n", Ansi_DarkRedbackground, Bold_Font, Ansi_White, msg, Ansi_Reset)
-	logging.Send("info", fmt.Sprintf("\n%s", msg))
+	logging.Send("info", fmt.Sprintf("\n%s\n", msg))
 
 	router(ctx, handlerList, chNatsReqApi)
 }

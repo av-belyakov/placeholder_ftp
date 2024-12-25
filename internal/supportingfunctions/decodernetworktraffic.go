@@ -18,8 +18,6 @@ import (
 
 // NetworkTrafficDecoder декодировщик сетевого трафика
 func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterfaces.Logger) error {
-	fmt.Printf("Read file: '%v'\n", fileName)
-
 	r, err := pcapgo.NewReader(fr)
 	if err != nil {
 		return err
@@ -38,18 +36,19 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 	}
 
 	var (
-		eth layers.Ethernet
-		ip4 layers.IPv4
-		ip6 layers.IPv6
-		tcp layers.TCP
-		udp layers.UDP
-		dns layers.DNS
-		ntp layers.NTP
-		tls layers.TLS
+		eth     layers.Ethernet
+		ip4     layers.IPv4
+		ip6     layers.IPv6
+		tcp     layers.TCP
+		udp     layers.UDP
+		dns     layers.DNS
+		ntp     layers.NTP
+		tls     layers.TLS
+		payload gopacket.Payload
 	)
 
 	decoded := []gopacket.LayerType{}
-	parser := gopacket.NewDecodingLayerParser(layers.LayerTypeEthernet, &eth, &ip4, &ip6, &tcp, &udp, &dns, &ntp, &tls)
+	parser := gopacket.NewDecodingLayerParser(layers.LayerTypeEthernet, &eth, &ip4, &ip6, &tcp, &udp, &dns, &ntp, &tls, &payload)
 
 	boolToInt8 := func(v bool) int8 {
 		if v {
@@ -67,30 +66,24 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 			}
 		}
 
-		//_, writeErr := writer.WriteString(fmt.Sprintf("%v, packets length: %v\n", ci.Timestamp, ci.CaptureLength))
-		//if writeErr != nil {
-		//	break
-		//}
-
 		e = parser.DecodeLayers(data, &decoded)
 		if e != nil {
 			continue
 		}
 
-		var writeErr error
+		var errWrite error
 		for _, layerType := range decoded {
 			switch layerType {
 			case layers.LayerTypeIPv6:
-				_, writeErr = writer.WriteString(fmt.Sprintf("\n%v, packets length: %v\n\tIP6 %v -> %v\n", ci.Timestamp, ci.CaptureLength, ip6.SrcIP, ip6.DstIP))
+				_, errWrite = writer.WriteString(fmt.Sprintf("\n%v, packets length: %v\n\tIP6 %v -> %v\n", ci.Timestamp, ci.CaptureLength, ip6.SrcIP, ip6.DstIP))
 
 			case layers.LayerTypeIPv4:
-				_, writeErr = writer.WriteString(fmt.Sprintf("\n%v, packets length: %v\n\tIP4 %v -> %v\n", ci.Timestamp, ci.CaptureLength, ip4.SrcIP, ip4.DstIP))
+				_, errWrite = writer.WriteString(fmt.Sprintf("\n%v, packets length: %v\n\tIP4 %v -> %v\n", ci.Timestamp, ci.CaptureLength, ip4.SrcIP, ip4.DstIP))
 
 			case layers.LayerTypeTCP:
-				payloadSize := len(tcp.Payload)
+				payloadSize := len(tcp.LayerPayload())
 
-				_, writeErr = writer.WriteString(fmt.Sprintf("\tTCP port %v -> %v (payload size:'%d')\n", tcp.SrcPort, tcp.DstPort, payloadSize))
-				if writeErr != nil {
+				if _, errWrite = writer.WriteString(fmt.Sprintf("\tTCP port %v -> %v (payload size:'%d')\n", tcp.SrcPort, tcp.DstPort, payloadSize)); errWrite != nil {
 					continue
 				}
 
@@ -101,40 +94,46 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 				ack := boolToInt8(tcp.ACK)
 				urg := boolToInt8(tcp.URG)
 
-				_, writeErr = writer.WriteString(fmt.Sprintf("\tFlags (FIN:'%v' SYN:'%v' RST:'%v' PSH:'%v' ACK:'%v' URG:'%v')\n", fin, syn, rst, psh, ack, urg))
-				if writeErr != nil {
+				if _, errWrite = writer.WriteString(fmt.Sprintf("\tFlags (FIN:'%v' SYN:'%v' RST:'%v' PSH:'%v' ACK:'%v' URG:'%v')\n", fin, syn, rst, psh, ack, urg)); errWrite != nil {
 					continue
 				}
 
-				if payloadSize != 0 {
-					reader := bufio.NewReader(bytes.NewReader(tcp.Payload))
+				if payloadSize == 0 {
+					continue
+				}
 
-					httpReq, errHTTP := http.ReadRequest(reader)
-					if errHTTP == nil {
-						proto := httpReq.Proto
-						method := httpReq.Method
-						//url := httpReq.URL //содержит целый тип, не только значение httpReq.RequestURI но и методы для парсинга запроса
-						host := httpReq.Host
-						reqURI := httpReq.RequestURI
-						userAgent := httpReq.Header.Get("User-Agent")
-						//_, writeErr = writer.WriteString(fmt.Sprintf("%v\n", httpReq.Header))
+				//reader := bufio.NewReader(bytes.NewReader(tcp.LayerPayload()))
+				reader := bufio.NewReader(bytes.NewReader(payload))
+				if reqHttp, errHttp := http.ReadRequest(reader); errHttp == nil {
+					proto := reqHttp.Proto
+					method := reqHttp.Method
+					//url := httpReq.URL //содержит целый тип, не только значение httpReq.RequestURI но и методы для парсинга запроса
+					host := reqHttp.Host
+					reqURI := reqHttp.RequestURI
+					userAgent := reqHttp.Header.Get("User-Agent")
+					contentType := reqHttp.Header.Get("Content-Type")
 
-						_, writeErr = writer.WriteString(fmt.Sprintf("\t%v %v %v\n	Host:%v\n	User-Agent:%v\n", proto, method, reqURI, host, userAgent))
-						if writeErr != nil {
-							continue
-						}
+					reqHttp.Body.Close()
+
+					if _, errWrite = writer.WriteString(fmt.Sprintf("\n\t%v %v %v\n\tContent-Type:%v\n\tHost:%v\n\tUser-Agent:%v\n", method, reqURI, proto, contentType, host, userAgent)); errWrite != nil {
+						continue
 					}
+				} else {
+					resHttp, errHttp := http.ReadResponse(reader, nil)
+					if errHttp != nil {
+						fmt.Println("ERROR:", errHttp)
+					} else {
+						_, errWrite = writer.WriteString(fmt.Sprintf("\tStatus code:%v\n", resHttp.Status))
 
-					httpRes, errHTTP := http.ReadResponse(reader, httpReq)
-					if errHTTP == nil {
-						_, writeErr = writer.WriteString(fmt.Sprintf("\tStatus code:%v\n", httpRes.Status))
-						if writeErr != nil {
-							continue
-						}
+						//bodyBytes := tcpreader.DiscardBytesToEOF(resHttp.Body)
+						//_, errWrite = writer.WriteString(fmt.Sprintf("\tStatus code:%v\n", bodyBytes))
+						//resHttp.Body.Close()
 					}
 				}
+
 			case layers.LayerTypeUDP:
-				_, writeErr = writer.WriteString(fmt.Sprintf("\tUDP port:%v -> %v\n", udp.SrcPort, udp.DstPort))
+				_, errWrite = writer.WriteString(fmt.Sprintf("\tUDP port:%v -> %v\n", udp.SrcPort, udp.DstPort))
+
 			case layers.LayerTypeDNS:
 				var resultDNSQuestions, resultDNSAnswers string
 
@@ -146,20 +145,18 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 					resultDNSAnswers += fmt.Sprintf("%v (%v), %v\n", string(dnsA.Name), dnsA.IP, dnsA.CNAME)
 				}
 
-				_, writeErr = writer.WriteString(fmt.Sprintf("\tDNS questions:'%v', answers:'%v'\n", resultDNSQuestions, resultDNSAnswers))
-				if writeErr != nil {
-					continue
-				}
+				_, errWrite = writer.WriteString(fmt.Sprintf("\tDNS questions:'%v', answers:'%v'\n", resultDNSQuestions, resultDNSAnswers))
 				//_, err = writer.WriteString(fmt.Sprintf("    Questions:'%v', Answers:'%v'\n", dns.Questions, dns.Answers))
 			case layers.LayerTypeNTP:
-				_, writeErr = writer.WriteString(fmt.Sprintf("\tVersion:'%v'\n", ntp.Version))
+				_, errWrite = writer.WriteString(fmt.Sprintf("\tVersion:'%v'\n", ntp.Version))
+
 			case layers.LayerTypeTLS:
-				_, writeErr = writer.WriteString(fmt.Sprintf("\t%v\n", tls.Handshake))
+				_, errWrite = writer.WriteString(fmt.Sprintf("\t%v\n", tls.Handshake))
 
 			}
 
-			if writeErr != nil {
-				logger.Send("error", fmt.Sprintf("error decode file '%s': %s", fileName, writeErr))
+			if errWrite != nil {
+				logger.Send("error", fmt.Sprintf("error decode file '%s': %s", fileName, errWrite))
 			}
 		}
 	}
