@@ -121,10 +121,7 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 					}
 
 				} else {
-					resHttp, errHttp := http.ReadResponse(reader, nil)
-					if errHttp != nil {
-						fmt.Println("ERROR:", errHttp)
-					} else {
+					if resHttp, errHttp := http.ReadResponse(reader, nil); errHttp == nil {
 						_, errWrite = writer.WriteString(fmt.Sprintf("\tStatus code:%v\n", resHttp.Status))
 
 						//bodyBytes := tcpreader.DiscardBytesToEOF(resHttp.Body)
