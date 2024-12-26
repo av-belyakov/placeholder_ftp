@@ -7,14 +7,53 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"time"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket/pcapgo"
 
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 )
+
+func printApplicationInfo(packet gopacket.Packet) string {
+	applicationLayer := packet.ApplicationLayer()
+	if applicationLayer != nil {
+		return fmt.Sprintf("Application layer/Payload found.\n\t%s\n", applicationLayer.Payload())
+	}
+
+	return ""
+}
+
+func NetTraffPcapDecoder(filePath, fileName string, fw *os.File, logger commoninterfaces.Logger) error {
+	handle, err := pcap.OpenOffline(path.Join(filePath, fileName))
+	if err != nil {
+		return err
+	}
+
+	writer := bufio.NewWriter(fw)
+	defer func() {
+		if err == nil {
+			err = writer.Flush()
+		}
+	}()
+
+	packets := gopacket.NewPacketSource(handle, layers.LayerTypeEthernet)
+
+	for packet := range packets.Packets() {
+		if appStr := printApplicationInfo(packet); appStr != "" {
+			writer.WriteString(appStr)
+
+			continue
+		}
+
+		writer.WriteString(packet.String())
+	}
+
+	return nil
+}
 
 // NetworkTrafficDecoder декодировщик сетевого трафика
 func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterfaces.Logger) error {
@@ -47,7 +86,7 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 		payload gopacket.Payload
 	)
 
-	decoded := []gopacket.LayerType{}
+	decoded := make([]gopacket.LayerType, 10)
 	parser := gopacket.NewDecodingLayerParser(layers.LayerTypeEthernet, &eth, &ip4, &ip6, &tcp, &udp, &dns, &ntp, &tls, &payload)
 
 	boolToInt8 := func(v bool) int8 {
@@ -82,6 +121,7 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 
 			case layers.LayerTypeTCP:
 				//payloadSize := len(tcp.LayerPayload())
+
 				payloadSize := len(payload)
 
 				if _, errWrite = writer.WriteString(fmt.Sprintf("\tTCP port %v -> %v (payload size:'%d')\n", tcp.SrcPort, tcp.DstPort, payloadSize)); errWrite != nil {
@@ -105,7 +145,8 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 
 				//reader := bufio.NewReader(bytes.NewReader(tcp.LayerPayload()))
 				reader := bufio.NewReader(bytes.NewReader(payload))
-				if reqHttp, errHttp := http.ReadRequest(reader); errHttp == nil {
+				reqHttp, errHttp := http.ReadRequest(reader)
+				if errHttp == nil {
 					proto := reqHttp.Proto
 					method := reqHttp.Method
 					//url := httpReq.URL //содержит целый тип, не только значение httpReq.RequestURI но и методы для парсинга запроса
@@ -118,15 +159,6 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 
 					if _, errWrite = writer.WriteString(fmt.Sprintf("\n\t%v %v %v\n\tContent-Type:%v\n\tHost:%v\n\tUser-Agent:%v\n", method, reqURI, proto, contentType, host, userAgent)); errWrite != nil {
 						continue
-					}
-
-				} else {
-					if resHttp, errHttp := http.ReadResponse(reader, nil); errHttp == nil {
-						_, errWrite = writer.WriteString(fmt.Sprintf("\tStatus code:%v\n", resHttp.Status))
-
-						//bodyBytes := tcpreader.DiscardBytesToEOF(resHttp.Body)
-						//_, errWrite = writer.WriteString(fmt.Sprintf("\tStatus code:%v\n", bodyBytes))
-						//resHttp.Body.Close()
 					}
 				}
 
