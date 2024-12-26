@@ -81,7 +81,8 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 				_, errWrite = writer.WriteString(fmt.Sprintf("\n%v, packets length: %v\n\tIP4 %v -> %v\n", ci.Timestamp, ci.CaptureLength, ip4.SrcIP, ip4.DstIP))
 
 			case layers.LayerTypeTCP:
-				payloadSize := len(tcp.LayerPayload())
+				//payloadSize := len(tcp.LayerPayload())
+				payloadSize := len(payload)
 
 				if _, errWrite = writer.WriteString(fmt.Sprintf("\tTCP port %v -> %v (payload size:'%d')\n", tcp.SrcPort, tcp.DstPort, payloadSize)); errWrite != nil {
 					continue
@@ -118,6 +119,7 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 					if _, errWrite = writer.WriteString(fmt.Sprintf("\n\t%v %v %v\n\tContent-Type:%v\n\tHost:%v\n\tUser-Agent:%v\n", method, reqURI, proto, contentType, host, userAgent)); errWrite != nil {
 						continue
 					}
+
 				} else {
 					resHttp, errHttp := http.ReadResponse(reader, nil)
 					if errHttp != nil {
