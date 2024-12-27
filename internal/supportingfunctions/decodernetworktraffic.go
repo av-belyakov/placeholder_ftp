@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -114,17 +116,14 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 		for _, layerType := range decoded {
 			switch layerType {
 			case layers.LayerTypeIPv6:
-				_, errWrite = writer.WriteString(fmt.Sprintf("\n%v, packets length: %v\n\tIP6 %v -> %v\n", ci.Timestamp, ci.CaptureLength, ip6.SrcIP, ip6.DstIP))
+				_, errWrite = writer.WriteString(fmt.Sprintf("\n\n\n%v, packets length: %v\nIP6 %v -> %v\n", ci.Timestamp, ci.CaptureLength, ip6.SrcIP, ip6.DstIP))
 
 			case layers.LayerTypeIPv4:
-				_, errWrite = writer.WriteString(fmt.Sprintf("\n%v, packets length: %v\n\tIP4 %v -> %v\n", ci.Timestamp, ci.CaptureLength, ip4.SrcIP, ip4.DstIP))
+				_, errWrite = writer.WriteString(fmt.Sprintf("\n\n\n%v, packets length: %v\nIP4 %v -> %v\n", ci.Timestamp, ci.CaptureLength, ip4.SrcIP, ip4.DstIP))
 
 			case layers.LayerTypeTCP:
-				//payloadSize := len(tcp.LayerPayload())
-
-				payloadSize := len(payload)
-
-				if _, errWrite = writer.WriteString(fmt.Sprintf("\tTCP port %v -> %v (payload size:'%d')\n", tcp.SrcPort, tcp.DstPort, payloadSize)); errWrite != nil {
+				payloadSize := len(tcp.LayerPayload())
+				if _, errWrite = writer.WriteString(fmt.Sprintf("TCP port %v -> %v\n", tcp.SrcPort, tcp.DstPort)); errWrite != nil {
 					continue
 				}
 
@@ -135,7 +134,7 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 				ack := boolToInt8(tcp.ACK)
 				urg := boolToInt8(tcp.URG)
 
-				if _, errWrite = writer.WriteString(fmt.Sprintf("\tFlags (FIN:'%v' SYN:'%v' RST:'%v' PSH:'%v' ACK:'%v' URG:'%v')\n", fin, syn, rst, psh, ack, urg)); errWrite != nil {
+				if _, errWrite = writer.WriteString(fmt.Sprintf("Flags (FIN:'%v' SYN:'%v' RST:'%v' PSH:'%v' ACK:'%v' URG:'%v')\n", fin, syn, rst, psh, ack, urg)); errWrite != nil {
 					continue
 				}
 
@@ -143,8 +142,7 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 					continue
 				}
 
-				//reader := bufio.NewReader(bytes.NewReader(tcp.LayerPayload()))
-				reader := bufio.NewReader(bytes.NewReader(payload))
+				reader := bufio.NewReader(bytes.NewReader(tcp.LayerPayload()))
 				reqHttp, errHttp := http.ReadRequest(reader)
 				if errHttp == nil {
 					proto := reqHttp.Proto
@@ -157,14 +155,22 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 
 					reqHttp.Body.Close()
 
-					if _, errWrite = writer.WriteString(fmt.Sprintf("\n\t%v %v %v\n\tContent-Type:%v\n\tHost:%v\n\tUser-Agent:%v\n", method, reqURI, proto, contentType, host, userAgent)); errWrite != nil {
+					if _, errWrite = writer.WriteString(fmt.Sprintf("\n%v %v %v\nContent-Type:%v\nHost:%v\nUser-Agent:%v\n", method, reqURI, proto, contentType, host, userAgent)); errWrite != nil {
 						continue
+					}
+				} else {
+					if strings.Contains(string(tcp.LayerPayload()), "HTTP/") {
+						_, errWrite = writer.WriteString(fmt.Sprintf("\n%v\n", strings.TrimFunc(string(payload), func(r rune) bool {
+							return unicode.IsSpace(r)
+						})))
 					}
 				}
 
 			case layers.LayerTypeUDP:
-				_, errWrite = writer.WriteString(fmt.Sprintf("\tUDP port:%v -> %v\n", udp.SrcPort, udp.DstPort))
-
+				_, errWrite = writer.WriteString(fmt.Sprintf("UDP port:%v -> %v\n", udp.SrcPort, udp.DstPort))
+				_, errWrite = writer.WriteString(fmt.Sprintf("UDP Payload:%v\n", strings.TrimFunc(string(udp.Payload), func(r rune) bool {
+					return unicode.IsSpace(r)
+				})))
 			case layers.LayerTypeDNS:
 				var resultDNSQuestions, resultDNSAnswers string
 
@@ -176,13 +182,13 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 					resultDNSAnswers += fmt.Sprintf("%v (%v), %v\n", string(dnsA.Name), dnsA.IP, dnsA.CNAME)
 				}
 
-				_, errWrite = writer.WriteString(fmt.Sprintf("\tDNS questions:'%v', answers:'%v'\n", resultDNSQuestions, resultDNSAnswers))
+				_, errWrite = writer.WriteString(fmt.Sprintf("DNS questions:'%v', answers:'%v'\n", resultDNSQuestions, resultDNSAnswers))
 				//_, err = writer.WriteString(fmt.Sprintf("    Questions:'%v', Answers:'%v'\n", dns.Questions, dns.Answers))
 			case layers.LayerTypeNTP:
-				_, errWrite = writer.WriteString(fmt.Sprintf("\tVersion:'%v'\n", ntp.Version))
+				_, errWrite = writer.WriteString(fmt.Sprintf("Version:'%v'\n", ntp.Version))
 
 			case layers.LayerTypeTLS:
-				_, errWrite = writer.WriteString(fmt.Sprintf("\t%v\n", tls.Handshake))
+				_, errWrite = writer.WriteString(fmt.Sprintf("%v\n", tls.Handshake))
 
 			}
 
