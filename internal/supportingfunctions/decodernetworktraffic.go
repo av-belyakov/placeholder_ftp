@@ -171,6 +171,7 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 				_, errWrite = writer.WriteString(fmt.Sprintf("UDP Payload:%v\n", strings.TrimFunc(string(udp.Payload), func(r rune) bool {
 					return unicode.IsSpace(r)
 				})))
+
 			case layers.LayerTypeDNS:
 				var resultDNSQuestions, resultDNSAnswers string
 
@@ -183,7 +184,7 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 				}
 
 				_, errWrite = writer.WriteString(fmt.Sprintf("DNS questions:'%v', answers:'%v'\n", resultDNSQuestions, resultDNSAnswers))
-				//_, err = writer.WriteString(fmt.Sprintf("    Questions:'%v', Answers:'%v'\n", dns.Questions, dns.Answers))
+
 			case layers.LayerTypeNTP:
 				_, errWrite = writer.WriteString(fmt.Sprintf("Version:'%v'\n", ntp.Version))
 
