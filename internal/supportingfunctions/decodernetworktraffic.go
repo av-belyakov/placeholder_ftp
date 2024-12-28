@@ -7,55 +7,16 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path"
 	"strings"
 	"time"
 	"unicode"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket/pcapgo"
 
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 )
-
-func printApplicationInfo(packet gopacket.Packet) string {
-	applicationLayer := packet.ApplicationLayer()
-	if applicationLayer != nil {
-		return fmt.Sprintf("Application layer/Payload found.\n\t%s\n", applicationLayer.Payload())
-	}
-
-	return ""
-}
-
-func NetTraffPcapDecoder(filePath, fileName string, fw *os.File, logger commoninterfaces.Logger) error {
-	handle, err := pcap.OpenOffline(path.Join(filePath, fileName))
-	if err != nil {
-		return err
-	}
-
-	writer := bufio.NewWriter(fw)
-	defer func() {
-		if err == nil {
-			err = writer.Flush()
-		}
-	}()
-
-	packets := gopacket.NewPacketSource(handle, layers.LayerTypeEthernet)
-
-	for packet := range packets.Packets() {
-		if appStr := printApplicationInfo(packet); appStr != "" {
-			writer.WriteString(appStr)
-
-			continue
-		}
-
-		writer.WriteString(packet.String())
-	}
-
-	return nil
-}
 
 // NetworkTrafficDecoder декодировщик сетевого трафика
 func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterfaces.Logger) error {
@@ -201,3 +162,42 @@ func NetworkTrafficDecoder(fileName string, fr, fw *os.File, logger commoninterf
 
 	return err
 }
+
+/*
+func printApplicationInfo(packet gopacket.Packet) string {
+	applicationLayer := packet.ApplicationLayer()
+	if applicationLayer != nil {
+		return fmt.Sprintf("Application layer/Payload found.\n\t%s\n", applicationLayer.Payload())
+	}
+
+	return ""
+}
+
+func NetTraffPcapDecoder(filePath, fileName string, fw *os.File, logger commoninterfaces.Logger) error {
+	handle, err := pcap.OpenOffline(path.Join(filePath, fileName))
+	if err != nil {
+		return err
+	}
+
+	writer := bufio.NewWriter(fw)
+	defer func() {
+		if err == nil {
+			err = writer.Flush()
+		}
+	}()
+
+	packets := gopacket.NewPacketSource(handle, layers.LayerTypeEthernet)
+
+	for packet := range packets.Packets() {
+		if appStr := printApplicationInfo(packet); appStr != "" {
+			writer.WriteString(appStr)
+
+			continue
+		}
+
+		writer.WriteString(packet.String())
+	}
+
+	return nil
+}
+*/
