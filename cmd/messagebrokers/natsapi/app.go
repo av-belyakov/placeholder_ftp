@@ -76,6 +76,51 @@ func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 			_, f, l, _ := runtime.Caller(0)
 			api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
 
+			//сообщение с ошибкой клиенту API приложения при получении
+			//некорректного JSON объекта
+			res, err := json.Marshal(MainResponse{Error: "invalid json object received"})
+			if err != nil {
+				_, f, l, _ := runtime.Caller(0)
+				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+
+				return
+			}
+
+			if err := m.Respond(res); err != nil {
+				_, f, l, _ := runtime.Caller(0)
+				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+			}
+
+			return
+		}
+
+		var response MainResponse
+		if rc.TaskId == "" {
+			response.Error = "invalid json object received, issue 'task_id' is missing"
+		}
+
+		if rc.Command == "" {
+			response.Error = "invalid json object received, issue 'command' is missing"
+		}
+
+		if response.Error != "" {
+
+			fmt.Println("ERRORRRRRRR: ", response.Error)
+			fmt.Println("OBJECT", rc)
+
+			res, err := json.Marshal(response)
+			if err != nil {
+				_, f, l, _ := runtime.Caller(0)
+				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+
+				return
+			}
+
+			if err := m.Respond(res); err != nil {
+				_, f, l, _ := runtime.Caller(0)
+				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+			}
+
 			return
 		}
 
