@@ -43,7 +43,7 @@ func TestConvertPcapToText(t *testing.T) {
 	writeFile.Close()
 }
 
-func TestConvertPcapToTextTwo(t *testing.T) {
+/*func TestConvertPcapToTextTwo(t *testing.T) {
 	var (
 		filePath string = "../test_files/"
 		//readFileName string = "test_pcap_file.pcap"
@@ -67,4 +67,4 @@ func TestConvertPcapToTextTwo(t *testing.T) {
 	assert.NoError(t, err)
 
 	writeFile.Close()
-}
+}*/

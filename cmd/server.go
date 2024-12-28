@@ -160,5 +160,12 @@ func server(ctx context.Context) {
 	log.Printf("%v%v%v%s%v\n", Ansi_DarkRedbackground, Bold_Font, Ansi_White, msg, Ansi_Reset)
 	logging.Send("info", fmt.Sprintf("\n%s\n", msg))
 
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// 	Нужно добавить модуль для работы с Zabbix
+	// Сделать модуль, через интерфейсы, который бы принимал логи
+	// от приложения и отправлял бы их в БД, при этом тип БД был бы
+	// не важен
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 	router(ctx, handlerList, chNatsReqApi)
 }
