@@ -104,10 +104,6 @@ func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 		}
 
 		if response.Error != "" {
-
-			fmt.Println("ERRORRRRRRR: ", response.Error)
-			fmt.Println("OBJECT", rc)
-
 			res, err := json.Marshal(response)
 			if err != nil {
 				_, f, l, _ := runtime.Caller(0)
@@ -120,6 +116,8 @@ func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 				_, f, l, _ := runtime.Caller(0)
 				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
 			}
+
+			api.logger.Send("error", response.Error)
 
 			return
 		}
