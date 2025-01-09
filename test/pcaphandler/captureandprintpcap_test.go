@@ -121,7 +121,7 @@ func TestCaptureNetworkTraffik(t *testing.T) {
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet := range packetSource.Packets() {
-		fmt.Println("=========================")
+		t.Log("=========================")
 
 		printEthInfo(packet)
 		printNetworkInfo(packet)

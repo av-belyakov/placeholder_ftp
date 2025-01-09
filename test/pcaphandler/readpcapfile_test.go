@@ -82,13 +82,13 @@ func TestReadPcapFile(t *testing.T) {
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet := range packetSource.Packets() {
-		fmt.Println("=== Packet Info ===")
+		t.Log("=== Packet Info ===")
 
 		getPacketTransportInfo(packet)
 		getPacketTypeIPv4Info(packet)
 		getPacketApplicationLayer(packet)
 
-		fmt.Println("===================")
+		t.Log("===================")
 	}
 
 	handle.Close()

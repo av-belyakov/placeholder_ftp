@@ -63,10 +63,7 @@ func server(ctx context.Context) {
 	}
 	wzis.EventTypes = eventTypes
 
-	if err := wrappers.WrappersZabbixInteraction(ctx, simpleLogger, wzis, channelZabbix); err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-1), "error")
-	}
+	wrappers.WrappersZabbixInteraction(ctx, wzis, simpleLogger, channelZabbix)
 
 	//******************************************************************
 	//********** инициализация обработчика логирования данных **********

@@ -13,9 +13,9 @@ import (
 // WrappersZabbixInteraction обертка для взаимодействия с модулем zabbixapi
 func WrappersZabbixInteraction(
 	ctx context.Context,
-	writerLoggingData commoninterfaces.WriterLoggingData,
 	settings WrappersZabbixInteractionSettings,
-	channelZabbix <-chan commoninterfaces.Messager) error {
+	writerLoggingData commoninterfaces.WriterLoggingData,
+	channelZabbix <-chan commoninterfaces.Messager) {
 
 	connTimeout := time.Duration(7 * time.Second)
 	zc, err := zabbixapicommunicator.New(zabbixapicommunicator.SettingsZabbixConnection{
@@ -26,7 +26,10 @@ func WrappersZabbixInteraction(
 		ConnectionTimeout: &connTimeout,
 	})
 	if err != nil {
-		return err
+		_, f, l, _ := runtime.Caller(0)
+		writerLoggingData.WriteLoggingData(fmt.Sprintf("zabbix module: '%s' %s:%d", err.Error(), f, l-1), "error")
+
+		return
 	}
 
 	et := make([]zabbixapicommunicator.EventType, len(settings.EventTypes))
@@ -41,7 +44,10 @@ func WrappersZabbixInteraction(
 
 	recipient := make(chan zabbixapicommunicator.Messager)
 	if err = zc.Start(ctx, et, recipient); err != nil {
-		return err
+		_, f, l, _ := runtime.Caller(0)
+		writerLoggingData.WriteLoggingData(fmt.Sprintf("zabbix module: '%s' %s:%d", err.Error(), f, l-1), "error")
+
+		return
 	}
 
 	go func() {
@@ -56,18 +62,13 @@ func WrappersZabbixInteraction(
 				newMessageSettings.SetMessage(msg.GetMessage())
 
 				recipient <- newMessageSettings
+
+			case err := <-zc.GetChanErr():
+				writerLoggingData.WriteLoggingData(fmt.Sprintf("zabbix module: '%s'", err.Error()), "error")
+
 			}
 		}
 	}()
-
-	go func() {
-		for err := range zc.GetChanErr() {
-			_, f, l, _ := runtime.Caller(0)
-			writerLoggingData.WriteLoggingData(fmt.Sprintf("zabbix module: '%s' %s:%d", err.Error(), f, l-1), "error")
-		}
-	}()
-
-	return nil
 }
 
 // NewWrapperSimpleNetworkClient формирует обертку для взаимодействия с FTP клиентами

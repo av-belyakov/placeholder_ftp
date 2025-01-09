@@ -1,7 +1,6 @@
 package pcaphandler_test
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"testing"
@@ -24,7 +23,7 @@ func TestConvertPcapToText(t *testing.T) {
 	logging := logginghandler.New()
 	go func() {
 		for msgErr := range logging.GetChan() {
-			fmt.Println("ERROR:", msgErr)
+			t.Log("ERROR:", msgErr)
 		}
 	}()
 
