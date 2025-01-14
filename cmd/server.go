@@ -6,10 +6,12 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/av-belyakov/simplelogger"
 
 	ci "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+	"github.com/av-belyakov/placeholder_ftp/cmd/elasticsearchapi"
 	"github.com/av-belyakov/placeholder_ftp/cmd/handlers"
 	"github.com/av-belyakov/placeholder_ftp/cmd/messagebrokers/natsapi"
 	"github.com/av-belyakov/placeholder_ftp/internal/appname"
@@ -38,6 +40,25 @@ func server(ctx context.Context) {
 	simpleLogger, err := simplelogger.NewSimpleLogger(ctx, Root_Dir, getLoggerSettings(loggingConf))
 	if err != nil {
 		log.Fatalf("error module 'simplelogger': %s", err.Error())
+	}
+
+	//*********************************************************************************
+	//********** инициализация модуля взаимодействия с БД для передачи логов **********
+	confDB := confApp.GetConfigWriteLogDB()
+	if esc, err := elasticsearchapi.NewElasticsearchConnect(elasticsearchapi.Settings{
+		Port:               confDB.Port,
+		Host:               confDB.Host,
+		User:               confDB.User,
+		Passwd:             confDB.Passwd,
+		IndexDB:            confDB.StorageNameDB,
+		NameRegionalObject: confApp.NameRegionalObject,
+	}); err != nil {
+		_, f, l, _ := runtime.Caller(0)
+		_ = simpleLogger.Write("error", fmt.Sprintf(" '%s' %s:%d", err.Error(), f, l-7))
+
+		log.Println(err.Error())
+	} else {
+		simpleLogger.SetDataBaseInteraction(esc)
 	}
 
 	//*****************************************************************
@@ -78,17 +99,17 @@ func server(ctx context.Context) {
 		natsapi.WithPort(confNatsSAPI.Port),
 		natsapi.WithCacheTTL(confNatsSAPI.CacheTTL),
 		natsapi.WithSubListenerCommand(confNatsSAPI.Subscriptions.ListenerCommand)}
-	apiNats, err := natsapi.New(logging, natsOptsAPI...)
+	apiNats, err := natsapi.New(logging, confApp.GetNameRegionalObject(), natsOptsAPI...)
 	if err != nil {
 		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-3), "error")
+		_ = simpleLogger.Write("error", fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-3))
 
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
 	chNatsReqApi, err := apiNats.Start(ctx)
 	if err != nil {
 		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-3), "error")
+		_ = simpleLogger.Write("error", fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-3))
 
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
@@ -101,26 +122,26 @@ func server(ctx context.Context) {
 	localFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
 	_, f, l, _ := runtime.Caller(0)
 	if err != nil {
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
+		_ = simpleLogger.Write("error", fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1))
 		log.Fatalf("%s LOCALFTP '%s' %s:%d\n", msgErr, err.Error(), f, l-1)
 	}
 
 	//проверяем доступ к локальному ftp серверу
 	if err := localFtp.CheckConn(); err != nil {
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
+		_ = simpleLogger.Write("error", fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1))
 		log.Fatalf("%s LOCALFTP '%s': %s:%d\n", msgErr, err.Error(), f, l-1)
 	}
 
 	mainFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
 	_, f, l, _ = runtime.Caller(0)
 	if err != nil {
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
+		_ = simpleLogger.Write("error", fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1))
 		log.Fatalf("%s MAINFTP '%s': %s:%d\n", msgErr, err.Error(), f, l-1)
 	}
 
 	//проверяем доступ к удаленному ftp серверу
 	if err = mainFtp.CheckConn(); err != nil {
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1), "error")
+		_ = simpleLogger.Write("error", fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1))
 		log.Fatalf("%s MAINFTP '%s': %s:%d\n", msgErr, err.Error(), f, l-1)
 	}
 	//*******************************************************************************
@@ -143,26 +164,30 @@ func server(ctx context.Context) {
 	//создание временной директории если ее нет
 	if err := supportingfunctions.CreateDirectory(Root_Dir, Tmp_Files); err != nil {
 		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.WriteLoggingData(fmt.Sprintf("error create tmp directory '%s' %s:%d", err.Error(), f, l-1), "error")
+		_ = simpleLogger.Write("error", fmt.Sprintf("error create tmp directory '%s' %s:%d", err.Error(), f, l-1))
 		log.Fatalf("error create tmp directory '%s'\n", err.Error())
 	}
 
-	appStatus := "production"
+	appStatus := fmt.Sprintf("%vproduction%v", Ansi_Bright_Blue, Ansi_Reset)
 	envValue, ok := os.LookupEnv("GO_PHFTP_MAIN")
 	if ok && envValue == "development" {
-		appStatus = envValue
+		appStatus = fmt.Sprintf("%v%s%v", Ansi_Bright_Red, envValue, Ansi_Reset)
 	}
 
-	msg := fmt.Sprintf("Application '%s' v%s was successfully launched. Application status is '%s'.", appname.GetAppName(), appversion.GetAppVersion(), appStatus)
-	log.Printf("%v%v%v%s%v\n", Ansi_DarkRedbackground, Bold_Font, Ansi_White, msg, Ansi_Reset)
-	logging.Send("info", msg)
+	msg := fmt.Sprintf("Application '%s' v%s was successfully launched", appname.GetAppName(), appversion.GetAppVersion())
+	log.Printf("%v%v%s%v\n", Ansi_Dark_Green_Background, Ansi_White, msg, Ansi_Reset)
+	fmt.Printf("%v%vApplication status is '%s'.%v\n", Underlining, Ansi_Bright_Green, appStatus, Ansi_Reset)
+	fmt.Printf("%vLocal FTP server settings:%v\n", Ansi_Bright_Green, Ansi_Reset)
+	fmt.Printf("%v  ip: %v%s%v\n", Ansi_Bright_Green, Ansi_Bright_Blue, confLocalFtp.Host, Ansi_Reset)
+	fmt.Printf("%v  net port: %v%d%v\n", Ansi_Bright_Green, Ansi_Bright_Magenta, confLocalFtp.Port, Ansi_Reset)
+	fmt.Printf("%vMain FTP server settings:%v\n", Ansi_Bright_Green, Ansi_Reset)
+	fmt.Printf("%v  ip: %v%s%v\n", Ansi_Bright_Green, Ansi_Bright_Blue, confMainFtp.Host, Ansi_Reset)
+	fmt.Printf("%v  net port: %v%d%v\n", Ansi_Bright_Green, Ansi_Bright_Magenta, confMainFtp.Port, Ansi_Reset)
+	_ = simpleLogger.Write("info", strings.ToLower(msg))
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// 	Нужно добавить модуль для работы с Zabbix
-	// Сделать модуль, через интерфейсы, который бы принимал логи
-	// от приложения и отправлял бы их в БД, при этом тип БД был бы
-	// не важен
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	router(ctx, handlerList, chNatsReqApi)
+	if err = router(ctx, handlerList, chNatsReqApi); err != nil {
+		_, f, l, _ := runtime.Caller(0)
+		_ = simpleLogger.Write("error", fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-1))
+		log.Fatalln(err)
+	}
 }

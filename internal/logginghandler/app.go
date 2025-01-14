@@ -24,7 +24,7 @@ func LoggingHandler(
 			//здесь так же может быть вывод в консоль, с индикацией цветов соответствующих
 			//определенному типу сообщений но для этого надо включить вывод на stdout
 			//в конфигурационном фале
-			_ = writerLoggingData.WriteLoggingData(msg.GetMessage(), msg.GetType())
+			_ = writerLoggingData.Write(msg.GetType(), msg.GetMessage())
 
 			if msg.GetType() == "error" || msg.GetType() == "warning" {
 				msg := NewMessageLogging()

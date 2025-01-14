@@ -12,16 +12,19 @@ import (
 const (
 	CONF_DIR_NAME = "config"
 
-	LFTP_PASSWD = "passwd_local_ftp"
-	MFTP_PASSWD = "passwd_main_ftp"
+	LFTP_PASSWD  = "passwd_local_ftp"
+	MFTP_PASSWD  = "passwd_main_ftp"
+	DBWLOGPASSWD = "fehu88884jbfjg84gk"
 )
 
 func TestConfigHandler(t *testing.T) {
 	os.Setenv("GO_PHFTP_LOCALFTP_PASSWD", LFTP_PASSWD)
 	os.Setenv("GO_PHFTP_MAINFTP_PASSWD", MFTP_PASSWD)
+	os.Setenv("GO_PHFTP_DBWLOGPASSWD", DBWLOGPASSWD)
 	defer func() {
 		os.Unsetenv("GO_PHFTP_LOCALFTP_PASSWD")
 		os.Unsetenv("GO_PHFTP_MAINFTP_PASSWD")
+		os.Unsetenv("GO_PHFTP_DBWLOGPASSWD")
 	}()
 
 	//для config_prod
@@ -56,8 +59,16 @@ func TestConfigHandler(t *testing.T) {
 	confMainFTP := conf.GetConfigMainFTP()
 	assert.Equal(t, confMainFTP.Host, "127.0.0.1")
 	assert.Equal(t, confMainFTP.Port, 21)
-	assert.Equal(t, confMainFTP.Username, "usermainftp.test")
+	assert.Equal(t, confMainFTP.Username, "someuser")
 	assert.Equal(t, confMainFTP.Passwd, MFTP_PASSWD)
+
+	confWriteLogDB := conf.GetConfigWriteLogDB()
+	assert.Equal(t, confWriteLogDB.Port, 9200)
+	assert.Equal(t, confWriteLogDB.Host, "datahook.cloud.gcm")
+	assert.Equal(t, confWriteLogDB.NameDB, "name_database")
+	assert.Equal(t, confWriteLogDB.StorageNameDB, "placeholder_ftp_package")
+	assert.Equal(t, confWriteLogDB.User, "log_writer")
+	assert.Equal(t, confWriteLogDB.Passwd, DBWLOGPASSWD)
 
 	os.Setenv("GO_PHFTP_NPREFIX", "new_prefix")
 	os.Setenv("GO_PHFTP_NHOST", "localhost")
@@ -92,6 +103,20 @@ func TestConfigHandler(t *testing.T) {
 		os.Unsetenv("GO_PHFTP_MAINFTP_USERNAME")
 	}()
 
+	//Подключение к БД в которую будут записыватся логи
+	os.Setenv("GO_PHFTP_DBWLOGHOST", "127.0.0.1")
+	os.Setenv("GO_PHFTP_DBWLOGPORT", "8998")
+	os.Setenv("GO_PHFTP_DBWLOGNAME", "data_log")
+	os.Setenv("GO_PHFTP_DBWLOGSTORAGENAME", "ph_ftp_storage")
+	os.Setenv("GO_PHFTP_DBWLOGUSER", "new_user_write_log")
+	defer func() {
+		os.Unsetenv("GO_PHFTP_DBWLOGHOST")
+		os.Unsetenv("GO_PHFTP_DBWLOGPORT")
+		os.Unsetenv("GO_PHFTP_DBWLOGNAME")
+		os.Unsetenv("GO_PHFTP_DBWLOGSTORAGENAME")
+		os.Unsetenv("GO_PHFTP_DBWLOGUSER")
+	}()
+
 	conf, err = confighandler.New("placeholder_ftp", CONF_DIR_NAME)
 	assert.NoError(t, err)
 
@@ -112,4 +137,10 @@ func TestConfigHandler(t *testing.T) {
 	assert.Equal(t, confMainFTP.Port, 24)
 	assert.Equal(t, confMainFTP.Username, "main_user_name")
 
+	confWriteLogDB = conf.GetConfigWriteLogDB()
+	assert.Equal(t, confWriteLogDB.Port, 8998)
+	assert.Equal(t, confWriteLogDB.Host, "127.0.0.1")
+	assert.Equal(t, confWriteLogDB.NameDB, "data_log")
+	assert.Equal(t, confWriteLogDB.StorageNameDB, "ph_ftp_storage")
+	assert.Equal(t, confWriteLogDB.User, "new_user_write_log")
 }

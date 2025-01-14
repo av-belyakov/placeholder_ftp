@@ -11,8 +11,14 @@ NATS:
 LOCALFTP:
   host: "127.0.0.1"
   port: 21
-  username: "someuser"
+  username: "userlocalftp.test"
 MAINFTP:
   host: "127.0.0.1"
   port: 21
-  username: "simeuser"
+  username: "someuser"
+DATABASEWRITELOG:
+  host: "datahook.cloud.gcm"
+  port: 9200
+  namedb: "name_database"
+  storageNamedb: "placeholder_ftp_package"
+  user: "log_writer"

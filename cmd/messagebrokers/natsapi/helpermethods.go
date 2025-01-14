@@ -32,6 +32,16 @@ func (r *ResponseToNats) SetRequestId(v string) {
 	r.RequestId = v
 }
 
+// GetError метод возвращает описание 'глобальной' ошибки
+func (r *ResponseToNats) GetError() error {
+	return r.Error
+}
+
+// SetError метод устанавливает описание 'глобальной' ошибки, которая возникла при выполнении запроса (например, некорректный входящий json)
+func (r *ResponseToNats) SetError(v error) {
+	r.Error = v
+}
+
 // GetData метод возвращает данные
 func (r *ResponseToNats) GetData() []commoninterfaces.FileInformationTransfer {
 	return r.Data

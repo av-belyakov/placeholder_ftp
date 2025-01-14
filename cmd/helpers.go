@@ -10,10 +10,11 @@ func getLoggerSettings(cls []confighandler.LoggerOption) []simplelogger.Options 
 
 	for _, v := range cls {
 		loggerConf = append(loggerConf, simplelogger.Options{
-			MsgTypeName:     v.MsgTypeName,
-			WritingToFile:   v.WritingFile,
-			PathDirectory:   v.PathDirectory,
 			WritingToStdout: v.WritingStdout,
+			WritingToFile:   v.WritingFile,
+			WritingToDB:     v.WritingDB,
+			PathDirectory:   v.PathDirectory,
+			MsgTypeName:     v.MsgTypeName,
 			MaxFileSize:     v.MaxFileSize,
 		})
 	}

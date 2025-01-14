@@ -3,10 +3,11 @@ package confighandler
 // AppConfig настройки приложения
 type AppConfig struct {
 	Information
-	Logging  ConfigLogs
-	NATS     ConfigNATS
-	LocalFTP ConfigFtp
-	MainFTP  ConfigFtp
+	Logging    ConfigLogs
+	NATS       ConfigNATS
+	LocalFTP   ConfigFtp
+	MainFTP    ConfigFtp
+	WriteLogDB ConfigWriteLogDB
 }
 
 // Information информация о приложении
@@ -28,6 +29,7 @@ type Logs struct {
 type LoggerOption struct {
 	WritingStdout bool   `validate:"required" yaml:"writingStdout"`
 	WritingFile   bool   `validate:"required" yaml:"writingFile"`
+	WritingDB     bool   `validate:"required" yaml:"writingDB"`
 	MaxFileSize   int    `validate:"min=1000" yaml:"maxFileSize"`
 	MsgTypeName   string `validate:"oneof=error info warning" yaml:"msgTypeName"`
 	PathDirectory string `validate:"required" yaml:"pathDirectory"`
@@ -79,4 +81,13 @@ type ConfigFtp struct {
 	Host     string `validate:"required" yaml:"host"`
 	Username string `validate:"required" yaml:"username"`
 	Passwd   string `validate:"required" yaml:"passwd"`
+}
+
+type ConfigWriteLogDB struct {
+	Port          int    `validate:"gt=0,lte=65535" yaml:"port"`
+	Host          string `yaml:"host"`
+	User          string `yaml:"user"`
+	Passwd        string `yaml:"passwd"`
+	NameDB        string `yaml:"namedb"`
+	StorageNameDB string `yaml:"storageNamedb"`
 }

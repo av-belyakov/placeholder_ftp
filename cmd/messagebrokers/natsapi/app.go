@@ -16,11 +16,12 @@ import (
 )
 
 // New настраивает новый модуль взаимодействия с API NATS
-func New(logger ci.Logger, opts ...NatsApiOptions) (*apiNatsModule, error) {
+func New(logger ci.Logger, nameRegionalObject string, opts ...NatsApiOptions) (*apiNatsModule, error) {
 	api := &apiNatsModule{
-		cachettl:       10,
-		logger:         logger,
-		sendingChannel: make(chan ci.ChannelRequester),
+		cachettl:           10,
+		logger:             logger,
+		nameRegionalObject: nameRegionalObject,
+		sendingChannel:     make(chan ci.ChannelRequester),
 	}
 
 	for _, opt := range opts {
@@ -103,6 +104,10 @@ func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 			response.Error = "invalid json object received, issue 'command' is missing"
 		}
 
+		if rc.Source == "" {
+			response.Error = "invalid json object received, issue 'source' is missing"
+		}
+
 		if response.Error != "" {
 			res, err := json.Marshal(response)
 			if err != nil {
@@ -118,6 +123,14 @@ func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 			}
 
 			api.logger.Send("error", response.Error)
+
+			return
+		}
+
+		//убеждаемся, что входящий запрос действительно предназначен для обработки
+		//текущим региональным объектом
+		if rc.Source != api.nameRegionalObject {
+			api.logger.Send("warning", fmt.Sprintf("source name '%s' does not match the current regional name of the object", rc.Source))
 
 			return
 		}
@@ -139,14 +152,13 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 		ch = nil
 	}(ctxTimeoutCancel, chRes)
 
-	req := RequestFromNats{
+	api.sendingChannel <- &RequestFromNats{
 		RequestId:  id,
 		Command:    "send_command",
 		Order:      rc.Command,
 		Data:       m.Data,
 		ChanOutput: chRes,
 	}
-	api.sendingChannel <- &req
 
 	for {
 		select {
@@ -170,7 +182,12 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 				listProcessedFile = append(listProcessedFile, processedFile)
 			}
 
-			mainResponse := MainResponse{RequestId: msg.GetRequestId(), ListProcessedFile: listProcessedFile}
+			mainResponse := MainResponse{
+				Source:            rc.Source,
+				RequestId:         rc.TaskId,
+				ListProcessedFile: listProcessedFile,
+			}
+
 			if msg.GetError() != nil {
 				mainResponse.Error = msg.GetError().Error()
 			}
@@ -189,8 +206,6 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 			}
 
 			api.logger.Send("info", fmt.Sprintf("task id '%s' the command '%s' from service '%s' returned %+v", msg.GetRequestId(), rc.Command, rc.Service, listProcessedFile))
-
-			return
 		}
 	}
 }

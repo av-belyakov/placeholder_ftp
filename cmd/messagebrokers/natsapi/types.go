@@ -8,13 +8,14 @@ import (
 
 // apiNatsSettings настройки для API NATS
 type apiNatsModule struct {
-	natsConnection *nats.Conn                             //соединение с NATS
-	logger         commoninterfaces.Logger                // интерфейс логирования
-	sendingChannel chan commoninterfaces.ChannelRequester //канал для передачи запросов из NATS
-	subscriptions  subscription                           //настройки подписки
-	host           string
-	port           int
-	cachettl       int
+	natsConnection     *nats.Conn                             //соединение с NATS
+	logger             commoninterfaces.Logger                // интерфейс логирования
+	sendingChannel     chan commoninterfaces.ChannelRequester //канал для передачи запросов из NATS
+	subscriptions      subscription                           //настройки подписки
+	nameRegionalObject string
+	host               string
+	port               int
+	cachettl           int
 }
 
 type subscription struct {

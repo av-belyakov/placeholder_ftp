@@ -21,13 +21,14 @@ type RequestFromNats struct {
 type ResponseToNats struct {
 	Data       []commoninterfaces.FileInformationTransfer //набор данных
 	Error      error                                      //описание ошибки
-	RequestId  string                                     //UUID идентификатор ответа (соответствует идентификатору запроса)
+	RequestId  string                                     //уникальный идентификатор ответа (соответствует идентификатору запроса)
 	StatusCode int                                        //статус кода ответа
 }
 
 // RequestCommand структура с командами для обработки модулем
 type RequestCommand struct {
-	TaskId  string `json:"task_id"` //id задачи
+	TaskId  string `json:"task_id"` //уникальный идентификатор задачи
+	Source  string `json:"source"`  //наименование регионального объекта к которому был адресован запрос
 	Service string `json:"service"` //наименование сервиса
 	Command string `json:"command"` //команда
 }
@@ -35,8 +36,9 @@ type RequestCommand struct {
 // MainResponse основной ответ, на запрос стороннего сервиса
 type MainResponse struct {
 	ListProcessedFile []ProcessedFile `json:"list_processed_file"`
-	Error             string          `json:"error"`
 	RequestId         string          `json:"request_id"`
+	Source            string          `json:"source"`
+	Error             string          `json:"error"`
 }
 
 // ProcessedFile подробное описание результата по обработке файла

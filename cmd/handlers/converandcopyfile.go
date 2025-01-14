@@ -82,7 +82,6 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 		//********************************
 
 		//декодирование и конвертация файла формата .pcap в текстовый вид
-
 		if err = convertingNetworkTraffic(opts.TmpDir, pf.GetFileNameOld(), pf.GetFileNameNew(), opts.Logger); err != nil {
 			_, f, l, _ = runtime.Caller(0)
 			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))

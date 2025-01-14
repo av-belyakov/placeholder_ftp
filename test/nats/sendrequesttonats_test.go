@@ -19,11 +19,14 @@ import (
 )
 
 const (
-	Host string = "nats.cloud.gcm"
-	Port int    = 4222
+	Source string = "gcm"
+	Host   string = "nats.cloud.gcm"
+	Port   int    = 4222
 )
 
 var (
+	taskId string = uuid.New().String()
+
 	chMsg chan bool
 	nc    *nats.Conn
 
@@ -88,7 +91,7 @@ func TestMain(m *testing.M) {
 		natsapi.WithPort(Port),
 		natsapi.WithCacheTTL(60),
 		natsapi.WithSubListenerCommand("phftp.commands")}
-	apiNats, err := natsapi.New(logging, natsOptsAPI...)
+	apiNats, err := natsapi.New(logging, Source, natsOptsAPI...)
 	if err != nil {
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
@@ -102,9 +105,11 @@ func TestMain(m *testing.M) {
 
 func TestSendMsgToNats(t *testing.T) {
 	t.Run("Тест 1. Отправка данных в NATS", func(t *testing.T) {
-		err := nc.Publish("phftp.commands",
+		m, err := nc.Request(
+			"phftp.commands.test",
 			[]byte(fmt.Sprintf(`{
 			"task_id": "%s",
+			"source": "%s",
 			"service": "test_service",
 			"command": "convert_and_copy_file",
 			"parameters": {
@@ -112,19 +117,18 @@ func TestSendMsgToNats(t *testing.T) {
 				"path_main_ftp": "/ftp/someuser/folder_two",
 				"files": ["test_pcap_file.pcap"]
 			}
-		}`, uuid.New().String())))
-		assert.NoError(t, err)
-	})
-
-	t.Run("Тест 2. Проверка приема сообщения", func(t *testing.T) {
-		msg := <-chReq
-
-		data := map[string]interface{}{}
-		err := json.Unmarshal(msg.GetData(), &data)
+		}`, taskId, Source)),
+			5*time.Second)
 		assert.NoError(t, err)
 
-		fmt.Println("RECEIVED REQUEST MESSAGE FROM NATS:", data)
+		data := natsapi.MainResponse{}
+		err = json.Unmarshal(m.Data, &data)
+		assert.NoError(t, err)
 
-		assert.True(t, true)
+		t.Logf("\n\nRECEIVED REQUEST MESSAGE FROM NATS:%+v\n\n", data)
+
+		assert.Empty(t, data.Error)
+		assert.Equal(t, data.Source, Source)
+		assert.Equal(t, data.RequestId, taskId)
 	})
 }

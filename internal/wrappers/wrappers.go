@@ -27,7 +27,7 @@ func WrappersZabbixInteraction(
 	})
 	if err != nil {
 		_, f, l, _ := runtime.Caller(0)
-		writerLoggingData.WriteLoggingData(fmt.Sprintf("zabbix module: '%s' %s:%d", err.Error(), f, l-1), "error")
+		writerLoggingData.Write("error", fmt.Sprintf("zabbix module: '%s' %s:%d", err.Error(), f, l-1))
 
 		return
 	}
@@ -45,7 +45,7 @@ func WrappersZabbixInteraction(
 	recipient := make(chan zabbixapicommunicator.Messager)
 	if err = zc.Start(ctx, et, recipient); err != nil {
 		_, f, l, _ := runtime.Caller(0)
-		writerLoggingData.WriteLoggingData(fmt.Sprintf("zabbix module: '%s' %s:%d", err.Error(), f, l-1), "error")
+		writerLoggingData.Write("error", fmt.Sprintf("zabbix module: '%s' %s:%d", err.Error(), f, l-1))
 
 		return
 	}
@@ -64,7 +64,7 @@ func WrappersZabbixInteraction(
 				recipient <- newMessageSettings
 
 			case err := <-zc.GetChanErr():
-				writerLoggingData.WriteLoggingData(fmt.Sprintf("zabbix module: '%s'", err.Error()), "error")
+				writerLoggingData.Write("error", fmt.Sprintf("zabbix module: '%s'", err.Error()))
 
 			}
 		}

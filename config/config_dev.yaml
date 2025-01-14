@@ -16,3 +16,9 @@ MAINFTP:
   host: "127.0.0.1"
   port: 21
   username: "someuser"
+DATABASEWRITELOG:
+  host: "datahook.cloud.gcm"
+  port: 9200
+  namedb: ""
+  storageNamedb: "placeholder_ftp_package"
+  user: "log_writer"

@@ -5,6 +5,7 @@ LOGGING:
       pathDirectory: "logs",
       writingStdout: true,
       maxFileSize: 1000000,
+      writingDB: true,
     }
   - {
       msgTypeName: "warning",
@@ -12,6 +13,7 @@ LOGGING:
       pathDirectory: "logs",
       writingStdout: true,
       maxFileSize: 1000000,
+      writingDB: true,
     }
   - {
       msgTypeName: "info",
@@ -19,6 +21,15 @@ LOGGING:
       pathDirectory: "logs",
       writingStdout: true,
       maxFileSize: 1000000,
+      writingDB: true,
+    }
+  - {
+      msgTypeName: "log_to_db",
+      writingFile: false,
+      pathDirectory: "logs",
+      writingStdout: true,
+      maxFileSize: 1000000,
+      writingDB: true,
     }
   - {
       msgTypeName: "log_for_test",

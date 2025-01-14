@@ -30,7 +30,7 @@ func (c AppConfig) GetConfigLocalFTP() ConfigFtp {
 	return c.LocalFTP
 }
 
-// GetConfigMainFTP настройки FTP серврера агрегатора файлов
+// GetConfigMainFTP настройки FTP сервера агрегатора файлов
 func (c AppConfig) GetConfigMainFTP() ConfigFtp {
 	return c.MainFTP
 }
@@ -65,4 +65,9 @@ func (conf *ConfigFtp) GetPasswd() string {
 
 func (conf *ConfigFtp) SetPasswd(v string) {
 	conf.Passwd = v
+}
+
+// GetConfigWriteLogDB настройки доступа к БД в которую осуществляется запись логов
+func (c AppConfig) GetConfigWriteLogDB() ConfigWriteLogDB {
+	return c.WriteLogDB
 }

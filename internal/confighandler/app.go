@@ -37,6 +37,14 @@ func New(rootDir, confDir string) (*AppConfig, error) {
 			"GO_PHFTP_MAINFTP_PORT":     "",
 			"GO_PHFTP_MAINFTP_USERNAME": "",
 			"GO_PHFTP_MAINFTP_PASSWD":   "",
+
+			//Подключение к БД в которую будут записыватся логи
+			"GO_PHFTP_DBWLOGHOST":        "",
+			"GO_PHFTP_DBWLOGPORT":        "",
+			"GO_PHFTP_DBWLOGNAME":        "",
+			"GO_PHFTP_DBWLOGSTORAGENAME": "",
+			"GO_PHFTP_DBWLOGUSER":        "",
+			"GO_PHFTP_DBWLOGPASSWD":      "",
 		}
 	)
 
@@ -139,6 +147,28 @@ func New(rootDir, confDir string) (*AppConfig, error) {
 	}
 	if envList["GO_PHFTP_MAINFTP_PASSWD"] != "" {
 		conf.MainFTP.Passwd = envList["GO_PHFTP_MAINFTP_PASSWD"]
+	}
+
+	//Настройки доступа к БД в которую будут записыватся логи
+	if envList["GO_PHFTP_DBWLOGHOST"] != "" {
+		conf.WriteLogDB.Host = envList["GO_PHFTP_DBWLOGHOST"]
+	}
+	if envList["GO_PHFTP_DBWLOGPORT"] != "" {
+		if p, err := strconv.Atoi(envList["GO_PHFTP_DBWLOGPORT"]); err == nil {
+			conf.WriteLogDB.Port = p
+		}
+	}
+	if envList["GO_PHFTP_DBWLOGNAME"] != "" {
+		conf.WriteLogDB.NameDB = envList["GO_PHFTP_DBWLOGNAME"]
+	}
+	if envList["GO_PHFTP_DBWLOGUSER"] != "" {
+		conf.WriteLogDB.User = envList["GO_PHFTP_DBWLOGUSER"]
+	}
+	if envList["GO_PHFTP_DBWLOGPASSWD"] != "" {
+		conf.WriteLogDB.Passwd = envList["GO_PHFTP_DBWLOGPASSWD"]
+	}
+	if envList["GO_PHFTP_DBWLOGSTORAGENAME"] != "" {
+		conf.WriteLogDB.StorageNameDB = envList["GO_PHFTP_DBWLOGSTORAGENAME"]
 	}
 
 	//выполняем проверку заполненой структуры
@@ -266,6 +296,23 @@ func setSpecial(filename string, conf *AppConfig) error {
 	}
 	if viper.IsSet("MAINFTP.username") {
 		conf.MainFTP.Username = viper.GetString("MAINFTP.username")
+	}
+
+	//Настройки доступа к БД в которую будут записыватся логи
+	if viper.IsSet("DATABASEWRITELOG.host") {
+		conf.WriteLogDB.Host = viper.GetString("DATABASEWRITELOG.host")
+	}
+	if viper.IsSet("DATABASEWRITELOG.port") {
+		conf.WriteLogDB.Port = viper.GetInt("DATABASEWRITELOG.port")
+	}
+	if viper.IsSet("DATABASEWRITELOG.user") {
+		conf.WriteLogDB.User = viper.GetString("DATABASEWRITELOG.user")
+	}
+	if viper.IsSet("DATABASEWRITELOG.namedb") {
+		conf.WriteLogDB.NameDB = viper.GetString("DATABASEWRITELOG.namedb")
+	}
+	if viper.IsSet("DATABASEWRITELOG.storageNamedb") {
+		conf.WriteLogDB.StorageNameDB = viper.GetString("DATABASEWRITELOG.storageNamedb")
 	}
 
 	return nil

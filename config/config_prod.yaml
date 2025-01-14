@@ -7,7 +7,7 @@ NATS:
   port: 4222
   cacheTtl: 3600
   subscriptions:
-    listener_command: "phftp.commands"
+    listener_command: "phftp.commands.test"
 LOCALFTP:
   host: "ftp-users.cloud.gcm"
   port: 21
@@ -16,3 +16,9 @@ MAINFTP:
   host: "ftp-users.cloud.gcm"
   port: 21
   username: "ftp-user"
+DATABASEWRITELOG:
+  host: "datahook.cloud.gcm"
+  port: 9200
+  namedb: ""
+  storageNamedb: "placeholder_ftp_package"
+  user: "log_writer"
