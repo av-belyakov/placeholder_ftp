@@ -15,6 +15,6 @@ const (
 	Ansi_Dark_Redbackground    = "\033[42m"
 	Ansi_Dark_Green_Background = "\033[42m"
 
-	BoldFont    = "\033[1m"
+	Bold_Font   = "\033[1m"
 	Underlining = "\033[4m"
 )
