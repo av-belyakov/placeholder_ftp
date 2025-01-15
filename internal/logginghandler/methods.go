@@ -1,6 +1,8 @@
 package logginghandler
 
-import "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+import (
+	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+)
 
 func New() *LoggingChan {
 	return &LoggingChan{

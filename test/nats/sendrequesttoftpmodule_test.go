@@ -50,6 +50,7 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 		}`, uuid.New().String()))*/
 		[]byte(fmt.Sprintf(`{
 			"task_id": "%s",
+			"source": "gcm",
 			"service": "test_service",
 			"command": "convert_and_copy_file",
 			"parameters": {

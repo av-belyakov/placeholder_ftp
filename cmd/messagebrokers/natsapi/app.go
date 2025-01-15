@@ -57,12 +57,12 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 
 	//обработка разрыва соединения с NATS
 	nc.SetDisconnectErrHandler(func(c *nats.Conn, err error) {
-		api.logger.Send("error", fmt.Sprintf("the connection with NATS has been disconnected (%s)", err.Error()))
+		api.logger.Send("error", fmt.Sprintf("the connection with NATS has been disconnected (%v)", err))
 	})
 
 	//обработка переподключения к NATS
 	nc.SetReconnectHandler(func(c *nats.Conn) {
-		api.logger.Send("info", fmt.Sprintf("the connection to NATS has been re-established (%s)", err.Error()))
+		api.logger.Send("info", fmt.Sprintf("the connection to NATS has been re-established (%v)", err))
 	})
 
 	api.natsConnection = nc

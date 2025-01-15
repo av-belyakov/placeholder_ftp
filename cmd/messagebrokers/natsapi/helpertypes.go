@@ -7,13 +7,13 @@ import (
 
 // RequestFromNats структура запроса из модуля
 type RequestFromNats struct {
-	Data        []byte                   //набор данных
 	RequestId   string                   //id запроса
 	ElementType string                   //тип элемента
 	RootId      string                   //идентификатор по которому в TheHive будет выполнятся поиск
 	CaseId      string                   //идентификатор кейса в TheHive
 	Command     string                   //команда
 	Order       string                   //распоряжение
+	Data        []byte                   //набор данных
 	ChanOutput  chan ci.ChannelResponser //канал ответа реализующий интерфейс commoninterfaces.ChannelResponser
 }
 

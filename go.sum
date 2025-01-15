@@ -1,7 +1,5 @@
 github.com/av-belyakov/simplelogger v0.0.0-20250113074237-c90989ef4b7e h1:Nuyap04s2KGKUrd313QSxFJKXvaj1e6x/NxA5gIMayE=
 github.com/av-belyakov/simplelogger v0.0.0-20250113074237-c90989ef4b7e/go.mod h1:yW2ev3nXPP3WY8svBWJpg4PQRl67MTGIaaiXJ0ULRZ8=
-github.com/av-belyakov/thehivehook_go_package v0.0.0-20250110133425-06752d892e62 h1:lP6S+0in6BzIAv8KNScWNYoCzsf4q4TgNOWekAwjuhc=
-github.com/av-belyakov/thehivehook_go_package v0.0.0-20250110133425-06752d892e62/go.mod h1:I/NWsRikXwRU+tmsjGfUe/KTW1nmXselgAs+9gUeIDA=
 github.com/av-belyakov/zabbixapicommunicator v0.0.0-20241225064839-9c19184470aa h1:ivXQuTb7UxYUy568EOIOvRDExKLU3tDnw634d+WTGto=
 github.com/av-belyakov/zabbixapicommunicator v0.0.0-20241225064839-9c19184470aa/go.mod h1:/9uIlkIPp366cZZt/m3skUb3zREYjWB034aw8+mshQA=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

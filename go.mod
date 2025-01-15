@@ -4,7 +4,6 @@ go 1.23.3
 
 require (
 	github.com/av-belyakov/simplelogger v0.0.0-20250113074237-c90989ef4b7e
-	github.com/av-belyakov/thehivehook_go_package v0.0.0-20250110133425-06752d892e62
 	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20241225064839-9c19184470aa
 	github.com/elastic/go-elasticsearch/v8 v8.17.0
 	github.com/go-playground/validator/v10 v10.23.0
