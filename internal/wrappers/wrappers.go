@@ -38,7 +38,10 @@ func WrappersZabbixInteraction(
 			IsTransmit: v.IsTransmit,
 			EventType:  v.EventType,
 			ZabbixKey:  v.ZabbixKey,
-			Handshake:  zabbixapicommunicator.Handshake(v.Handshake),
+			Handshake: zabbixapicommunicator.Handshake{
+				TimeInterval: v.Handshake.TimeInterval,
+				Message:      v.Handshake.Message,
+			},
 		})
 	}
 
