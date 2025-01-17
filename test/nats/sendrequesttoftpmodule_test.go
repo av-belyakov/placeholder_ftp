@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
 )
@@ -38,27 +37,31 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 	err = nc.PublishRequest(
 		"phftp.commands",
 		replyTo,
-		/*[]byte(fmt.Sprintf(`{
-			"task_id": "%s",
-			"service": "test_service",
-			"command": "convert_and_copy_file",
-			"parameters": {
-				"path_local_ftp": "/ftp/someuser/folder_one",
-				"path_main_ftp": "/ftp/someuser/folder_two",
-				"files": ["test_pcap_file.pcap", "test_pcap_file_http.pcap"]
-			}
-		}`, uuid.New().String()))*/
 		[]byte(fmt.Sprintf(`{
-			"task_id": "%s",
+			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
 			"source": "gcm",
-			"service": "test_service",
+			"service": "placeholder_ftp_client",
 			"command": "convert_and_copy_file",
 			"parameters": {
-				"path_local_ftp": "/net_traff",
-				"path_main_ftp": "/net_traff_txt",
-				"files": ["test_pcap_file.pcap", "test_pcap_file_http.pcap"]
+				"path_local_ftp": "/traffic/8030164",
+				"path_main_ftp": "/traffic/8030164",
+				"files": [
+				  "1663128065_2022_09_14____07_01_05_749644.pcap",
+				  "1663143227_2022_09_14____11_13_47_575934.pcap" 
+				]
 			}
-		}`, uuid.New().String())))
+		}`)))
+	/*[]byte(fmt.Sprintf(`{
+		"task_id": "%s",
+		"source": "gcm",
+		"service": "test_service",
+		"command": "convert_and_copy_file",
+		"parameters": {
+			"path_local_ftp": "/net_traff",
+			"path_main_ftp": "/net_traff_txt",
+			"files": ["test_pcap_file.pcap", "test_pcap_file_http.pcap"]
+		}
+	}`, uuid.New().String())))*/
 	assert.NoError(t, err)
 
 	sub, err := nc.SubscribeSync(replyTo)

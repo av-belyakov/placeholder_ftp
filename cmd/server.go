@@ -173,6 +173,55 @@ func server(ctx context.Context) {
 		appStatus = fmt.Sprintf("%v%s%v", Ansi_Bright_Red, envValue, Ansi_Reset)
 	}
 
+	/*
+	   	Делаю поочередно следующее:
+
+	   0. Проверить что в ответном JSON код ответа был 200 при успешном выполнении задачи или
+	   550 при не успешном.
+	   Или может быть вообще убрать его?????? Потому что при если один файл был успешно обработан,
+	   а другой нет то не понятно какой код ответа ставить.
+
+	   1. В config добавляю параметр содержащий путь до директории, на MIIN_FTP, в котором хранятся файлы переведенные в формат txt.
+
+	   2. Изменяю структуру запроса, со всей вытекающей логикой его обработки, на запрос вида:
+	   ```
+	   {
+	     "task_id": "", //идентификатор задачи
+	     "source": "", //наименование регионального объекта к которому был адресован запрос
+	     "service": "", //имя сервиса-инициатора команды
+	     "command": "convert_and_copy_file", //наименование команды
+	     "parameters": {
+	         "links": [
+	             "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
+	             "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file_http.pcap",
+	             "..."
+	             ] //список файлов которые необходимо обработать
+	         }
+	   }
+	   ```
+
+	   3. Изменяю структуру ответа, соответственно логику его формирующую тоже, на ответ вида:
+	   ```
+	   {
+	     "request_id":"", //идентификатор задачи
+	     "source": "", //наименование регионального объекта к которому был адресован запрос
+	     "error": "", //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
+	     "status_code": "", //код статуса выполнения задачи
+	     "processed": [
+	         {
+	             "error": "" //ошибка возникшая при обработки файла
+	             "size_befor_processing": int //размер файла до обработки
+	             "size_after_processing": int //размер файла после обработки
+	             "link_old": "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
+	             "link_new": "ftp://ftp.cloud.gcm/traff/test_pcap_file.pcap.txt"
+	         }
+	     ]
+	   }
+	   ```
+
+	   4. При обработки pcap результирующий txt файл не должен превышать размер в 50 Мб.
+	*/
+
 	msg := fmt.Sprintf("Application '%s' v%s was successfully launched", appname.GetAppName(), appversion.GetAppVersion())
 	fmt.Printf("\n%v%v%s.%v\n", Bold_Font, Ansi_Bright_Green, msg, Ansi_Reset)
 	fmt.Printf("%v%vApplication status is '%s'.%v\n", Underlining, Ansi_Bright_Green, appStatus, Ansi_Reset)
