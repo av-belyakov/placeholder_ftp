@@ -41,6 +41,7 @@ func TestConfigHandler(t *testing.T) {
 
 	assert.Equal(t, conf.GetFileName(), "config_test")
 	assert.Equal(t, conf.GetNameRegionalObject(), "testrcm")
+	assert.Equal(t, conf.GetMainFTPPathResultDirectory(), "share_file_txt/test")
 
 	//Подключение к NATS
 	confNats := conf.GetConfigNATS()
@@ -70,6 +71,13 @@ func TestConfigHandler(t *testing.T) {
 	assert.Equal(t, confWriteLogDB.User, "log_writer")
 	assert.Equal(t, confWriteLogDB.Passwd, DBWLOGPASSWD)
 
+	//Имя регионального объекта
+	os.Setenv("GO_PHFTP_NAMEREGOBJ", "test_reg_obj")
+
+	//Путь на MainFTP по которому сохраняются загружаемые файлы
+	os.Setenv("GO_PHFTP_MAINFTPPATHRESDIR", "nain_ftp_dir")
+
+	//Подключение к NATS
 	os.Setenv("GO_PHFTP_NPREFIX", "new_prefix")
 	os.Setenv("GO_PHFTP_NHOST", "localhost")
 	os.Setenv("GO_PHFTP_NPORT", "3344")
@@ -119,6 +127,12 @@ func TestConfigHandler(t *testing.T) {
 
 	conf, err = confighandler.New("placeholder_ftp", CONF_DIR_NAME)
 	assert.NoError(t, err)
+
+	//Имя регионального объекта
+	assert.Equal(t, conf.GetNameRegionalObject(), "test_reg_obj")
+
+	//Путь на MainFTP по которому сохраняются загружаемые файлы
+	assert.Equal(t, conf.GetMainFTPPathResultDirectory(), "nain_ftp_dir")
 
 	confNats = conf.GetConfigNATS()
 	assert.Equal(t, confNats.Prefix, "new_prefix")

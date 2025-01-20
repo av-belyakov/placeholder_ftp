@@ -27,6 +27,14 @@
 
 - GO_PHFTP_MAIN
 
+#### Переменная окружения отвечающая за наименование регионального объекта
+
+- GO_PHFTP_NAMEREGOBJ
+
+#### Переменная окружения отвечающая за путь на MainFTP по которому сохраняются загружаемые файлы
+
+- GO_PHFTP_MAINFTPPATHRESDIR
+
 #### Переменные окружения отвечающие за подключение к NATS
 
 - GO_PHFTP_NPREFIX
@@ -73,9 +81,11 @@
 	"service": "test_service", //имя сервиса-инициатора команды
 	"command": "convert_and_copy_file", //наименование команды
 	"parameters": {
-		"path_local_ftp": "/net_traff", //путь к папке на локальном ftp сервере
- 		"path_main_ftp": "/net_traff_txt", //путь к целевой папке на ftp сервере-агрегаторе
-		"files": ["test_pcap_file.pcap", "test_pcap_file_http.pcap"] //список файлов которые необходимо обработать
+    "links": [
+	    "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
+	    "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file_http.pcap",
+	    "..."
+	    ] //список ссылок на файлы, которые необходимо обработать
 	}
 }
 ```
@@ -94,15 +104,14 @@
   "request_id":"", //идентификатор задачи
   "source": "", //наименование регионального объекта к которому был адресован запрос
   "error": "", //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
-  "status_code": "", //код статуса выполнения задачи
-  "processed_files": [
-    {
-      "file_name_old": "" //старое имя файла
-      "file_name_new": "" //новое имя файла (которое формируется на основе старого, после обработки файла декодером)
-      "error": "" //ошибка возникшая при обработки файла
+  "processed_information": [
+	  {
+	    "error": "" //ошибка возникшая при обработки файла
+	    "link_old": "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
+	    "link_new": "ftp://ftp.cloud.gcm/traff/test_pcap_file.pcap.txt"
       "size_befor_processing": int //размер файла до обработки
-      "size_after_processing": int //размер файла после обработки
-    }
+	    "size_after_processing": int //размер файла после обработки
+	  }
   ]
 }
 ```

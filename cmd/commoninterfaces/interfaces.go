@@ -6,8 +6,8 @@ type ChannelResponser interface {
 	RequestIdHandler
 	GetError() error
 	SetError(error)
-	GetData() []FileInformationTransfer
-	SetData([]FileInformationTransfer)
+	GetData() []LinkInformationTransfer
+	SetData([]LinkInformationTransfer)
 }
 
 type ChannelRequester interface {
@@ -22,12 +22,12 @@ type ChannelRequester interface {
 	SetChanOutput(chan ChannelResponser)
 }
 
-type FileInformationTransfer interface {
+type LinkInformationTransfer interface {
 	ErrorHandler
-	GetFileNameNew() string
-	SetFileNameNew(v string)
-	GetFileNameOld() string
-	SetFileNameOld(v string)
+	GetLinkNew() string
+	SetLinkNew(v string)
+	GetLinkOld() string
+	SetLinkOld(v string)
 	GetSizeBeforProcessing() int
 	SetSizeBeforProcessing(int)
 	GetSizeAfterProcessing() int

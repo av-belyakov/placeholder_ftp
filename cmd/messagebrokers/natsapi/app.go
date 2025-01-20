@@ -6,13 +6,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"runtime"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 
 	ci "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
+	"github.com/av-belyakov/placeholder_ftp/internal/supportingfunctions"
 )
 
 // New настраивает новый модуль взаимодействия с API NATS
@@ -45,9 +45,8 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 		fmt.Sprintf("%s:%d", api.host, api.port),
 		nats.MaxReconnects(-1),
 		nats.ReconnectWait(3*time.Second))
-	_, f, l, _ := runtime.Caller(0)
 	if err != nil {
-		return api.sendingChannel, fmt.Errorf("'%w' %s:%d", err, f, l-4)
+		return api.sendingChannel, supportingfunctions.CustomError(err)
 	}
 
 	go func(ctx context.Context, nc *nats.Conn) {
@@ -57,12 +56,12 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 
 	//обработка разрыва соединения с NATS
 	nc.SetDisconnectErrHandler(func(c *nats.Conn, err error) {
-		api.logger.Send("error", fmt.Sprintf("the connection with NATS has been disconnected (%v)", err))
+		api.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("the connection with NATS has been disconnected (%w)", err)).Error())
 	})
 
 	//обработка переподключения к NATS
 	nc.SetReconnectHandler(func(c *nats.Conn) {
-		api.logger.Send("info", fmt.Sprintf("the connection to NATS has been re-established (%v)", err))
+		api.logger.Send("info", supportingfunctions.CustomError(fmt.Errorf("the connection to NATS has been re-established (%w)", err)).Error())
 	})
 
 	api.natsConnection = nc
@@ -76,74 +75,73 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 // subscriptionHandler обработчик команд
 func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 	api.natsConnection.Subscribe(api.subscriptions.listenerCommand, func(m *nats.Msg) {
-		rc := RequestCommand{}
-		if err := json.Unmarshal(m.Data, &rc); err != nil {
-			_, f, l, _ := runtime.Caller(0)
-			api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
-
-			//сообщение с ошибкой клиенту API приложения при получении
-			//некорректного JSON объекта
-			res, err := json.Marshal(MainResponse{Error: "invalid json object received"})
-			if err != nil {
-				_, f, l, _ := runtime.Caller(0)
-				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
-
-				return
-			}
-
-			if err := m.Respond(res); err != nil {
-				_, f, l, _ := runtime.Caller(0)
-				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
-			}
-
-			return
-		}
-
-		var response MainResponse
-		if rc.TaskId == "" {
-			response.Error = "invalid json object received, issue 'task_id' is missing"
-		}
-
-		if rc.Command == "" {
-			response.Error = "invalid json object received, issue 'command' is missing"
-		}
-
-		if rc.Source == "" {
-			response.Error = "invalid json object received, issue 'source' is missing"
-		}
-
-		if response.Error != "" {
-			res, err := json.Marshal(response)
-			if err != nil {
-				_, f, l, _ := runtime.Caller(0)
-				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
-
-				return
-			}
-
-			if err := m.Respond(res); err != nil {
-				_, f, l, _ := runtime.Caller(0)
-				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
-			}
-
-			api.logger.Send("error", response.Error)
-
-			return
-		}
-
-		//убеждаемся, что входящий запрос действительно предназначен для обработки
-		//текущим региональным объектом
-		if rc.Source != api.nameRegionalObject {
-			api.logger.Send("warning", fmt.Sprintf("source name '%s' does not match the current regional name of the object", rc.Source))
-
-			return
-		}
-
-		go api.handlerIncomingCommands(ctx, rc, m)
+		go api.handlerIncomingJSON(ctx, m)
 	})
 }
 
-// handlerIncomingCommands обработчик входящих, через NATS, команд
+// handlerIncomingJSON обработчик JSON объектов
+func (api *apiNatsModule) handlerIncomingJSON(ctx context.Context, m *nats.Msg) {
+	rc := RequestCommand{}
+	if err := json.Unmarshal(m.Data, &rc); err != nil {
+		api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+		//сообщение с ошибкой из-за полученного некорректного JSON объекта
+		res, err := json.Marshal(MainResponse{Error: "invalid json object received"})
+		if err != nil {
+			api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+			return
+		}
+
+		if err := m.Respond(res); err != nil {
+			api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+		}
+
+		return
+	}
+
+	var response MainResponse
+	if rc.TaskId == "" {
+		response.Error = "invalid json object received, issue 'task_id' is missing"
+	}
+
+	if rc.Command == "" {
+		response.Error = "invalid json object received, issue 'command' is missing"
+	}
+
+	if rc.Source == "" {
+		response.Error = "invalid json object received, issue 'source' is missing"
+	}
+
+	if response.Error != "" {
+		res, err := json.Marshal(response)
+		if err != nil {
+			api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+			return
+		}
+
+		if err := m.Respond(res); err != nil {
+			api.logger.Send("error", supportingfunctions.CustomError(err).Error())
+		}
+
+		api.logger.Send("error", response.Error)
+
+		return
+	}
+
+	//убеждаемся, что входящий запрос действительно предназначен для обработки
+	//текущим региональным объектом
+	if rc.Source != api.nameRegionalObject {
+		api.logger.Send("warning", fmt.Sprintf("source name '%s' does not match the current regional name of the object", rc.Source))
+
+		return
+	}
+
+	go api.handlerIncomingCommands(ctx, rc, m)
+}
+
+// handlerIncomingCommands обработчик команд
 func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc RequestCommand, m *nats.Msg) {
 	id := uuid.New().String()
 	chRes := make(chan ci.ChannelResponser)
@@ -170,11 +168,11 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 			return
 
 		case msg := <-chRes:
-			listProcessedFile := []ProcessedFile(nil)
+			listProcessedFile := []ProcessedInformation(nil)
 			for _, v := range msg.GetData() {
-				processedFile := ProcessedFile{
-					FileNameOld:         v.GetFileNameOld(),
-					FileNameNew:         v.GetFileNameNew(),
+				processedFile := ProcessedInformation{
+					LinkOld:             v.GetLinkOld(),
+					LinkNew:             v.GetLinkNew(),
 					SizeBeforProcessing: v.GetSizeBeforProcessing(),
 					SizeAfterProcessing: v.GetSizeAfterProcessing(),
 				}
@@ -198,15 +196,13 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 
 			res, err := json.Marshal(mainResponse)
 			if err != nil {
-				_, f, l, _ := runtime.Caller(0)
-				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+				api.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 				return
 			}
 
 			if err := m.Respond(res); err != nil {
-				_, f, l, _ := runtime.Caller(0)
-				api.logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+				api.logger.Send("error", supportingfunctions.CustomError(err).Error())
 			}
 
 			api.logger.Send("info", fmt.Sprintf("task id '%s' the command '%s' from service '%s' returned %+v", msg.GetRequestId(), rc.Command, rc.Service, listProcessedFile))

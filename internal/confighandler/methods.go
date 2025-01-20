@@ -10,6 +10,11 @@ func (c AppConfig) GetNameRegionalObject() string {
 	return c.Information.NameRegionalObject
 }
 
+// GetMainFTPPathResultDirectory путь на MainFTP сервере для хранения файлов
+func (c AppConfig) GetMainFTPPathResultDirectory() string {
+	return c.Information.MainFTPPathResultDirectory
+}
+
 // GetSimpleLoggerPackage настройки пакета 'simplelogger'
 func (c AppConfig) GetSimpleLoggerPackage() []LoggerOption {
 	return c.Logging.SimpleLoggerPackage

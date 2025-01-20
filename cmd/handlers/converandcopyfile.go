@@ -4,16 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path"
-	"runtime"
+	"strings"
 
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 	"github.com/av-belyakov/placeholder_ftp/internal/supportingfunctions"
 	"github.com/av-belyakov/placeholder_ftp/internal/wrappers"
 )
 
-// HandlerConvertAndCopyFile обработчик копирования и преобразования ффайлов
+// HandlerConvertAndCopyFile обработчик копирования и преобразования файлов
 func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req commoninterfaces.ChannelRequester) {
 	result := NewResultRequestCopyFileFromFtpServer()
 	result.SetRequestId(req.GetRequestId())
@@ -21,56 +22,89 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 	// исходный ftp сервер
 	localFtp, err := wrappers.NewWrapperSimpleNetworkClient(opts.ConfLocalFtp)
 	if err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		msgErr := fmt.Errorf("local FTP %s", err)
-		opts.Logger.Send("error", fmt.Sprintf("%v %s:%d", msgErr, f, l-2))
+		msgErr := fmt.Errorf("local FTP %w", err)
+		opts.Logger.Send("error", supportingfunctions.CustomError(msgErr).Error())
 
 		result.SetError(msgErr)
+		req.GetChanOutput() <- result
 
 		return
 	}
 
+	// ftp сервер назначения
 	mainFtp, err := wrappers.NewWrapperSimpleNetworkClient(opts.ConfMainFtp)
 	if err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		msgErr := fmt.Errorf("main FTP %s", err)
-		opts.Logger.Send("error", fmt.Sprintf("%v %s:%d", msgErr, f, l-2))
+		msgErr := fmt.Errorf("main FTP %w", err)
+		opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		result.SetError(msgErr)
+		req.GetChanOutput() <- result
 
 		return
 	}
 
 	request := RequestCopyFileFromFtpServer{}
 	if err := json.Unmarshal(req.GetData(), &request); err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-2))
+		opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		result.SetError(err)
+		req.GetChanOutput() <- result
 
 		return
 	}
 
-	listProcessedFile := []commoninterfaces.FileInformationTransfer(nil)
-	for _, fileName := range request.Parameters.Files {
-		pf := NewProcessedFiles()
-		pf.SetFileNameOld(fileName)
-		pf.SetFileNameNew(fmt.Sprintf("%s.txt", fileName))
+	listProcessedLink := []commoninterfaces.LinkInformationTransfer(nil)
+	for _, link := range request.Parameters.Links {
+		pf := NewProcessedLink()
+		pf.SetLinkOld(link)
+
+		if ok := strings.HasPrefix(link, "ftp://"); !ok {
+			err := fmt.Errorf("incorrect prefix in the link '%s'", link)
+
+			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+			pf.SetError(err)
+			listProcessedLink = append(listProcessedLink, pf)
+
+			continue
+		}
+
+		suffTdp := strings.HasSuffix(link, ".tdp")
+		suffPcap := strings.HasSuffix(link, ".pcap")
+		if !suffTdp && !suffPcap {
+			err := fmt.Errorf("incorrect suffix in the link '%s'", link)
+
+			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+			pf.SetError(err)
+			listProcessedLink = append(listProcessedLink, pf)
+
+			continue
+		}
+
+		result, err := supportingfunctions.LinkParse(link)
+		if err != nil {
+			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
+
+			pf.SetError(err)
+			listProcessedLink = append(listProcessedLink, pf)
+
+			continue
+		}
 
 		//чтение файла с ftp сервера источника
-		_, f, l, _ := runtime.Caller(0)
 		countByteRead, err := localFtp.ReadFile(
 			ctx,
 			wrappers.WrapperReadWriteFileOptions{
-				SrcFilePath: request.Parameters.PathLocalFtp,
-				SrcFileName: fileName,
+				SrcFilePath: result.Path,
+				SrcFileName: result.FileName,
 				DstFilePath: opts.TmpDir,
-				DstFileName: fileName,
+				DstFileName: result.FileName,
 			})
 		if err != nil {
-			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l+1))
+			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 			pf.SetError(err)
-			listProcessedFile = append(listProcessedFile, pf)
+			listProcessedLink = append(listProcessedLink, pf)
 
 			continue
 		}
@@ -78,15 +112,24 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 		//
 		// это пока только для тестов
 		//********************************
-		opts.Logger.Send("info", fmt.Sprintf("%d byte file '%s' has been successfully created", countByteRead, fileName))
+		opts.Logger.Send("info", fmt.Sprintf("%d byte file '%s' has been successfully created", countByteRead, result.FileName))
 		//********************************
 
+		newFileName := result.FileName + ".txt"
+
+		//формируем и устанавливаем ссылку по которой на MainFTP будет хранится файл
+		u := &url.URL{
+			Scheme: result.Scheme,
+			Host:   opts.ConfMainFtp.GetHost(),
+			Path:   path.Join(opts.PathResultDirMainFTP, newFileName),
+		}
+		pf.SetLinkNew(u.String())
+
 		//декодирование и конвертация файла формата .pcap в текстовый вид
-		if err = convertingNetworkTraffic(opts.TmpDir, pf.GetFileNameOld(), pf.GetFileNameNew(), opts.Logger); err != nil {
-			_, f, l, _ = runtime.Caller(0)
-			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+		if err = convertingNetworkTraffic(opts.TmpDir, result.FileName, newFileName, opts.Logger); err != nil {
+			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 			pf.SetError(err)
-			listProcessedFile = append(listProcessedFile, pf)
+			listProcessedLink = append(listProcessedLink, pf)
 
 			continue
 		}
@@ -96,15 +139,14 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 			ctx,
 			wrappers.WrapperReadWriteFileOptions{
 				SrcFilePath: opts.TmpDir,
-				SrcFileName: pf.GetFileNameNew(),
-				DstFilePath: request.Parameters.PathMainFtp,
-				DstFileName: pf.GetFileNameNew(),
+				SrcFileName: newFileName,
+				DstFilePath: opts.PathResultDirMainFTP,
+				DstFileName: newFileName,
 			})
 		if err != nil {
-			_, f, l, _ = runtime.Caller(0)
-			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-9))
+			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 			pf.SetError(err)
-			listProcessedFile = append(listProcessedFile, pf)
+			listProcessedLink = append(listProcessedLink, pf)
 
 			continue
 		}
@@ -112,28 +154,27 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 		//
 		// это пока только для тестов
 		//********************************
-		opts.Logger.Send("info", fmt.Sprintf("file '%s' has been successfully copied to FTP", fileName))
+		opts.Logger.Send("info", fmt.Sprintf("file '%s' has been successfully copied to FTP", result.FileName))
 		//********************************
 
 		var countByteDecode int
-		if fi, err := os.Stat(path.Join(opts.TmpDir, pf.GetFileNameNew())); err == nil {
+		if fi, err := os.Stat(path.Join(opts.TmpDir, newFileName)); err == nil {
 			countByteDecode = int(fi.Size())
 		}
 
 		//удаление временных файлов
-		if err = deleteTmpFiles(opts.TmpDir, pf.GetFileNameOld(), pf.GetFileNameNew()); err != nil {
-			_, f, l, _ = runtime.Caller(0)
-			opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-1))
+		if err = deleteTmpFiles(opts.TmpDir, result.FileName, newFileName); err != nil {
+			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 			pf.SetError(err)
 		}
 
 		pf.SetSizeBeforProcessing(countByteRead)
 		pf.SetSizeAfterProcessing(countByteDecode)
 
-		listProcessedFile = append(listProcessedFile, pf)
+		listProcessedLink = append(listProcessedLink, pf)
 	}
 
-	result.SetData(listProcessedFile)
+	result.SetData(listProcessedLink)
 
 	req.GetChanOutput() <- result
 }

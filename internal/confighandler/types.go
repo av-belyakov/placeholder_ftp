@@ -12,8 +12,9 @@ type AppConfig struct {
 
 // Information информация о приложении
 type Information struct {
-	FileName           string `validate:"required" yaml:"filename"`
-	NameRegionalObject string `validate:"required" yaml:"name_regional_object"`
+	FileName                   string `validate:"required" yaml:"filename"`
+	NameRegionalObject         string `validate:"required" yaml:"name_regional_object"`
+	MainFTPPathResultDirectory string `validate:"required" yaml:"main_ftp_path_result_directory"`
 }
 
 // ConfigLogs настройки логирования
@@ -60,11 +61,11 @@ type Handshake struct {
 
 // ConfigNATS настройки NATS
 type ConfigNATS struct {
-	Subscriptions SubscriptionsNATS `yaml:"subscriptions"`                       //список подписок
-	Prefix        string            `yaml:"prefix"`                              //префикс
-	Host          string            `validate:"required" yaml:"host"`            //ip адрес или доменное имя
-	Port          int               `validate:"gt=0,lte=65535" yaml:"port"`      //сетевой порт
-	CacheTTL      int               `validate:"gt=10,lte=86400" yaml:"cacheTtl"` //время жизни кеша
+	Subscriptions SubscriptionsNATS `yaml:"subscriptions"`                        //список подписок
+	Prefix        string            `yaml:"prefix"`                               //префикс
+	Host          string            `validate:"required" yaml:"host"`             //ip адрес или доменное имя
+	Port          int               `validate:"gt=0,lte=65535" yaml:"port"`       //сетевой порт
+	CacheTTL      int               `validate:"gt=10,lte=86400" yaml:"cache_ttl"` //время жизни кеша
 }
 
 type SubscriptionsNATS struct {
@@ -82,7 +83,7 @@ type ConfigWriteLogDB struct {
 	Host          string `yaml:"host"`
 	User          string `yaml:"user"`
 	Passwd        string `yaml:"passwd"`
-	NameDB        string `yaml:"namedb"`
-	StorageNameDB string `yaml:"storageNamedb"`
+	NameDB        string `yaml:"name_db"`
+	StorageNameDB string `yaml:"storage_name_db"`
 	Port          int    `validate:"gt=0,lte=65535" yaml:"port"`
 }

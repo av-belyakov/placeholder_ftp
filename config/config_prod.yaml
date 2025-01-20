@@ -1,11 +1,12 @@
 COMMONINFO:
   file_name: "config_prod"
   name_regional_object: "gcm"
+  main_ftp_path_result_directory: "placeholder_ftp_share"
 NATS:
   prefix: "test"
   host: "nats.cloud.gcm"
   port: 4222
-  cacheTtl: 3600
+  cache_ttl: 3600
   subscriptions:
     listener_command: "phftp.commands.test"
 LOCALFTP:
@@ -13,12 +14,12 @@ LOCALFTP:
   port: 21
   username: "ftp-user"
 MAINFTP:
-  host: "ftp-users.cloud.gcm"
+  host: "ftp.cloud.gcm"
   port: 21
-  username: "ftp-user"
+  username: "ftp"
 DATABASEWRITELOG:
   host: "datahook.cloud.gcm"
   port: 9200
-  namedb: ""
-  storageNamedb: "placeholder_ftp_package"
+  name_db: ""
+  storage_name_db: "placeholder_ftp_package"
   user: "log_writer"

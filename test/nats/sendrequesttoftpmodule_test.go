@@ -35,19 +35,35 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 
 	replyTo := nats.NewInbox()
 	err = nc.PublishRequest(
-		"phftp.commands",
+		"phftp.commands.test",
 		replyTo,
+		//с моего локального ftp на мой локальный
+		/*[]byte(fmt.Sprintf(`{
+			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
+			"source": "rcmmsk",
+			"service": "placeholder_ftp_client",
+			"command": "convert_and_copy_file",
+			"parameters": {
+				"links": [
+				  "ftp://127.0.0.1/folder_one/test_pcap_file.pcap",
+				  "ftp://127.0.0.1/folder_one/test_pcap_file1_http.pcap"
+				]
+			}
+		}`*/
+
+		//с ftp-users.cloud.gcm на ftp.cloud.gcm
 		[]byte(fmt.Sprintf(`{
 			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
 			"source": "gcm",
 			"service": "placeholder_ftp_client",
 			"command": "convert_and_copy_file",
 			"parameters": {
-				"path_local_ftp": "/traffic/8030164",
-				"path_main_ftp": "/traffic/8030164",
-				"files": [
-				  "1663128065_2022_09_14____07_01_05_749644.pcap",
-				  "1663143227_2022_09_14____11_13_47_575934.pcap" 
+				"links": [
+				  "ftp://ftp-users.cloud.gcm/net_fraff/test_pcap_file.pcap",
+				  "ftp://ftp-users.cloud.gcm/net_traff/test_pcap_file_http.pcap", 
+				  "ftp://ftp-users.cloud.gcm/net_fraff/1616152425_2021_03_19____14_13_45_24636.tdp",
+				  "ftp://ftp-users.cloud.gcm/net_traff/1616152317_2021_03_19____14_11_57_59.tdp",
+				  "ftp://ftp-users.cloud.gcm/net_traff/1636150859_2021_11_06____01_20_59_187344.pcap"
 				]
 			}
 		}`)))

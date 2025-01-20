@@ -32,68 +32,68 @@ func (obj *ResultRequestCopyFileFromFtpServer) SetError(v error) {
 }
 
 // GetData возвращает данные
-func (obj *ResultRequestCopyFileFromFtpServer) GetData() []commoninterfaces.FileInformationTransfer {
+func (obj *ResultRequestCopyFileFromFtpServer) GetData() []commoninterfaces.LinkInformationTransfer {
 	return obj.Data
 }
 
 // SetData устанавливает данные
-func (obj *ResultRequestCopyFileFromFtpServer) SetData(v []commoninterfaces.FileInformationTransfer) {
+func (obj *ResultRequestCopyFileFromFtpServer) SetData(v []commoninterfaces.LinkInformationTransfer) {
 	obj.Data = v
 }
 
-// ******* ProcessedFiles *******
+// ******* ProcessedLink *******
 
-// NewProcessedFiles описание обработанного файла
-func NewProcessedFiles() *ProcessedFiles {
-	return &ProcessedFiles{}
+// NewProcessedLink описание обработанного файла
+func NewProcessedLink() *ProcessedLink {
+	return &ProcessedLink{}
 }
 
 // GetError возвращает ошибку возникшую при обработки файла
-func (obj *ProcessedFiles) GetError() error {
+func (obj *ProcessedLink) GetError() error {
 	return obj.err
 }
 
 // SetError устанавливает ошибку возникшую при обработки файла
-func (obj *ProcessedFiles) SetError(v error) {
+func (obj *ProcessedLink) SetError(v error) {
 	obj.err = v
 }
 
-// GetFileNameOld возвращает старое имя файла
-func (obj *ProcessedFiles) GetFileNameOld() string {
-	return obj.fileNameOld
+// GetLinkOld возвращает старое имя файла
+func (obj *ProcessedLink) GetLinkOld() string {
+	return obj.linkOld
 }
 
-// SetFileNameOld устанавливает старое имя файла
-func (obj *ProcessedFiles) SetFileNameOld(v string) {
-	obj.fileNameOld = v
+// SetLinkOld устанавливает старое имя файла
+func (obj *ProcessedLink) SetLinkOld(v string) {
+	obj.linkOld = v
 }
 
-// GetFileNameNew возвращает новое имя файла
-func (obj *ProcessedFiles) GetFileNameNew() string {
-	return obj.fileNameNew
+// GetLinkNew возвращает новое имя файла
+func (obj *ProcessedLink) GetLinkNew() string {
+	return obj.linkNew
 }
 
-// SetFileNameNew устанавливает новое имя файла
-func (obj *ProcessedFiles) SetFileNameNew(v string) {
-	obj.fileNameNew = v
+// SetLinkNew устанавливает новое имя файла
+func (obj *ProcessedLink) SetLinkNew(v string) {
+	obj.linkNew = v
 }
 
 // GetSizeBeforProcessing возвращает размер файла перед обработкой
-func (obj *ProcessedFiles) GetSizeBeforProcessing() int {
+func (obj *ProcessedLink) GetSizeBeforProcessing() int {
 	return obj.sizeBeforProcessing
 }
 
 // SetSizeBeforProcessing устанавливает размер файла перед обработкой
-func (obj *ProcessedFiles) SetSizeBeforProcessing(v int) {
+func (obj *ProcessedLink) SetSizeBeforProcessing(v int) {
 	obj.sizeBeforProcessing = v
 }
 
 // GetSizeAfterProcessing возвращает размер файла после обработки
-func (obj *ProcessedFiles) GetSizeAfterProcessing() int {
+func (obj *ProcessedLink) GetSizeAfterProcessing() int {
 	return obj.sizeAfterProcessing
 }
 
 // SetSizeAfterProcessing устанавливает размер файла после обработки
-func (obj *ProcessedFiles) SetSizeAfterProcessing(v int) {
+func (obj *ProcessedLink) SetSizeAfterProcessing(v int) {
 	obj.sizeAfterProcessing = v
 }

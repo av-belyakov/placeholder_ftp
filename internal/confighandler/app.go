@@ -19,6 +19,12 @@ func New(rootDir, confDir string) (*AppConfig, error) {
 		envList  map[string]string = map[string]string{
 			"GO_PHFTP_MAIN": "",
 
+			//Наименование регионального объекта (name_regional_object)
+			"GO_PHFTP_NAMEREGOBJ": "",
+
+			//Путь на MainFTP по которому сохраняются загружаемые файлы
+			"GO_PHFTP_MAINFTPPATHRESDIR": "",
+
 			//Подключение к NATS
 			"GO_PHFTP_NPREFIX":             "",
 			"GO_PHFTP_NHOST":               "",
@@ -93,6 +99,16 @@ func New(rootDir, confDir string) (*AppConfig, error) {
 
 	if err := setSpecial(fn, &conf); err != nil {
 		return &conf, err
+	}
+
+	//Наименование регионального объекта (name_regional_object)
+	if envList["GO_PHFTP_NAMEREGOBJ"] != "" {
+		conf.NameRegionalObject = envList["GO_PHFTP_NAMEREGOBJ"]
+	}
+
+	//Путь на MainFTP по которому сохраняются загружаемые файлы
+	if envList["GO_PHFTP_MAINFTPPATHRESDIR"] != "" {
+		conf.MainFTPPathResultDirectory = envList["GO_PHFTP_MAINFTPPATHRESDIR"]
 	}
 
 	//Настройки для модуля подключения к NATS
@@ -258,6 +274,10 @@ func setSpecial(filename string, conf *AppConfig) error {
 		conf.NameRegionalObject = viper.GetString("COMMONINFO.name_regional_object")
 	}
 
+	if viper.IsSet("COMMONINFO.main_ftp_path_result_directory") {
+		conf.MainFTPPathResultDirectory = viper.GetString("COMMONINFO.main_ftp_path_result_directory")
+	}
+
 	//Настройки для модуля подключения к NATS
 	if viper.IsSet("NATS.prefix") {
 		conf.NATS.Prefix = viper.GetString("NATS.prefix")
@@ -268,8 +288,8 @@ func setSpecial(filename string, conf *AppConfig) error {
 	if viper.IsSet("NATS.port") {
 		conf.NATS.Port = viper.GetInt("NATS.port")
 	}
-	if viper.IsSet("NATS.cacheTtl") {
-		conf.NATS.CacheTTL = viper.GetInt("NATS.cacheTtl")
+	if viper.IsSet("NATS.cache_ttl") {
+		conf.NATS.CacheTTL = viper.GetInt("NATS.cache_ttl")
 	}
 
 	if viper.IsSet("NATS.subscriptions.listener_command") {
@@ -308,11 +328,11 @@ func setSpecial(filename string, conf *AppConfig) error {
 	if viper.IsSet("DATABASEWRITELOG.user") {
 		conf.WriteLogDB.User = viper.GetString("DATABASEWRITELOG.user")
 	}
-	if viper.IsSet("DATABASEWRITELOG.namedb") {
-		conf.WriteLogDB.NameDB = viper.GetString("DATABASEWRITELOG.namedb")
+	if viper.IsSet("DATABASEWRITELOG.name_db") {
+		conf.WriteLogDB.NameDB = viper.GetString("DATABASEWRITELOG.name_db")
 	}
-	if viper.IsSet("DATABASEWRITELOG.storageNamedb") {
-		conf.WriteLogDB.StorageNameDB = viper.GetString("DATABASEWRITELOG.storageNamedb")
+	if viper.IsSet("DATABASEWRITELOG.storage_name_db") {
+		conf.WriteLogDB.StorageNameDB = viper.GetString("DATABASEWRITELOG.storage_name_db")
 	}
 
 	return nil

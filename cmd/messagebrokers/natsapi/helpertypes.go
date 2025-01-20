@@ -19,7 +19,7 @@ type RequestFromNats struct {
 
 // ResponsToNats структура ответа в модуля
 type ResponseToNats struct {
-	Data       []commoninterfaces.FileInformationTransfer //набор данных
+	Data       []commoninterfaces.LinkInformationTransfer //набор данных
 	Error      error                                      //описание ошибки
 	RequestId  string                                     //уникальный идентификатор ответа (соответствует идентификатору запроса)
 	StatusCode int                                        //статус кода ответа
@@ -35,17 +35,17 @@ type RequestCommand struct {
 
 // MainResponse основной ответ, на запрос стороннего сервиса
 type MainResponse struct {
-	ListProcessedFile []ProcessedFile `json:"list_processed_file"`
-	RequestId         string          `json:"request_id"`
-	Source            string          `json:"source"`
-	Error             string          `json:"error"`
+	ListProcessedFile []ProcessedInformation `json:"processed_information"`
+	RequestId         string                 `json:"request_id"`
+	Source            string                 `json:"source"`
+	Error             string                 `json:"error"`
 }
 
-// ProcessedFile подробное описание результата по обработке файла
-type ProcessedFile struct {
-	FileNameOld         string `json:"file_name_old"`
-	FileNameNew         string `json:"file_name_new"`
+// ProcessedInformation подробная информация полученная после обрабатывания запроса
+type ProcessedInformation struct {
 	Error               string `json:"error"`
+	LinkOld             string `json:"link_old"`
+	LinkNew             string `json:"link_new"`
 	SizeBeforProcessing int    `json:"size_befor_processing"`
 	SizeAfterProcessing int    `json:"size_after_processing"`
 }

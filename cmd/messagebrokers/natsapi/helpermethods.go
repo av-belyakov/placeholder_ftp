@@ -43,12 +43,12 @@ func (r *ResponseToNats) SetError(v error) {
 }
 
 // GetData метод возвращает данные
-func (r *ResponseToNats) GetData() []commoninterfaces.FileInformationTransfer {
+func (r *ResponseToNats) GetData() []commoninterfaces.LinkInformationTransfer {
 	return r.Data
 }
 
 // SetData метод устанавливает определенные данные
-func (r *ResponseToNats) SetData(v []commoninterfaces.FileInformationTransfer) {
+func (r *ResponseToNats) SetData(v []commoninterfaces.LinkInformationTransfer) {
 	r.Data = v
 }
 

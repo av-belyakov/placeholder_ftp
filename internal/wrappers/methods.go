@@ -72,6 +72,8 @@ func (client *WrapperSimplyNetworkClient) ReadFile(ctx context.Context, opts Wra
 		return size, err
 	}
 
+	fmt.Println("func 'ReadFile' link:", path.Join(opts.SrcFilePath, opts.SrcFileName))
+
 	r, err := c.Retr(path.Join(opts.SrcFilePath, opts.SrcFileName))
 	if err != nil {
 		return size, err

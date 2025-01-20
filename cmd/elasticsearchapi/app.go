@@ -47,8 +47,6 @@ func NewElasticsearchConnect(settings Settings) (*ElasticsearchDB, error) {
 }
 
 func (edb *ElasticsearchDB) Write(msgType, msg string) error {
-	fmt.Println("func 'Write' obj 'ElasticsearchDB' msgtype:", msgType, " msg:", msg)
-
 	if edb.client == nil {
 		return errors.New("the client parameters for connecting to the Elasticsearch database are not set correctly")
 	}

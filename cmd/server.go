@@ -100,15 +100,13 @@ func server(ctx context.Context) {
 		natsapi.WithSubListenerCommand(confNatsSAPI.Subscriptions.ListenerCommand)}
 	apiNats, err := natsapi.New(logging, confApp.GetNameRegionalObject(), natsOptsAPI...)
 	if err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.Write("error", fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-3))
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
 	chNatsReqApi, err := apiNats.Start(ctx)
 	if err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.Write("error", fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-3))
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
@@ -119,37 +117,36 @@ func server(ctx context.Context) {
 	//****************** проверка наличия доступа к FTP серверам ********************
 	msgErr := "access initialization error"
 	localFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
-	_, f, l, _ := runtime.Caller(0)
 	if err != nil {
-		_ = simpleLogger.Write("error", fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1))
-		log.Fatalf("%s LOCALFTP '%s' %s:%d\n", msgErr, err.Error(), f, l-1)
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w'", msgErr, err)).Error())
+		log.Fatalf("%s LOCALFTP '%s'\n", msgErr, err.Error())
 	}
 
 	//проверяем доступ к локальному ftp серверу
 	if err := localFtp.CheckConn(); err != nil {
-		_ = simpleLogger.Write("error", fmt.Sprintf("%s LOCALFTP '%s' %s:%d", msgErr, err.Error(), f, l-1))
-		log.Fatalf("%s LOCALFTP '%s': %s:%d\n", msgErr, err.Error(), f, l-1)
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w'", msgErr, err)).Error())
+		log.Fatalf("%s LOCALFTP '%s'\n", msgErr, err.Error())
 	}
 
 	mainFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
-	_, f, l, _ = runtime.Caller(0)
 	if err != nil {
-		_ = simpleLogger.Write("error", fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1))
-		log.Fatalf("%s MAINFTP '%s': %s:%d\n", msgErr, err.Error(), f, l-1)
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w'", msgErr, err)).Error())
+		log.Fatalf("%s MAINFTP '%s'\n", msgErr, err.Error())
 	}
 
 	//проверяем доступ к удаленному ftp серверу
 	if err = mainFtp.CheckConn(); err != nil {
-		_ = simpleLogger.Write("error", fmt.Sprintf("%s MAINFTP '%s' %s:%d", msgErr, err.Error(), f, l-1))
-		log.Fatalf("%s MAINFTP '%s': %s:%d\n", msgErr, err.Error(), f, l-1)
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w'", msgErr, err)).Error())
+		log.Fatalf("%s MAINFTP '%s'\n", msgErr, err.Error())
 	}
 	//*******************************************************************************
 
 	ftpho := handlers.FtpHandlerOptions{
-		TmpDir:       Tmp_Files,
-		ConfLocalFtp: &confLocalFtp,
-		ConfMainFtp:  &confMainFtp,
-		Logger:       logging,
+		TmpDir:               Tmp_Files,
+		PathResultDirMainFTP: confApp.MainFTPPathResultDirectory,
+		ConfLocalFtp:         &confLocalFtp,
+		ConfMainFtp:          &confMainFtp,
+		Logger:               logging,
 	}
 	handlerList := map[string]func(ci.ChannelRequester){
 		"copy_file": func(req ci.ChannelRequester) {
@@ -162,8 +159,7 @@ func server(ctx context.Context) {
 
 	//создание временной директории если ее нет
 	if err := supportingfunctions.CreateDirectory(Root_Dir, Tmp_Files); err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.Write("error", fmt.Sprintf("error create tmp directory '%s' %s:%d", err.Error(), f, l-1))
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("error create tmp directory '%w'", err)).Error())
 		log.Fatalf("error create tmp directory '%s'\n", err.Error())
 	}
 
@@ -234,8 +230,7 @@ func server(ctx context.Context) {
 	_ = simpleLogger.Write("info", strings.ToLower(msg))
 
 	if err = router(ctx, handlerList, chNatsReqApi); err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.Write("error", fmt.Sprintf("'%s' %s:%d", err.Error(), f, l-1))
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 		log.Fatalln(err)
 	}
 }

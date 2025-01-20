@@ -10,30 +10,30 @@ type RequestCopyFileFromFtpServer struct {
 	Parameters ParameterCopyFileFromFtpServer `json:"parameters"` //дополнительные параметры
 }
 
+// ParameterCopyFileFromFtpServer подробные параметры
+type ParameterCopyFileFromFtpServer struct {
+	Links []string `json:"links"`
+}
+
 type ResultRequestCopyFileFromFtpServer struct {
-	Data   []commoninterfaces.FileInformationTransfer `json:"data"`    //содержит данные
+	Data   []commoninterfaces.LinkInformationTransfer `json:"data"`    //содержит данные
 	Error  error                                      `json:"error"`   //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
 	TaskId string                                     `json:"task_id"` //идентификатор задачи
 }
 
-type ProcessedFiles struct {
-	err                 error  `json:"error"`                 //ошибка возникшая при обработки файла
-	fileNameOld         string `json:"file_name_old"`         //старое имя файла
-	fileNameNew         string `json:"file_name_new"`         //новое имя файла (которое формируется на основе старого, после обработки файла декодером)
-	sizeBeforProcessing int    `json:"size_befor_processing"` //размер файла до обработки
-	sizeAfterProcessing int    `json:"size_after_processing"` //размер файла после обработки
-}
-
-// ParameterCopyFileFromFtpServer подробные параметры
-type ParameterCopyFileFromFtpServer struct {
-	PathLocalFtp string   `json:"path_local_ftp"`
-	PathMainFtp  string   `json:"path_main_ftp"`
-	Files        []string `json:"files"`
-}
-
 type FtpHandlerOptions struct {
-	TmpDir       string
-	ConfLocalFtp commoninterfaces.SimpleNetworkConsumer
-	ConfMainFtp  commoninterfaces.SimpleNetworkConsumer
-	Logger       commoninterfaces.Logger
+	ConfLocalFtp         commoninterfaces.SimpleNetworkConsumer
+	ConfMainFtp          commoninterfaces.SimpleNetworkConsumer
+	Logger               commoninterfaces.Logger
+	PathResultDirMainFTP string
+	TmpDir               string
+}
+
+type ProcessedLink struct {
+	err                 error  //ошибка возникшая при обработки файла
+	linkOld             string //старое имя файла
+	linkNew             string //новое имя файла (которое формируется на основе старого, после обработки файла декодером)
+	sizeBeforProcessing int    //размер файла до обработки
+	sizeAfterProcessing int    //размер файла после обработки
+
 }

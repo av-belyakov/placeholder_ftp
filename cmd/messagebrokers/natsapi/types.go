@@ -34,9 +34,9 @@ type ModuleNATS struct {
 
 // SettingsOutputChan канал вывода данных из модуля
 type SettingsOutputChan struct {
+	Data        []byte //набор данных
 	MsgId       string //id сообщения
 	SubjectType string //тип подписки
-	Data        []byte //набор данных
 }
 
 // SettingsInputChan канал для приема данных в модуль
