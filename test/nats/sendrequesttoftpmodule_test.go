@@ -35,7 +35,7 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 
 	replyTo := nats.NewInbox()
 	err = nc.PublishRequest(
-		"phftp.commands",
+		"phftp.commands.test",
 		replyTo,
 		//с моего локального ftp на мой локальный
 		/*[]byte(fmt.Sprintf(`{
@@ -52,23 +52,21 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 		}`*/
 
 		//с ftp-users.cloud.gcm на ftp.cloud.gcm
-		/*[]byte(fmt.Sprintf(`{
+		[]byte(fmt.Sprintf(`{
 			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
 			"source": "gcm",
 			"service": "placeholder_ftp_client",
 			"command": "convert_and_copy_file",
 			"parameters": {
 				"links": [
-				  "ftp://ftp-users.cloud.gcm/net_fraff/test_pcap_file.pcap",
-				  "ftp://ftp-users.cloud.gcm/net_traff/test_pcap_file_http.pcap",
-				  "ftp://ftp-users.cloud.gcm/net_fraff/1616152425_2021_03_19____14_13_45_24636.tdp",
-				  "ftp://ftp-users.cloud.gcm/net_traff/1616152317_2021_03_19____14_11_57_59.tdp",
-				  "ftp://ftp-users.cloud.gcm/net_traff/1636150859_2021_11_06____01_20_59_187344.pcap"
+				  "ftp://ftp-users.cloud.gcm/net_fraff/1612180241_2021_02_01____14_50_41_627326.pcap",
+				  "ftp://ftp-users.cloud.gcm/net_traff/1636150859_2021_11_06____01_20_59_187344.pcap",
+				  "ftp://ftp-users.cloud.gcm/net_traff/1657648219_2022_07_12____20_50_19_597902.pcap"
 				]
 			}
-		}`*/
+		}`,
 		//с ftp.cloud.gcm на ftp.cloud.gcm
-		[]byte(fmt.Sprintf(`{
+		/*[]byte(fmt.Sprintf(`{
 			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
 			"source": "gcm",
 			"service": "placeholder_ftp_client",
@@ -78,11 +76,12 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 				  "ftp://ftp.cloud.gcm/traffic/8030164/1663120413_2022_09_14____04_53_33_386827.pcap",
 				  "ftp://ftp.cloud.gcm/traffic/8030164/1663128065_2022_09_14____07_01_05_749644.pcap",
 				  "ftp://ftp.cloud.gcm/traffic/8030165/1668058908_2022_11_10____08_41_48_422075.pcap",
-				  "ftp://ftp.cloud.gcm/traffic/8030165/1668063343_2022_11_10____09_55_43_559376.pcap", 
+				  "ftp://ftp.cloud.gcm/traffic/8030165/1668063343_2022_11_10____09_55_43_559376.pcap",
 				  "ftp://ftp.cloud.gcm/traffic/8030166/1685447431_2023_05_30____14_50_31_938789.pcap"
 				]
 			}
-		}`)))
+		}`*/
+		)))
 	/*[]byte(fmt.Sprintf(`{
 		"task_id": "%s",
 		"source": "gcm",

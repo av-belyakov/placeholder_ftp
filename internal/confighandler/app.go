@@ -278,6 +278,10 @@ func setSpecial(filename string, conf *AppConfig) error {
 		conf.MainFTPPathResultDirectory = viper.GetString("COMMONINFO.main_ftp_path_result_directory")
 	}
 
+	if viper.IsSet("COMMONINFO.max_writing_file_limit") {
+		conf.MaxWritingFileLimit = viper.GetInt("COMMONINFO.max_writing_file_limit")
+	}
+
 	//Настройки для модуля подключения к NATS
 	if viper.IsSet("NATS.prefix") {
 		conf.NATS.Prefix = viper.GetString("NATS.prefix")

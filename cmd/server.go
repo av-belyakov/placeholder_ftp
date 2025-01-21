@@ -144,6 +144,7 @@ func server(ctx context.Context) {
 	ftpho := handlers.FtpHandlerOptions{
 		TmpDir:               Tmp_Files,
 		PathResultDirMainFTP: confApp.MainFTPPathResultDirectory,
+		MaxWritingFileLimit:  confApp.MaxWritingFileLimit,
 		ConfLocalFtp:         &confLocalFtp,
 		ConfMainFtp:          &confMainFtp,
 		Logger:               logging,

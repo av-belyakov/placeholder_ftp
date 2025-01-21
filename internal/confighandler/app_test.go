@@ -42,6 +42,7 @@ func TestConfigHandler(t *testing.T) {
 	assert.Equal(t, conf.GetFileName(), "config_test")
 	assert.Equal(t, conf.GetNameRegionalObject(), "testrcm")
 	assert.Equal(t, conf.GetMainFTPPathResultDirectory(), "share_file_txt/test")
+	assert.Equal(t, conf.GetMaxWritingFileLimit(), 10)
 
 	//Подключение к NATS
 	confNats := conf.GetConfigNATS()

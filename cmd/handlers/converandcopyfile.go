@@ -109,11 +109,7 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 			continue
 		}
 
-		//
-		// это пока только для тестов
-		//********************************
 		opts.Logger.Send("info", fmt.Sprintf("%d byte file '%s' has been successfully created", countByteRead, result.FileName))
-		//********************************
 
 		newFileName := result.FileName + ".txt"
 
@@ -134,6 +130,40 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 			continue
 		}
 
+		var countByteDecode int
+		if fi, err := os.Stat(path.Join(opts.TmpDir, newFileName)); err == nil {
+			countByteDecode = int(fi.Size())
+		}
+
+		//проверка размера полученного файла и при необходимости создание
+		//нового файла, размер которого не будет превышать параметра
+		//COMMONINFO.max_writing_file_limit конфигурационного файла
+		var suffix string
+		isLarge, err := fileIsLarge(opts.TmpDir, newFileName, opts.MaxWritingFileLimit)
+		if err != nil {
+			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
+			pf.SetError(err)
+			listProcessedLink = append(listProcessedLink, pf)
+		}
+
+		if isLarge {
+			suffix = ".limit"
+
+			if writedByte, err := supportingfunctions.WritingFileLimit(opts.TmpDir, newFileName, suffix, opts.MaxWritingFileLimit); err != nil {
+				opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
+				pf.SetError(err)
+				listProcessedLink = append(listProcessedLink, pf)
+			} else {
+				if err = deleteTmpFiles(opts.TmpDir, newFileName); err != nil {
+					opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
+					pf.SetError(err)
+				}
+
+				countByteDecode = int(writedByte)
+				newFileName = newFileName + suffix
+			}
+		}
+
 		//запись загрузка файла на ftp сервер назначения
 		err = mainFtp.WriteFile(
 			ctx,
@@ -151,16 +181,7 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 			continue
 		}
 
-		//
-		// это пока только для тестов
-		//********************************
 		opts.Logger.Send("info", fmt.Sprintf("file '%s' has been successfully copied to FTP", result.FileName))
-		//********************************
-
-		var countByteDecode int
-		if fi, err := os.Stat(path.Join(opts.TmpDir, newFileName)); err == nil {
-			countByteDecode = int(fi.Size())
-		}
 
 		//удаление временных файлов
 		if err = deleteTmpFiles(opts.TmpDir, result.FileName, newFileName); err != nil {
@@ -179,6 +200,19 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 	req.GetChanOutput() <- result
 }
 
+func fileIsLarge(pathName, fileName string, maxSize int) (bool, error) {
+	fileInfo, err := os.Stat(path.Join(pathName, fileName))
+	if err != nil {
+		return false, err
+	}
+
+	if fileInfo.Size() > int64(maxSize*1024*1024) {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func deleteTmpFiles(pathDir string, files ...string) error {
 	for _, file := range files {
 		if err := os.Remove(path.Join(pathDir, file)); err != nil {
@@ -195,7 +229,6 @@ func convertingNetworkTraffic(filePath, rfn, wfn string, logging commoninterface
 	if err != nil {
 		return err
 	}
-
 	defer readFile.Close()
 
 	// для файла в который выполняется запись информации полученной в результате декодирования
@@ -203,7 +236,6 @@ func convertingNetworkTraffic(filePath, rfn, wfn string, logging commoninterface
 	if err != nil {
 		return err
 	}
-
 	defer writeFile.Close()
 
 	err = supportingfunctions.NetworkTrafficDecoder(rfn, readFile, writeFile, logging)

@@ -15,6 +15,7 @@ type Information struct {
 	FileName                   string `validate:"required" yaml:"filename"`
 	NameRegionalObject         string `validate:"required" yaml:"name_regional_object"`
 	MainFTPPathResultDirectory string `validate:"required" yaml:"main_ftp_path_result_directory"`
+	MaxWritingFileLimit        int    `yaml:"max_writing_file_limit"`
 }
 
 // ConfigLogs настройки логирования

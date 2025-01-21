@@ -15,6 +15,11 @@ func (c AppConfig) GetMainFTPPathResultDirectory() string {
 	return c.Information.MainFTPPathResultDirectory
 }
 
+// GetMaxWritingFileLimit ограничение максимального размера файла, в мегабайтах, который будет передаваться на ftp MainFTP
+func (c AppConfig) GetMaxWritingFileLimit() int {
+	return c.Information.MaxWritingFileLimit
+}
+
 // GetSimpleLoggerPackage настройки пакета 'simplelogger'
 func (c AppConfig) GetSimpleLoggerPackage() []LoggerOption {
 	return c.Logging.SimpleLoggerPackage

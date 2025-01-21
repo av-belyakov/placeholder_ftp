@@ -27,6 +27,7 @@ type FtpHandlerOptions struct {
 	Logger               commoninterfaces.Logger
 	PathResultDirMainFTP string
 	TmpDir               string
+	MaxWritingFileLimit  int
 }
 
 type ProcessedLink struct {

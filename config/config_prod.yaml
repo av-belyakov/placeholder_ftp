@@ -2,6 +2,7 @@ COMMONINFO:
   file_name: "config_prod"
   name_regional_object: "gcm"
   main_ftp_path_result_directory: "placeholder_ftp_share"
+  max_writing_file_limit: 10
 NATS:
   prefix: "test"
   host: "nats.cloud.gcm"
@@ -20,6 +21,6 @@ MAINFTP:
 DATABASEWRITELOG:
   host: "datahook.cloud.gcm"
   port: 9200
+  user: "log_writer"
   name_db: ""
   storage_name_db: "placeholder_ftp_package"
-  user: "log_writer"
