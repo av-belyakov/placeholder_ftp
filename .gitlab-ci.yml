@@ -1,16 +1,11 @@
-test-job:
-  script:
-    - echo "This is my first job!"
-    - date
-    - echo "CI_REGISTRY_IMAGE:$CI_REGISTRY_IMAGE"
-    - echo "CI_COMMIT_SHORT_SHA:$CI_COMMIT_SHORT_SHA"
-
 build-job:
   stage: build
   tags:
     - placeholder_ftp
   script:
     - echo "Hello, $GITLAB_USER_LOGIN!"
+    - echo "CI_REGISTRY_IMAGE:$CI_REGISTRY_IMAGE"
+    - echo "CI_COMMIT_SHORT_SHA:$CI_COMMIT_SHORT_SHA"
     - echo "Building Dockerfile..."
     #    - docker pull $CI_REGISTRY_IMAGE:latest || true
     #    - docker build -t gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:production_version_0.6.2 .
