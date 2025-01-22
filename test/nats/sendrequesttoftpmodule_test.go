@@ -35,7 +35,7 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 
 	replyTo := nats.NewInbox()
 	err = nc.PublishRequest(
-		"phftp.commands.test",
+		"phftp.commands",
 		replyTo,
 		//с моего локального ftp на мой локальный
 		/*[]byte(fmt.Sprintf(`{
@@ -52,7 +52,7 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 		}`*/
 
 		//с ftp-users.cloud.gcm на ftp.cloud.gcm
-		[]byte(fmt.Sprintf(`{
+		/*[]byte(fmt.Sprintf(`{
 			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
 			"source": "gcm",
 			"service": "placeholder_ftp_client",
@@ -64,9 +64,9 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 				  "ftp://ftp-users.cloud.gcm/net_traff/1657648219_2022_07_12____20_50_19_597902.pcap"
 				]
 			}
-		}`,
+		}`,*/
 		//с ftp.cloud.gcm на ftp.cloud.gcm
-		/*[]byte(fmt.Sprintf(`{
+		[]byte(fmt.Sprintf(`{
 			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
 			"source": "gcm",
 			"service": "placeholder_ftp_client",
@@ -81,7 +81,7 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 				  "ftp://ftp.cloud.gcm/traffic/1068/1653484285_2022_05_25____16_11_25_764284.pcap"
 				]
 			}
-		}`,*/
+		}`,
 		)))
 	/*[]byte(fmt.Sprintf(`{
 		"task_id": "%s",
