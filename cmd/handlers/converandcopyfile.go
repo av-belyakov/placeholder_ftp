@@ -154,11 +154,6 @@ func (opts FtpHandlerOptions) HandlerConvertAndCopyFile(ctx context.Context, req
 				pf.SetError(err)
 				listProcessedLink = append(listProcessedLink, pf)
 			} else {
-				if err = deleteTmpFiles(opts.TmpDir, newFileName); err != nil {
-					opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
-					pf.SetError(err)
-				}
-
 				countByteDecode = int(writedByte)
 				newFileName = newFileName + suffix
 			}

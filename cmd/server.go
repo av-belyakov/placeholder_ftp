@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"runtime"
 	"strings"
 
@@ -14,8 +13,6 @@ import (
 	"github.com/av-belyakov/placeholder_ftp/cmd/elasticsearchapi"
 	"github.com/av-belyakov/placeholder_ftp/cmd/handlers"
 	"github.com/av-belyakov/placeholder_ftp/cmd/messagebrokers/natsapi"
-	"github.com/av-belyakov/placeholder_ftp/internal/appname"
-	"github.com/av-belyakov/placeholder_ftp/internal/appversion"
 	"github.com/av-belyakov/placeholder_ftp/internal/confighandler"
 	"github.com/av-belyakov/placeholder_ftp/internal/logginghandler"
 	"github.com/av-belyakov/placeholder_ftp/internal/supportingfunctions"
@@ -164,71 +161,8 @@ func server(ctx context.Context) {
 		log.Fatalf("error create tmp directory '%s'\n", err.Error())
 	}
 
-	appStatus := fmt.Sprintf("%vproduction%v", Ansi_Bright_Blue, Ansi_Reset)
-	envValue, ok := os.LookupEnv("GO_PHFTP_MAIN")
-	if ok && envValue == "development" {
-		appStatus = fmt.Sprintf("%v%s%v", Ansi_Bright_Red, envValue, Ansi_Reset)
-	}
-
-	/*
-	   	Делаю поочередно следующее:
-
-	   0. Проверить что в ответном JSON код ответа был 200 при успешном выполнении задачи или
-	   550 при не успешном.
-	   Или может быть вообще убрать его?????? Потому что при если один файл был успешно обработан,
-	   а другой нет то не понятно какой код ответа ставить.
-
-	   1. В config добавляю параметр содержащий путь до директории, на MIIN_FTP, в котором хранятся файлы переведенные в формат txt.
-
-	   2. Изменяю структуру запроса, со всей вытекающей логикой его обработки, на запрос вида:
-	   ```
-	   {
-	     "task_id": "", //идентификатор задачи
-	     "source": "", //наименование регионального объекта к которому был адресован запрос
-	     "service": "", //имя сервиса-инициатора команды
-	     "command": "convert_and_copy_file", //наименование команды
-	     "parameters": {
-	         "links": [
-	             "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
-	             "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file_http.pcap",
-	             "..."
-	             ] //список файлов которые необходимо обработать
-	         }
-	   }
-	   ```
-
-	   3. Изменяю структуру ответа, соответственно логику его формирующую тоже, на ответ вида:
-	   ```
-	   {
-	     "request_id":"", //идентификатор задачи
-	     "source": "", //наименование регионального объекта к которому был адресован запрос
-	     "error": "", //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
-	     "status_code": "", //код статуса выполнения задачи
-	     "processed": [
-	         {
-	             "error": "" //ошибка возникшая при обработки файла
-	             "size_befor_processing": int //размер файла до обработки
-	             "size_after_processing": int //размер файла после обработки
-	             "link_old": "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
-	             "link_new": "ftp://ftp.cloud.gcm/traff/test_pcap_file.pcap.txt"
-	         }
-	     ]
-	   }
-	   ```
-
-	   4. При обработки pcap результирующий txt файл не должен превышать размер в 50 Мб.
-	*/
-
-	msg := fmt.Sprintf("Application '%s' v%s was successfully launched", appname.GetAppName(), appversion.GetAppVersion())
-	fmt.Printf("\n%v%v%s.%v\n", Bold_Font, Ansi_Bright_Green, msg, Ansi_Reset)
-	fmt.Printf("%v%vApplication status is '%s'.%v\n", Underlining, Ansi_Bright_Green, appStatus, Ansi_Reset)
-	fmt.Printf("%vLocal FTP server settings:%v\n", Ansi_Bright_Green, Ansi_Reset)
-	fmt.Printf("%v  ip: %v%s%v\n", Ansi_Bright_Green, Ansi_Bright_Blue, confLocalFtp.Host, Ansi_Reset)
-	fmt.Printf("%v  net port: %v%d%v\n", Ansi_Bright_Green, Ansi_Bright_Magenta, confLocalFtp.Port, Ansi_Reset)
-	fmt.Printf("%vMain FTP server settings:%v\n", Ansi_Bright_Green, Ansi_Reset)
-	fmt.Printf("%v  ip: %v%s%v\n", Ansi_Bright_Green, Ansi_Bright_Blue, confMainFtp.Host, Ansi_Reset)
-	fmt.Printf("%v  net port: %v%d%v\n\n", Ansi_Bright_Green, Ansi_Bright_Magenta, confMainFtp.Port, Ansi_Reset)
-	_ = simpleLogger.Write("info", strings.ToLower(msg))
+	// вывод информационного сообщения при старте приложения
+	_ = simpleLogger.Write("info", strings.ToLower(getInformationMessage(confLocalFtp, confMainFtp)))
 
 	if err = router(ctx, handlerList, chNatsReqApi); err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())

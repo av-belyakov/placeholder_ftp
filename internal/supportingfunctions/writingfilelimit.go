@@ -1,7 +1,6 @@
 package supportingfunctions
 
 import (
-	"io"
 	"os"
 	"path"
 )
@@ -10,7 +9,7 @@ import (
 // в новый файл находящийся в этой же директории и задает такое же имя файла с добавлением
 // в конце файла дополнительного суфикса, например '.limit'
 func WritingFileLimit(pathName, fileName, suffix string, maxChunk int) (int64, error) {
-	f, err := os.Open(path.Join(pathName, fileName))
+	/*f, err := os.Open(path.Join(pathName, fileName))
 	if err != nil {
 		return 0, err
 	}
@@ -26,7 +25,16 @@ func WritingFileLimit(pathName, fileName, suffix string, maxChunk int) (int64, e
 	num, err := io.Copy(fdst, r)
 	if err != nil {
 		return 0, err
+	}*/
+
+	chunk := int64(maxChunk * 1024 * 1024)
+	oldPath := path.Join(pathName, fileName)
+
+	if err := os.Truncate(oldPath, chunk); err != nil {
+		return chunk, err
 	}
 
-	return num, nil
+	os.Rename(oldPath, path.Join(pathName, fileName+suffix))
+
+	return chunk, nil
 }

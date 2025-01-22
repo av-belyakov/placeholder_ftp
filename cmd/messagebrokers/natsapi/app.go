@@ -61,7 +61,7 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 
 	//обработка переподключения к NATS
 	nc.SetReconnectHandler(func(c *nats.Conn) {
-		api.logger.Send("info", supportingfunctions.CustomError(fmt.Errorf("the connection to NATS has been re-established (%w)", err)).Error())
+		api.logger.Send("info", "the connection to NATS has been re-established")
 	})
 
 	api.natsConnection = nc

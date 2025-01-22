@@ -77,10 +77,11 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 				  "ftp://ftp.cloud.gcm/traffic/8030164/1663128065_2022_09_14____07_01_05_749644.pcap",
 				  "ftp://ftp.cloud.gcm/traffic/8030165/1668058908_2022_11_10____08_41_48_422075.pcap",
 				  "ftp://ftp.cloud.gcm/traffic/8030165/1668063343_2022_11_10____09_55_43_559376.pcap",
-				  "ftp://ftp.cloud.gcm/traffic/8030166/1685447431_2023_05_30____14_50_31_938789.pcap"
+				  "ftp://ftp.cloud.gcm/traffic/8030166/1685447431_2023_05_30____14_50_31_938789.pcap",
+				  "ftp://ftp.cloud.gcm/traffic/1068/1653484285_2022_05_25____16_11_25_764284.pcap"
 				]
 			}
-		}`*/
+		}`,*/
 		)))
 	/*[]byte(fmt.Sprintf(`{
 		"task_id": "%s",
