@@ -2,6 +2,8 @@ test-job:
   script:
     - echo "This is my first job!"
     - date
+    - echo "CI_REGISTRY_IMAGE:$CI_REGISTRY_IMAGE"
+    - echo "CI_COMMIT_SHORT_SHA:$CI_COMMIT_SHORT_SHA"
 
 build-job:
   stage: build
