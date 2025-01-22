@@ -13,6 +13,7 @@ RUN mkdir /opt/placeholder_ftp && \
     mkdir /opt/placeholder_ftp/logs
 WORKDIR /opt/placeholder_ftp
 COPY --from=temporary_image /go/src/placeholder_ftp /opt/placeholder_ftp/
-#COPY --from=temporary_image /go/src/README.md /opt/placeholder_ftp/README.md
+COPY --from=temporary_image /go/src/README.md /opt/placeholder_ftp/README.md
 
 ENTRYPOINT [ "./placeholder_ftp" ]
+
