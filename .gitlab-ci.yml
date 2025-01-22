@@ -5,8 +5,8 @@ test-job:
 
 build-job:
   stage: build
-  #  tags:
-  #    - dev_test
+    tags:
+      - placeholder_ftp
   script:
     - echo "Hello, $GITLAB_USER_LOGIN!"
     - echo "Building Dockerfile..."
