@@ -18,6 +18,8 @@ build-job:
     #- docker pull $CI_REGISTRY_IMAGE:latest || true
     #- docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA -t $CI_REGISTRY_IMAGE:latest .
     #- docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+   - $CI_REGISTRY_IMAGE
+     --dockerfile "${CI_REGISTRY_IMAGE}/Dockerfile"
     - docker build -t $CI_REGISTRY_IMAGE:production_version_0.6.3 .
     - docker push $CI_REGISTRY_IMAGE:latest
     - echo "Building complete."
