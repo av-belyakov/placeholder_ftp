@@ -9,10 +9,6 @@ default:
   tags:
     - placeholder_ftp
 
-stages:
-  - build
-  - deploy
-
 before_script:
   - echo "Hello, $GITLAB_USER_LOGIN!"
   - echo "CI_REGISTRY_IMAGE:$CI_REGISTRY_IMAGE"
@@ -30,7 +26,7 @@ build-job:
     # fetches the latest image (not failing if image is not found)
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     - docker build --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     - echo "Building complete."
 
 # Here, the goal is to tag the "master" branch as "latest"
@@ -44,7 +40,7 @@ push-latest:
     # that built the image in the previous step, we pull it again locally
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     # Then we tag it "latest"
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:latest
 
 deploy-prod:
