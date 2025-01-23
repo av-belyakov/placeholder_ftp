@@ -1,6 +1,6 @@
 # README
 
-Приложение "Placeholder_ftp" выполняет преобразования файлов сетевого трафика в текстовый формат по анаологии с TShark.
+Приложение "Placeholder_ftp" выполняет преобразования файлов сетевого трафика в текстовый формат по аналогии с TShark.
 Выполняет действия в следующем порядке:
 
 1. Принимает команду в виде JSON объекта, структура JSON объекта подробно описана ниже, через брокер сообщения NATS.
@@ -88,17 +88,17 @@
 
 ```
 {
-	"task_id": "", //идентификатор задачи
+  "task_id": "", //идентификатор задачи
   "source": "", //наименование регионального объекта к которому был адресован запрос
-	"service": "test_service", //имя сервиса-инициатора команды
-	"command": "convert_and_copy_file", //наименование команды
-	"parameters": {
-    "links": [
-	    "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
-	    "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file_http.pcap",
-	    "..."
-	    ] //список ссылок на файлы, которые необходимо обработать
-	}
+  "service": "test_service", //имя сервиса-инициатора команды
+  "command": "convert_and_copy_file", //наименование команды
+  "parameters": {
+  "links": [
+    "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
+	  "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file_http.pcap",
+	  "..."
+	  ] //список ссылок на файлы, которые необходимо обработать
+  }
 }
 ```
 
@@ -117,13 +117,13 @@
   "source": "", //наименование регионального объекта к которому был адресован запрос
   "error": "", //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
   "processed_information": [
-	  {
-	    "error": "" //ошибка возникшая при обработки файла
-	    "link_old": "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
-	    "link_new": "ftp://ftp.cloud.gcm/traff/test_pcap_file.pcap.txt"
-      "size_befor_processing": int //размер файла до обработки
-	    "size_after_processing": int //размер файла после обработки
-	  }
+	{
+	  "error": "" //ошибка возникшая при обработки файла
+	  "link_old": "ftp://ftp.rcm.cloud.gcm/traff/test_pcap_file.pcap",
+	  "link_new": "ftp://ftp.cloud.gcm/traff/test_pcap_file.pcap.txt"
+    "size_befor_processing": int //размер файла до обработки
+	  "size_after_processing": int //размер файла после обработки
+	}
   ]
 }
 ```

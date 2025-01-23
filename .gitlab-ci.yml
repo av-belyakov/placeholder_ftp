@@ -1,3 +1,10 @@
+stages:
+  #  - sync
+  - test
+  - build
+  - push
+  - deploy
+
 default:
   tags:
     - placeholder_ftp
@@ -7,20 +14,34 @@ before_script:
   - echo "CI_REGISTRY_IMAGE:$CI_REGISTRY_IMAGE"
   - echo "CI_COMMIT_SHORT_SHA:$CI_COMMIT_SHORT_SHA"
 
+#update-readme-job:
+#  stage: sync
+#  script:
+#  - "curl -X POST --fail -F token=3ddf785cc6a89f02d452ea79ab976a -F ref=REF_NAME http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
+
 build-job:
   stage: build
-  #tags:
-  #  - placeholder_ftp
   script:
     - echo "Building Dockerfile..."
-    #    - docker pull $CI_REGISTRY_IMAGE:latest || true
-    #    - docker build -t gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:production_version_0.6.2 .
-    #- docker pull $CI_REGISTRY_IMAGE:latest || true
-    #- docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA -t $CI_REGISTRY_IMAGE:latest .
-    #- docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
-    - docker build -t $CI_REGISTRY_IMAGE:production_version_0.6.3 .
-    - docker push $CI_REGISTRY_IMAGE:latest
+    # fetches the latest image (not failing if image is not found)
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker build --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - echo "Building complete."
+
+# Here, the goal is to tag the "master" branch as "latest"
+push-latest:
+  stage: push
+  only:
+    # Only "master" should be tagged "latest"
+    - master
+  script:
+    # Because we have no guarantee that this job will be picked up by the same runner
+    # that built the image in the previous step, we pull it again locally
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    # Then we tag it "latest"
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest
 
 deploy-prod:
   stage: deploy
