@@ -48,5 +48,5 @@ deploy-prod:
   only:
     - master
   script:
-    - "curl -X POST --fail -F token=$CI_TEST_PH_FTP_CONTAINER -F ref=latest http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
+    - "curl -X POST --fail -F token=$CI_TEST_PH_FTP_CONTAINER -F ref=main http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
   environment: production
