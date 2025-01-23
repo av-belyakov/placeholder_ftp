@@ -23,6 +23,7 @@ build-job:
     #- docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA -t $CI_REGISTRY_IMAGE:latest .
     #- docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker build -t $CI_REGISTRY_IMAGE:production_version_0.6.3 .
+    - docker build -t $CI_REGISTRY_IMAGE:latest . 
     - docker push $CI_REGISTRY_IMAGE:production_version_0.6.3
     - echo "Build is completed"
 
