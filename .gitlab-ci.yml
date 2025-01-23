@@ -42,7 +42,7 @@ push-latest:
     # that built the image in the previous step, we pull it again locally
     - docker pull $CI_REGISTRY_IMAGE:$app_name-$CI_COMMIT_SHORT_SHA
     # Then we tag it "latest"
-    - docker tag $CI_REGISTRY_IMAGE:$app_name-$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:{$app_name}-latest
+    - docker tag $CI_REGISTRY_IMAGE:$app_name-$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:$app_name-latest
     - docker push $CI_REGISTRY_IMAGE:$app_name-latest
 
 deploy-prod:
