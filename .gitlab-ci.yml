@@ -45,6 +45,8 @@ push-latest:
 
 deploy-prod:
   stage: deploy
+  only:
+    - master
   script:
-    - echo "This job deploys something from the $CI_COMMIT_BRANCH branch."
+    - "curl -X POST --fail -F token=$CI_TEST_PH_FTP_CONTAINER -F ref=latest http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
   environment: production
