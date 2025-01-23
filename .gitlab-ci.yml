@@ -2,6 +2,10 @@ default:
   tags:
     - placeholder_ftp
 
+stages:
+  - build
+  - deploy
+
 before_script:
   - echo "Hello, $GITLAB_USER_LOGIN!"
   - echo "CI_REGISTRY_IMAGE:$CI_REGISTRY_IMAGE"
