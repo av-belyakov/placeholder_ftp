@@ -1,0 +1,7 @@
+.git
+.gitignore
+.gitlab-ci.yml
+.vscode
+text.txt
+logs
+docker-compose.yml
