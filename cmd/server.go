@@ -115,25 +115,25 @@ func server(ctx context.Context) {
 	msgErr := "access initialization error"
 	localFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
 	if err != nil {
-		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w'", msgErr, err)).Error())
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w' (user %s)", msgErr, err, confLocalFtp.Username)).Error())
 		log.Fatalf("%s LOCALFTP '%s'\n", msgErr, err.Error())
 	}
 
 	//проверяем доступ к локальному ftp серверу
 	if err := localFtp.CheckConn(); err != nil {
-		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w'", msgErr, err)).Error())
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w' (user %s)", msgErr, err, confLocalFtp.Username)).Error())
 		log.Fatalf("%s LOCALFTP '%s'\n", msgErr, err.Error())
 	}
 
 	mainFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
 	if err != nil {
-		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w'", msgErr, err)).Error())
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w' (user %s)", msgErr, err, confLocalFtp.Username)).Error())
 		log.Fatalf("%s MAINFTP '%s'\n", msgErr, err.Error())
 	}
 
 	//проверяем доступ к удаленному ftp серверу
 	if err = mainFtp.CheckConn(); err != nil {
-		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w'", msgErr, err)).Error())
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w' (user %s)", msgErr, err, confLocalFtp.Username)).Error())
 		log.Fatalf("%s MAINFTP '%s'\n", msgErr, err.Error())
 	}
 	//*******************************************************************************

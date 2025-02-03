@@ -2,6 +2,7 @@
 .gitignore
 .gitlab-ci.yml
 .vscode
+.env
 logs
 test
 tmp_files

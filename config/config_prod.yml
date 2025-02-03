@@ -11,9 +11,9 @@ NATS:
   subscriptions:
     listener_command: "phftp.commands.test"
 LOCALFTP:
-  host: "ftp-users.cloud.gcm"
+  host: "ftp.cloud.gcm"
   port: 21
-  username: "ftp-user"
+  username: "ftp"
 MAINFTP:
   host: "ftp.cloud.gcm"
   port: 21
@@ -21,6 +21,6 @@ MAINFTP:
 DATABASEWRITELOG:
   host: "datahook.cloud.gcm"
   port: 9200
+  namedb: ""
+  storage_name_db: "placeholder_ftp"
   user: "log_writer"
-  name_db: ""
-  storage_name_db: "placeholder_ftp_package"
