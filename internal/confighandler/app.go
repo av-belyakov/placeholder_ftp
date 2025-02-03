@@ -75,7 +75,7 @@ func New(rootDir, confDir string) (*AppConfig, error) {
 		return &conf, err
 	}
 
-	fileNameCommon, err := getFileName("config.yaml", confPath, list)
+	fileNameCommon, err := getFileName("config.yml", confPath, list)
 	if err != nil {
 		return &conf, err
 	}
@@ -87,11 +87,11 @@ func New(rootDir, confDir string) (*AppConfig, error) {
 
 	var fn string
 	if envList["GO_PHFTP_MAIN"] == "test" {
-		fn, err = getFileName("config_test.yaml", confPath, list)
+		fn, err = getFileName("config_test.yml", confPath, list)
 	} else if envList["GO_PHFTP_MAIN"] == "development" {
-		fn, err = getFileName("config_dev.yaml", confPath, list)
+		fn, err = getFileName("config_dev.yml", confPath, list)
 	} else {
-		fn, err = getFileName("config_prod.yaml", confPath, list)
+		fn, err = getFileName("config_prod.yml", confPath, list)
 	}
 	if err != nil {
 		return &conf, err
@@ -207,7 +207,7 @@ func getFileName(sf, confPath string, lfs []fs.DirEntry) (string, error) {
 
 func setCommonSettings(filename string, conf *AppConfig) error {
 	viper.SetConfigFile(filename)
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("yml")
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
