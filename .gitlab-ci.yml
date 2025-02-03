@@ -1,3 +1,6 @@
+variables:
+  MAJOR_BRANCH: master
+
 stages:
   - sync
   - build
