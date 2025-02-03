@@ -261,7 +261,7 @@ func setCommonSettings(filename string, conf *AppConfig) error {
 
 func setSpecial(filename string, conf *AppConfig) error {
 	viper.SetConfigFile(filename)
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("yml")
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
