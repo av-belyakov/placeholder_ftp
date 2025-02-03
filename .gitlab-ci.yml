@@ -41,8 +41,9 @@ push-latest:
     - *readme-no-commit
     - *master-commit
   script:
-    # Because we have no guarantee that this job will be picked up by the same runner
-    # that built the image in the previous step, we pull it again locally
+    # поскольку у нас нет гарантии, что это задание будет выполнено тем же пользователем, который
+    # создавал изображение на предыдущем шаге, мы повторно загружаем его локально
+    - *docker-login
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     # Then we tag it "latest"
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
