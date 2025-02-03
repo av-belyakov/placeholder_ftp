@@ -2,7 +2,8 @@ variables:
   MAJOR_BRANCH: master
 
 stages:
-  - sync
+  #  - sync
+  - test
   - build
   - push
   - deploy
@@ -11,31 +12,15 @@ default:
   tags:
     - placeholder_ftp
 
-.docker-login-script: &docker-login
-  - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+before_script:
+  - echo "Hello, $GITLAB_USER_LOGIN!"
+  - echo "CI_REGISTRY_IMAGE:$CI_REGISTRY_IMAGE"
+  - echo "CI_COMMIT_SHORT_SHA:$CI_COMMIT_SHORT_SHA"
 
-.change-readme-never-commit: &readme-no-commit
-  - if: $CI_COMMIT_BRANCH == $MAJOR_BRANCH
-    changes:
-      - README.md
-    when: never
-
-.change-readme-commit: &readme-commit
-  - if: $CI_COMMIT_BRANCH
-    changes:
-      - README.md
-    when: on_success
-
-.is-branch-master-commit: &master-commit
-  - if: $CI_COMMIT_BRANCH == $MAJOR_BRANCH || $CI_COMMIT_REF_NAME == $MAJOR_BRANCH
-    when: on_success
-
-sync-file-job:
-  stage: sync
-  rules:
-    - *readme-commit
-  script:
-    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message=Update README.md -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/698/repository/files/README.md'
+#update-readme-job:
+#  stage: sync
+#  script:
+#  - "curl -X POST --fail -F token=3ddf785cc6a89f02d452ea79ab976a -F ref=REF_NAME http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
 
 build-job:
   stage: build
@@ -43,11 +28,12 @@ build-job:
     - *readme-no-commit
     - *master-commit
   script:
-    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA .
-    # удаляем промежуточный образ с меткой temporary
-    - docker image prune -a --force --filter="label=temporary"
-    - *docker-login
+    - echo "Building Dockerfile..."
+    # fetches the latest image (not failing if image is not found)
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker build --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - echo "Building complete."
 
 push-latest:
   stage: push
@@ -55,11 +41,10 @@ push-latest:
     - *readme-no-commit
     - *master-commit
   script:
-    # поскольку у нас нет гарантии, что это задание будет выполнено тем же пользователем, который
-    # создавал изображение на предыдущем шаге, мы повторно загружаем его локально.
-    - *docker-login
+    # Because we have no guarantee that this job will be picked up by the same runner
+    # that built the image in the previous step, we pull it again locally
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
-    # ставим тег "latest"
+    # Then we tag it "latest"
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:latest
 
