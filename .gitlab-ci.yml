@@ -1,3 +1,6 @@
+variables:
+  MAJOR_BRANCH: master
+
 stages:
   - sync
   - build
@@ -66,5 +69,5 @@ deploy-prod:
     - *readme-no-commit
     - *master-commit
   script:
-    - "curl -X POST --fail -F token=$GET_REGISTRIE_TOKEN -F ref=master http://gitlab.cloud.gcm/api/v4/projects/698/trigger/pipeline"
+    - "curl -X POST --fail -F token=$GET_REGISTRIE_TOKEN -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
   environment: production
