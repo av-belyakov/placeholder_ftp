@@ -1,3 +1,9 @@
+stages:
+  - sync
+  - build
+  - push
+  - deploy
+
 default:
   tags:
     - placeholder_ftp
