@@ -115,25 +115,25 @@ func server(ctx context.Context) {
 	msgErr := "access initialization error"
 	localFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
 	if err != nil {
-		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w' (user %s)", msgErr, err, confLocalFtp.Username)).Error())
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w' (host:'%s' user: '%s')", msgErr, err, confLocalFtp.GetHost(), confLocalFtp.GetUsername())).Error())
 		log.Fatalf("%s LOCALFTP '%s'\n", msgErr, err.Error())
 	}
 
 	//проверяем доступ к локальному ftp серверу
 	if err := localFtp.CheckConn(); err != nil {
-		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w' (user %s)", msgErr, err, confLocalFtp.Username)).Error())
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s LOCALFTP '%w' (host:'%s' user: '%s')", msgErr, err, confLocalFtp.GetHost(), confLocalFtp.GetUsername())).Error())
 		log.Fatalf("%s LOCALFTP '%s'\n", msgErr, err.Error())
 	}
 
 	mainFtp, err := wrappers.NewWrapperSimpleNetworkClient(&confLocalFtp)
 	if err != nil {
-		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w' (user %s)", msgErr, err, confLocalFtp.Username)).Error())
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w' (host:'%s' user: '%s')", msgErr, err, confMainFtp.GetHost(), confMainFtp.GetUsername())).Error())
 		log.Fatalf("%s MAINFTP '%s'\n", msgErr, err.Error())
 	}
 
 	//проверяем доступ к удаленному ftp серверу
 	if err = mainFtp.CheckConn(); err != nil {
-		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w' (user %s)", msgErr, err, confLocalFtp.Username)).Error())
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(fmt.Errorf("%s MAINFTP '%w' (host:'%s' user: '%s')", msgErr, err, confMainFtp.GetHost(), confMainFtp.GetUsername())).Error())
 		log.Fatalf("%s MAINFTP '%s'\n", msgErr, err.Error())
 	}
 	//*******************************************************************************
