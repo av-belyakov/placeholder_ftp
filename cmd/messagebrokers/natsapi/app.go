@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 
 	ci "github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
@@ -111,11 +110,11 @@ func (api *apiNatsModule) handlerIncomingJSON(ctx context.Context, m *nats.Msg) 
 	}
 
 	if rc.Command == "" {
-		response.Error = "invalid json object received, issue 'command' is missing"
+		response.Error = fmt.Sprintf("invalid json object received, issue 'command' is missing (task id:'%s')", rc.TaskId)
 	}
 
 	if rc.Source == "" {
-		response.Error = "invalid json object received, issue 'source' is missing"
+		response.Error = fmt.Sprintf("invalid json object received, issue 'source' is missing (task id:'%s')", rc.TaskId)
 	}
 
 	if response.Error != "" {
@@ -138,7 +137,7 @@ func (api *apiNatsModule) handlerIncomingJSON(ctx context.Context, m *nats.Msg) 
 	//убеждаемся, что входящий запрос действительно предназначен для обработки
 	//текущим региональным объектом
 	if rc.Source != api.nameRegionalObject {
-		api.logger.Send("warning", fmt.Sprintf("source name '%s' does not match the current regional name of the object", rc.Source))
+		api.logger.Send("warning", fmt.Sprintf("source name '%s' does not match the current regional name of the object (task id: '%s')", rc.Source, rc.TaskId))
 
 		return
 	}
@@ -148,7 +147,6 @@ func (api *apiNatsModule) handlerIncomingJSON(ctx context.Context, m *nats.Msg) 
 
 // handlerIncomingCommands обработчик команд
 func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc RequestCommand, m *nats.Msg) {
-	id := uuid.New().String()
 	chRes := make(chan ci.ChannelResponser)
 
 	ttlTime := (time.Duration(api.cachettl) * time.Second)
@@ -160,7 +158,7 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 	}(ctxTimeoutCancel, chRes)
 
 	api.sendingChannel <- &RequestFromNats{
-		RequestId:  id,
+		RequestId:  rc.TaskId,
 		Command:    "send_command",
 		Order:      rc.Command,
 		Data:       m.Data,
@@ -201,12 +199,14 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 
 			res, err := json.Marshal(mainResponse)
 			if err != nil {
+				err = fmt.Errorf("%w (task id: '%s')", err, rc.TaskId)
 				api.logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 				return
 			}
 
 			if err := m.Respond(res); err != nil {
+				err = fmt.Errorf("%w (task id: '%s')", err, rc.TaskId)
 				api.logger.Send("error", supportingfunctions.CustomError(err).Error())
 			}
 

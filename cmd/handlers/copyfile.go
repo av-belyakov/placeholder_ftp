@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"runtime"
 	"strings"
 
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
@@ -24,20 +23,20 @@ func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req ci.Channe
 	// исходный ftp сервер
 	localFtp, err := wrappers.NewWrapperSimpleNetworkClient(opts.ConfLocalFtp)
 	if err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		msgErr := fmt.Errorf("local FTP %s", err)
-		opts.Logger.Send("error", fmt.Sprintf("%v %s:%d", msgErr, f, l-2))
+		msgErr := fmt.Errorf("local FTP %w (task id: '%s')", err, req.GetRequestId())
+		opts.Logger.Send("error", supportingfunctions.CustomError(msgErr).Error())
 
 		result.SetError(msgErr)
 
 		return
 	}
 
+	opts.Logger.Send("info", fmt.Sprintf("successful connection to the LOCAL ftp server (task id: '%s')", req.GetRequestId()))
+
 	mainFtp, err := wrappers.NewWrapperSimpleNetworkClient(opts.ConfMainFtp)
 	if err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		msgErr := fmt.Errorf("main FTP %s", err)
-		opts.Logger.Send("error", fmt.Sprintf("%v %s:%d", msgErr, f, l-2))
+		msgErr := fmt.Errorf("main FTP %w (task id: '%s')", err, req.GetRequestId())
+		opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		result.SetError(msgErr)
 
@@ -46,13 +45,15 @@ func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req ci.Channe
 
 	request := RequestCopyFileFromFtpServer{}
 	if err := json.Unmarshal(req.GetData(), &request); err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		opts.Logger.Send("error", fmt.Sprintf("%s %s:%d", err.Error(), f, l-2))
+		err = fmt.Errorf("%w (task id: '%s')", err, req.GetRequestId())
+		opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 		result.SetError(err)
 
 		return
 	}
+
+	opts.Logger.Send("info", fmt.Sprintf("successful connection to the MAIN ftp server (task id: '%s')", req.GetRequestId()))
 
 	listProcessedLink := []commoninterfaces.LinkInformationTransfer(nil)
 	for _, link := range request.Parameters.Links {
@@ -60,8 +61,7 @@ func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req ci.Channe
 		pf.SetLinkOld(link)
 
 		if ok := strings.HasPrefix(link, "ftp://"); !ok {
-			err := fmt.Errorf("incorrect prefix in the link '%s'", link)
-
+			err := fmt.Errorf("incorrect prefix in the link '%s' (task id: '%s')", link, req.GetRequestId())
 			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 			pf.SetError(err)
@@ -72,6 +72,7 @@ func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req ci.Channe
 
 		result, err := supportingfunctions.LinkParse(link)
 		if err != nil {
+			err = fmt.Errorf("%w (task id: '%s')", err, req.GetRequestId())
 			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
 
 			pf.SetError(err)
@@ -90,18 +91,16 @@ func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req ci.Channe
 				DstFileName: result.FileName,
 			})
 		if err != nil {
+			err = fmt.Errorf("%w (task id: '%s')", err, req.GetRequestId())
 			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
+
 			pf.SetError(err)
 			listProcessedLink = append(listProcessedLink, pf)
 
 			continue
 		}
 
-		//
-		// это пока только для тестов
-		//********************************
-		opts.Logger.Send("info", fmt.Sprintf("%d byte file '%s' has been successfully created", countByteRead, result.FileName))
-		//********************************
+		opts.Logger.Send("info", fmt.Sprintf("%d byte file '%s' has been successfully created (task id: '%s')", countByteRead, result.FileName, req.GetRequestId()))
 
 		//формируем и устанавливаем ссылку по которой на MainFTP будет хранится файл
 		u := &url.URL{
@@ -121,18 +120,16 @@ func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req ci.Channe
 				DstFileName: result.FileName,
 			})
 		if err != nil {
+			err = fmt.Errorf("%w (task id: '%s')", err, req.GetRequestId())
 			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
+
 			pf.SetError(err)
 			listProcessedLink = append(listProcessedLink, pf)
 
 			continue
 		}
 
-		//
-		// это пока только для тестов
-		//********************************
-		opts.Logger.Send("info", fmt.Sprintf("file '%s' has been successfully copied to FTP", result.FileName))
-		//********************************
+		opts.Logger.Send("info", fmt.Sprintf("the file '%s' was successfully decoded (task id: '%s')", result.FileName, req.GetRequestId()))
 
 		var countByteDecode int
 		if fi, err := os.Stat(path.Join(opts.TmpDir, result.FileName)); err == nil {
@@ -141,7 +138,9 @@ func (opts FtpHandlerOptions) HandlerCopyFile(ctx context.Context, req ci.Channe
 
 		//удаление временных файлов
 		if err = deleteTmpFiles(opts.TmpDir, result.FileName, result.FileName); err != nil {
+			err = fmt.Errorf("%w (task id: '%s')", err, req.GetRequestId())
 			opts.Logger.Send("error", supportingfunctions.CustomError(err).Error())
+
 			pf.SetError(err)
 		}
 
