@@ -1,28 +1,21 @@
 version: "3.4"
 
-#
-# это всего лишь пример для написание подобного файла
-# однако? здесь есть пример пробрасования ID пользователя
-# изнутри докер контейнера для записи логов контейнера во 
-# внешную файловую среду
-#
-
 services:
   app:
-    container_name: gcm_thehivehook_go_package
+    container_name: placeholder_ftp
     environment:
-      - GO_HIVEHOOK_THAPIKEY=ERHs96mbKEcx0nq8w/Xa+sjnk50ZmoSk
-      - GO_HIVEHOOK_DBWLOGPASSWD=i2J-QYv-jmL-CFs
-    image: gitlab.cloud.gcm:5050/a.belyakov/thehivehook_go_package:latest
+      - GO_PHFTP_LOCALFTP_PASSWD=$LOCALFTP_PASSWD
+      - GO_PHFTP_MAINFTP_PASSWD=$MAINFTP_PASSWD
+      - GO_PHFTP_DBWLOGPASSWD=$DBWLOGPASSWD
+    image: gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:latest
     restart: unless-stopped
-    # пробрасываем user ID для корректной записи в логов
     user: root
-    command: chmod 777 /opt/thehivehook_go_package/logs && \
-             chown 1500:1500 /opt/thehivehook_go_package/logs
+    command: chmod 777 /opt/placeholder_ftp/logs && \
+             chown 1501:1501 /opt/placeholder_ftp/logs
     volumes:
-      - /var/log/thehivehook_go_package:/opt/thehivehook_go_package/logs:rw
-      - ./config:/opt/thehivehook_go_package/config:rw
+      - /var/log/placeholder_ftp:/opt/placeholder_ftp/logs:rw
+      - ./config:/opt/placeholder_ftp/config:ro
       #для корректного отображения даты с учетом временной зоны
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    network_mode: "host"
+
