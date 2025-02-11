@@ -74,11 +74,6 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 // subscriptionHandler обработчик команд
 func (api *apiNatsModule) subscriptionHandler(ctx context.Context) {
 	api.natsConnection.Subscribe(api.subscriptions.listenerCommand, func(m *nats.Msg) {
-		m.Respond([]byte(fmt.Sprintf(`{
-		  "cm_name": "%s",
-		  "is_processing": "true"
-		}`, api.nameRegionalObject)))
-
 		go api.handlerIncomingJSON(ctx, m)
 	})
 }
@@ -141,6 +136,14 @@ func (api *apiNatsModule) handlerIncomingJSON(ctx context.Context, m *nats.Msg) 
 
 		return
 	}
+
+	//отправляем сообщение информирующее получателя о том что, запрос был принят
+	//тем региональным объектом для которого он был предназначени и находится в
+	//процессе обработки
+	m.Respond([]byte(fmt.Sprintf(`{
+		"cm_name": "%s",
+		"is_processing": "true"
+	  }`, api.nameRegionalObject)))
 
 	go api.handlerIncomingCommands(ctx, rc, m)
 }
