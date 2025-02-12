@@ -35,7 +35,10 @@ sync-file-job:
   rules:
     - *readme-commit
   script:
+    #тест ГЦМ
     - 'curl -v --request PUT --header PRIVATE-TOKEN:$SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message=Update README.md -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/README.md'
+    #Санкт-Петербург
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMSBP_SYNC_FILES_TOKEN -F branch=main -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message=Update README.md -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/745/repository/files/README.md'
 
 build-job:
   stage: build
@@ -69,5 +72,8 @@ deploy-prod:
     - *readme-no-commit
     - *master-commit
   script:
+    #тест ГЦМ
     - "curl -X POST --fail -F token=$GET_REGISTRIE_TOKEN -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
+    #Санкт-Петербург
+    - "curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=main http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline"
   environment: production
