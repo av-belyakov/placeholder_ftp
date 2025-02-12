@@ -35,7 +35,7 @@ sync-file-job:
   rules:
     - *readme-commit
   script:
-    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message=Update README.md -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/698/repository/files/README.md'
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GET_REGISTRIE_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message=Update README.md -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/698/repository/files/README.md'
 
 build-job:
   stage: build
