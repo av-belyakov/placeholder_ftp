@@ -1,0 +1,28 @@
+#Сборщик из container registry
+
+stages:
+  - build
+
+default:
+  tags:
+    - placeholder_ftp
+
+build-job:
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "trigger"
+      when: on_success
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        - README.md
+      when: never
+    - when: on_success
+  before_script:
+    - echo "Current URL repository - $CI_REPOSITORY_URL"
+    - echo "Start building"
+  script:
+    - pwd
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml down
+    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp || true
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build
