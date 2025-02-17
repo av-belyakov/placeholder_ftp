@@ -1,10 +1,10 @@
 variables:
-  MAJOR_BRANCH: master
+  BRANCH_MAJOR: master
+  BRANCH_TEST: dev_branch_testing
 
 stages:
   - sync
   - build
-  - push
   - deploy
 
 default:
@@ -15,65 +15,118 @@ default:
   - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
 
 .change-readme-never-commit: &readme-no-commit
-  - if: $CI_COMMIT_BRANCH == $MAJOR_BRANCH
+  - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
     changes:
       - README.md
     when: never
 
 .change-readme-commit: &readme-commit
-  - if: $CI_COMMIT_BRANCH
+  - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
     changes:
       - README.md
     when: on_success
 
-.is-branch-master-commit: &master-commit
-  - if: $CI_COMMIT_BRANCH == $MAJOR_BRANCH || $CI_COMMIT_REF_NAME == $MAJOR_BRANCH
-    when: on_success
+.change-docker-compose-never-commit: &docker-compose-no-commit
+  - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
+    changes:
+      - docker-compose.yml
+      - docker-compose.rcm.yml
+    when: never
 
-sync-file-job:
+.is-branch-dev-test-commit: &dev-test-commit
+  - if: $CI_COMMIT_BRANCH == $BRANCH_TEST || $CI_COMMIT_REF_NAME == $BRANCH_TEST
+
+.is-branch-master-commit: &master-commit
+  - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
+
+#синхронизируем файл README.md
+sync-file-readme:
   stage: sync
   rules:
     - *readme-commit
   script:
-    #тест ГЦМ
-    - 'curl -v --request PUT --header PRIVATE-TOKEN:$SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message=Update README.md -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/README.md'
-    #Санкт-Петербург
-    - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMSBP_SYNC_FILES_TOKEN -F branch=main -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message=Update README.md -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/745/repository/files/README.md'
+    #Главный центр мониторинга (или test)
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/README.md'
+    #РЦМ Санкт-Петербург
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMSPB_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/745/repository/files/README.md'
 
-build-job:
+#синхронизируем файл docker-compose.yml (test или GCM)
+sync-file-docker-compose:
+  stage: sync
+  rules:
+    - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
+      changes:
+        - docker-compose.yml
+      when: on_success
+  script:
+    #Главный центр мониторинга (или test)
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update docker-compose.yml" -F content="< $CI_PROJECT_DIR/docker-compose.yml" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/docker-compose.yml'
+
+#синхронизируем файл docker-compose.rcm.yml (для РЦМ)
+sync-file-docker-compose-rcm:
+  stage: sync
+  rules:
+    - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
+      changes:
+        - docker-compose.rcm.yml
+      when: on_success
+  script:
+    #РЦМ Санкт-Петербург
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMSPB_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update docker-compose.yml" -F content="< $CI_PROJECT_DIR/docker-compose.rcm.yml" http://gitlab.cloud.gcm/api/v4/projects/745/repository/files/docker-compose.yml'
+
+#сборка тестового образа
+build-test:
   stage: build
   rules:
     - *readme-no-commit
-    - *master-commit
+    - *docker-compose-no-commit
+    - *dev-test-commit
   script:
-    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA .
+    - docker buildx build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA .
     # удаляем промежуточный образ с меткой temporary
     - docker image prune -a --force --filter="label=temporary"
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:test
     - *docker-login
-    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker push $CI_REGISTRY_IMAGE:test
+    #- docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
+    #- docker rmi $CI_REGISTRY_IMAGE:test || true
 
-push-latest:
-  stage: push
+#сборка основного образа
+build-prod:
+  stage: build
   rules:
     - *readme-no-commit
+    - *docker-compose-no-commit
     - *master-commit
   script:
-    # поскольку у нас нет гарантии, что это задание будет выполнено тем же пользователем, который
-    # создавал изображение на предыдущем шаге, мы повторно загружаем его локально
-    - *docker-login
-    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
-    # ставим тег "latest"
+    - docker buildx build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA .
+    # удаляем промежуточный образ с меткой temporary
+    - docker image prune -a --force --filter="label=temporary"
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
+    - *docker-login
     - docker push $CI_REGISTRY_IMAGE:latest
 
+#развёртывание тестовой сборки (пока что это будет GCM)
+deploy-test:
+  stage: deploy
+  rules:
+    - *readme-no-commit
+    - *docker-compose-no-commit
+    - *dev-test-commit
+    - *master-commit
+  script:
+    #тест ГЦМ
+    - "curl -X POST --fail -F token=$GCM_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
+
+#развёртывание основной сборки (все регионы)
 deploy-prod:
   stage: deploy
   rules:
     - *readme-no-commit
-    - *master-commit
+    - *docker-compose-no-commit
+    - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
+      when: manual
+      allow_failure: true
   script:
-    #тест ГЦМ
-    - "curl -X POST --fail -F token=$GET_REGISTRIE_TOKEN -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
-    #Санкт-Петербург
-    - "curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=main http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline"
+    - "curl -X POST --fail -F token=$RCMSPB_GCM_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline"
   environment: production
