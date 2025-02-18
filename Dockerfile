@@ -4,21 +4,22 @@
 # для удаления временного образа, можно через ci/cd, можно руками 
 # docker image prune -a --force --filter="label=temporary"
 
-FROM golang:1.23.4-alpine AS packages_image
+FROM golang:1.23.6-alpine AS packages_image
 WORKDIR /go/src
 COPY go.mod go.sum ./
 RUN echo 'packages_image' && \
     go mod download
 
-FROM golang:1.23.4-alpine AS build_image
+FROM golang:1.23.6-alpine AS build_image
 LABEL temporary=''
+ARG BRANCH
 WORKDIR /go/
 COPY --from=packages_image /go ./
 RUN echo -e "build_image" && \
     rm -r ./src && \
     apk update && \
     apk add --no-cache git && \
-    git clone https://github.com/av-belyakov/placeholder_ftp.git ./src/ && \
+    git clone -b ${BRANCH} https://github.com/av-belyakov/placeholder_ftp.git ./src/ && \
     go build -C ./src/cmd/ -o ../app
 
 FROM alpine

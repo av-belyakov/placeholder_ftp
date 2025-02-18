@@ -14,6 +14,9 @@ default:
 .docker-login-script: &docker-login
   - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
 
+.docker-image-prune: &docker-image-pure
+  - docker image prune -a --force --filter="label=temporary"
+
 .change-readme-never-commit: &readme-no-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
     changes:
@@ -82,14 +85,14 @@ build-test:
     - *docker-compose-no-commit
     - *dev-test-commit
   script:
-    - docker buildx build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA .
+    - docker rmi $CI_REGISTRY_IMAGE:test || true
+    - docker buildx build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg BRANCH=$BRANCH_TEST .
     # удаляем промежуточный образ с меткой temporary
-    - docker image prune -a --force --filter="label=temporary"
+    - *docker-image-pure
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:test
     - *docker-login
     - docker push $CI_REGISTRY_IMAGE:test
-    #- docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
-    #- docker rmi $CI_REGISTRY_IMAGE:test || true
+    - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
 
 #сборка основного образа
 build-prod:
@@ -99,12 +102,14 @@ build-prod:
     - *docker-compose-no-commit
     - *master-commit
   script:
-    - docker buildx build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA .
+    - docker rmi $CI_REGISTRY_IMAGE:latest || true
+    - docker buildx build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg BRANCH=$BRANCH_MAJOR .
     # удаляем промежуточный образ с меткой temporary
-    - docker image prune -a --force --filter="label=temporary"
+    - *docker-image-pure
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
     - *docker-login
     - docker push $CI_REGISTRY_IMAGE:latest
+    - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
 
 #развёртывание тестовой сборки (пока что это будет GCM)
 deploy-test:

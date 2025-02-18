@@ -1,5 +1,4 @@
 #Сборщик из container registry
-
 stages:
   - build
 
@@ -24,5 +23,5 @@ build-job:
     - pwd
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml down
-    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp || true
+    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:test || true
     - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build
