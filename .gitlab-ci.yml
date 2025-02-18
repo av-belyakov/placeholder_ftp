@@ -51,9 +51,6 @@ default:
 sync-file-readme:
   stage: sync
   rules:
-    - if: $CI_PROJECT_DIR
-      when: manual
-      allow_failure: true
     - *readme-commit
   script:
     #Главный центр мониторинга (или test)
@@ -79,9 +76,6 @@ sync-file-docker-compose:
 sync-file-docker-compose-rcm:
   stage: sync
   rules:
-    - if: $CI_PROJECT_DIR
-      when: manual
-      allow_failure: true
     - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
       changes:
         - docker-compose.rcm.yml
