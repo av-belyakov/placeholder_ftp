@@ -50,6 +50,8 @@ default:
 sync-file-readme:
   stage: sync
   rules:
+    - if: $CI_PROJECT_DIR
+      when: manual
     - *readme-commit
   script:
     #Главный центр мониторинга (или test)
