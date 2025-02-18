@@ -133,5 +133,5 @@ deploy-prod:
       when: manual
       allow_failure: true
   script:
-    - "curl -X POST --fail -F token=$RCMSPB_GCM_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline"
+    - "curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline"
   environment: production
