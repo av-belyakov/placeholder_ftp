@@ -86,7 +86,7 @@ build-test:
     - *dev-test-commit
   script:
     - docker rmi $CI_REGISTRY_IMAGE:test || true
-    - docker buildx build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg BRANCH=$BRANCH_TEST .
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg BRANCH=$BRANCH_TEST .
     # удаляем промежуточный образ с меткой temporary
     - *docker-image-pure
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:test
@@ -103,7 +103,7 @@ build-prod:
     - *master-commit
   script:
     - docker rmi $CI_REGISTRY_IMAGE:latest || true
-    - docker buildx build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg BRANCH=$BRANCH_MAJOR .
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg BRANCH=$BRANCH_MAJOR .
     # удаляем промежуточный образ с меткой temporary
     - *docker-image-pure
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
