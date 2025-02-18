@@ -37,7 +37,7 @@ default:
     when: never
 
 .change-gitlab-ci-manual-commit: &gitlab-ci-manual-commit
-  - if: $CI_COMMIT_MESSAGE =~ /.gitlab.yaml*/
+  - if: $CI_COMMIT_MESSAGE =~ /Update .gitlab-ci.yml*/
     when: manual  
 
 .is-branch-dev-test-commit: &dev-test-commit
