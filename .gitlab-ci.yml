@@ -94,6 +94,7 @@ build-test:
     - *gitlab-ci-manual-commit
     - *dev-test-commit
   script:
+    # удаляем старый образ
     - docker rmi $CI_REGISTRY_IMAGE:test || true
     - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg BRANCH=$BRANCH_TEST .
     # удаляем промежуточный образ с меткой temporary
@@ -112,6 +113,7 @@ build-prod:
     - *gitlab-ci-manual-commit
     - *master-commit
   script:
+    # удаляем старый образ
     - docker rmi $CI_REGISTRY_IMAGE:latest || true
     - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg VERSION=$CI_COMMIT_SHORT_SHA --build-arg BRANCH=$BRANCH_MAJOR .
     # удаляем промежуточный образ с меткой temporary
@@ -132,7 +134,7 @@ deploy-test:
     - *master-commit
   script:
     #тест ГЦМ
-    - 'curl -X POST --fail -F token=$GCM_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline'
+    - "curl -X POST --fail -F token=$GCM_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
 
 #развёртывание основной сборки (все регионы)
 deploy-prod:
@@ -145,8 +147,8 @@ deploy-prod:
       when: manual
       allow_failure: true
   script:
-    #РЦМ Санкт-Петербург    
-    - 'curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline'
+    #РЦМ Санкт-Петербург
+    - "curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline"
     #РЦМ Калининград
-    - 'curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/749/trigger/pipeline'
+    - "curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/749/trigger/pipeline"
   environment: production
