@@ -36,10 +36,6 @@ default:
       - docker-compose.rcm.yml
     when: never
 
-.change-gitlab-ci-manual-commit: &gitlab-ci-manual-commit
-  - if: $CI_COMMIT_MESSAGE =~ /Update .gitlab-ci.yml*/
-    when: manual
-
 .is-branch-dev-test-commit: &dev-test-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_TEST || $CI_COMMIT_REF_NAME == $BRANCH_TEST
 
@@ -91,7 +87,6 @@ build-test:
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
-    - *gitlab-ci-manual-commit
     - *dev-test-commit
   script:
     - docker rmi $CI_REGISTRY_IMAGE:test || true
@@ -109,7 +104,6 @@ build-prod:
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
-    - *gitlab-ci-manual-commit
     - *master-commit
   script:
     - docker rmi $CI_REGISTRY_IMAGE:latest || true
@@ -128,7 +122,6 @@ deploy-test:
     - *readme-no-commit
     - *docker-compose-no-commit
     - *dev-test-commit
-    - *gitlab-ci-manual-commit
     - *master-commit
   script:
     #тест ГЦМ
@@ -140,7 +133,6 @@ deploy-prod:
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
-    - *gitlab-ci-manual-commit
     - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
       when: manual
       allow_failure: true
