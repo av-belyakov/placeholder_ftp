@@ -148,5 +148,5 @@ deploy-prod:
     #РЦМ Санкт-Петербург    
     - 'curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline'
     #РЦМ Калининград
-    - 'curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/749/trigger/pipeline'
+    - 'curl -X POST --fail -F token=$RCMKGD_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/749/trigger/pipeline'
   environment: production
