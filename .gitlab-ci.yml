@@ -1,6 +1,6 @@
 variables:
   BRANCH_MAJOR: master
-  BRANCH_TEST: dev_branch_testing
+  BRANCH_TEST: development
 
 stages:
   - sync
@@ -38,7 +38,7 @@ default:
 
 .change-gitlab-ci-manual-commit: &gitlab-ci-manual-commit
   - if: $CI_COMMIT_MESSAGE =~ /Update .gitlab-ci.yml*/
-    when: manual  
+    when: manual
 
 .is-branch-dev-test-commit: &dev-test-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_TEST || $CI_COMMIT_REF_NAME == $BRANCH_TEST
