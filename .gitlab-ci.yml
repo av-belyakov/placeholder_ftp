@@ -1,6 +1,6 @@
 variables:
   BRANCH_MAJOR: master
-  BRANCH_TEST: dev_branch_testing
+  BRANCH_TEST: development
 
 stages:
   - sync
