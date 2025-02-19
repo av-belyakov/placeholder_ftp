@@ -56,6 +56,8 @@ sync-file-readme:
     - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/README.md'
     #РЦМ Санкт-Петербург
     - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMSPB_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/745/repository/files/README.md'
+    #РЦМ Калининград
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMKGD_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/749/repository/files/README.md'
 
 #синхронизируем файл docker-compose.yml (test или GCM)
 sync-file-docker-compose:
@@ -80,6 +82,8 @@ sync-file-docker-compose-rcm:
   script:
     #РЦМ Санкт-Петербург
     - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMSPB_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update docker-compose.yml" -F content="< $CI_PROJECT_DIR/docker-compose.rcm.yml" http://gitlab.cloud.gcm/api/v4/projects/745/repository/files/docker-compose.yml'
+    #РЦМ Калининград
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMKGD_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update docker-compose.yml" -F content="< $CI_PROJECT_DIR/docker-compose.rcm.yml" http://gitlab.cloud.gcm/api/v4/projects/749/repository/files/docker-compose.yml'
 
 #сборка тестового образа
 build-test:
@@ -87,6 +91,7 @@ build-test:
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
+    - *gitlab-ci-manual-commit
     - *dev-test-commit
   script:
     - docker rmi $CI_REGISTRY_IMAGE:test || true
@@ -104,6 +109,7 @@ build-prod:
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
+    - *gitlab-ci-manual-commit
     - *master-commit
   script:
     - docker rmi $CI_REGISTRY_IMAGE:latest || true
@@ -122,10 +128,11 @@ deploy-test:
     - *readme-no-commit
     - *docker-compose-no-commit
     - *dev-test-commit
+    - *gitlab-ci-manual-commit
     - *master-commit
   script:
     #тест ГЦМ
-    - "curl -X POST --fail -F token=$GCM_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
+    - 'curl -X POST --fail -F token=$GCM_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline'
 
 #развёртывание основной сборки (все регионы)
 deploy-prod:
@@ -133,9 +140,13 @@ deploy-prod:
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
+    - *gitlab-ci-manual-commit
     - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
       when: manual
       allow_failure: true
   script:
-    - "curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline"
+    #РЦМ Санкт-Петербург    
+    - 'curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/745/trigger/pipeline'
+    #РЦМ Калининград
+    - 'curl -X POST --fail -F token=$RCMSBP_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/749/trigger/pipeline'
   environment: production
