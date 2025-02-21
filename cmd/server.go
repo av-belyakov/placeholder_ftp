@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"runtime"
 	"strings"
 
 	"github.com/av-belyakov/simplelogger"
@@ -54,9 +53,7 @@ func server(ctx context.Context) {
 		IndexDB:            confDB.StorageNameDB,
 		NameRegionalObject: confApp.NameRegionalObject,
 	}); err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.Write("error", fmt.Sprintf(" '%s' %s:%d", err.Error(), f, l-7))
-
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 		log.Println(err.Error())
 	} else {
 		simpleLogger.SetDataBaseInteraction(esc)
