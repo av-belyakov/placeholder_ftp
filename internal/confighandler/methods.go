@@ -1,5 +1,7 @@
 package confighandler
 
+import "errors"
+
 // GetFileName имя конфигурационного файла
 func (c AppConfig) GetFileName() string {
 	return c.Information.FileName
@@ -21,7 +23,7 @@ func (c AppConfig) GetMaxWritingFileLimit() int {
 }
 
 // GetSimpleLoggerPackage настройки пакета 'simplelogger'
-func (c AppConfig) GetSimpleLoggerPackage() []LoggerOption {
+func (c AppConfig) GetSimpleLoggerPackage() []*LoggerOption {
 	return c.Logging.SimpleLoggerPackage
 }
 
@@ -80,4 +82,76 @@ func (conf *ConfigFtp) SetPasswd(v string) {
 // GetConfigWriteLogDB настройки доступа к БД в которую осуществляется запись логов
 func (c AppConfig) GetConfigWriteLogDB() ConfigWriteLogDB {
 	return c.WriteLogDB
+}
+
+// SetNameMessageType наименование тпа логирования
+func (l *LoggerOption) SetNameMessageType(v string) error {
+	if v == "" {
+		return errors.New("the value 'MsgTypeName' must not be empty")
+	}
+
+	return nil
+}
+
+// SetMaxLogFileSize максимальный размер файла для логирования
+func (l *LoggerOption) SetMaxLogFileSize(v int) error {
+	if v < 1000 {
+		return errors.New("the value 'MaxFileSize' must not be less than 1000")
+	}
+
+	return nil
+}
+
+// SetPathDirectory путь к директории логирования
+func (l *LoggerOption) SetPathDirectory(v string) error {
+	if v == "" {
+		return errors.New("the value 'PathDirectory' must not be empty")
+	}
+
+	return nil
+}
+
+// SetWritingStdout запись логов на вывод stdout
+func (l *LoggerOption) SetWritingStdout(v bool) {
+	l.WritingStdout = v
+}
+
+// SetWritingFile запись логов в файл
+func (l *LoggerOption) SetWritingFile(v bool) {
+	l.WritingFile = v
+}
+
+// SetWritingDB запись логов  в БД
+func (l *LoggerOption) SetWritingDB(v bool) {
+	l.WritingDB = v
+}
+
+// GetNameMessageType наименование тпа логирования
+func (l *LoggerOption) GetNameMessageType() string {
+	return l.MsgTypeName
+}
+
+// GetMaxLogFileSize максимальный размер файла для логирования
+func (l *LoggerOption) GetMaxLogFileSize() int {
+	return l.MaxFileSize
+}
+
+// GetPathDirectory путь к директории логирования
+func (l *LoggerOption) GetPathDirectory() string {
+	return l.PathDirectory
+}
+
+// GetWritingStdout запись логов на вывод stdout
+func (l *LoggerOption) GetWritingStdout() bool {
+	return l.WritingStdout
+}
+
+// GetWritingFile запись логов в файл
+func (l *LoggerOption) GetWritingFile() bool {
+	return l.WritingFile
+}
+
+// GetWritingDB запись логов  в БД
+func (l *LoggerOption) GetWritingDB() bool {
+	return l.WritingDB
 }

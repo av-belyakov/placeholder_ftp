@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/av-belyakov/placeholder_ftp/internal/logginghandler"
 	"github.com/av-belyakov/placeholder_ftp/internal/supportingfunctions"
+	"github.com/av-belyakov/placeholder_ftp/test/helperfunc"
 )
 
 func TestConvertPcapToText(t *testing.T) {
@@ -20,7 +20,7 @@ func TestConvertPcapToText(t *testing.T) {
 		//writeFileName string = "1616152425_2021_03_19____14_13_45_24636.tdp.txt"
 	)
 
-	logging := logginghandler.New()
+	logging := helperfunc.NewLoggingForTest()
 	go func() {
 		for msgErr := range logging.GetChan() {
 			t.Log("ERROR:", msgErr)

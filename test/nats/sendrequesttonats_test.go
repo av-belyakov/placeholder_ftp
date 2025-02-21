@@ -15,7 +15,7 @@ import (
 
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 	"github.com/av-belyakov/placeholder_ftp/cmd/messagebrokers/natsapi"
-	"github.com/av-belyakov/placeholder_ftp/internal/logginghandler"
+	"github.com/av-belyakov/placeholder_ftp/test/helperfunc"
 )
 
 const (
@@ -73,7 +73,7 @@ func TestMain(m *testing.M) {
 		})
 	}()*/
 
-	logging := logginghandler.New()
+	logging := helperfunc.NewLoggingForTest()
 
 	go func() {
 		for {
