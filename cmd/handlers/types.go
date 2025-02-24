@@ -17,8 +17,8 @@ type ParameterCopyFileFromFtpServer struct {
 
 type ResultRequestCopyFileFromFtpServer struct {
 	Data   []commoninterfaces.LinkInformationTransfer `json:"data"`    //содержит данные
-	Error  error                                      `json:"error"`   //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
 	TaskId string                                     `json:"task_id"` //идентификатор задачи
+	Error  error                                      `json:"error"`   //содержит глобальные ошибки, такие как например, ошибка подключения к ftp серверу
 }
 
 type FtpHandlerOptions struct {
@@ -31,10 +31,9 @@ type FtpHandlerOptions struct {
 }
 
 type ProcessedLink struct {
-	err                 error  //ошибка возникшая при обработки файла
 	linkOld             string //старое имя файла
 	linkNew             string //новое имя файла (которое формируется на основе старого, после обработки файла декодером)
 	sizeBeforProcessing int    //размер файла до обработки
 	sizeAfterProcessing int    //размер файла после обработки
-
+	err                 error  //ошибка возникшая при обработки файла
 }

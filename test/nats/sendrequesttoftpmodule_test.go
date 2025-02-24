@@ -64,38 +64,56 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 				  "ftp://ftp-users.cloud.gcm/net_traff/1657648219_2022_07_12____20_50_19_597902.pcap"
 				]
 			}
-		}`,*/
+		}`,
+		)))*/
 		//с ftp.cloud.gcm на ftp.cloud.gcm
 		[]byte(fmt.Sprintf(`{
 			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
-			"source": "rcmspb",
-			"service": "placeholder_ftp_client_test",
+			"source": "gcm",
+			"service": "placeholder_ftp_client",
 			"command": "convert_and_copy_file",
 			"parameters": {
 				"links": [
-				  "ftp://zsiem-ftp.rcm.spbfsb.ru/traf/500044/1739437517_2025_02_13____12_05_17_534997.pcap",
-				  "ftp://zsiem-ftp.rcm.spbfsb.ru/traf/500036/1739442290_2025_02_13____13_24_50_768481.pcap"
+				  "ftp://ftp.cloud.gcm//traffic/1006/1614149668_2021_02_24____09_54_28_176143.pcap"
 				]
 			}
 		}`,
 		)))
+	//с ftp.cloud.gcm на ftp.cloud.gcm
+	//Калининград
+	/*[]byte(fmt.Sprintf(`{
+		"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
+		"source": "rcmkgd",
+		"service": "placeholder_ftp_client_test",
+		"command": "convert_and_copy_file",
+		"parameters": {
+			"links": [
+				"ftp://10.8.0.7//traff//430017//1739965622_2025_02_19____14_47_02_287796.pcap"
+				]
+			  }
+			}`,
+		)))
+	//Санкт-Петербург
+	/*[]byte(fmt.Sprintf(`{
+		"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
+		"source": "rcmspb",
+		"service": "placeholder_ftp_client_test",
+		"command": "convert_and_copy_file",
+		"parameters": {
+			"links": [
+			  "ftp://zsiem-ftp.rcm.spbfsb.ru/traf/500044/1739437517_2025_02_13____12_05_17_534997.pcap",
+			  "ftp://zsiem-ftp.rcm.spbfsb.ru/traf/500036/1739442290_2025_02_13____13_24_50_768481.pcap"
+			]
+		}
+	}`,
+	)))*/
 
 	//"ftp://ftp.cloud.gcm/traffic/8030164/1663128065_2022_09_14____07_01_05_749644.pcap",
 	//"ftp://ftp.cloud.gcm/traffic/8030165/1668058908_2022_11_10____08_41_48_422075.pcap",
 	//"ftp://ftp.cloud.gcm/traffic/8030165/1668063343_2022_11_10____09_55_43_559376.pcap",
 	//"ftp://ftp.cloud.gcm/traffic/8030166/1685447431_2023_05_30____14_50_31_938789.pcap",
 	//"ftp://ftp.cloud.gcm/traffic/1068/1653484285_2022_05_25____16_11_25_764284.pcap"
-	/*[]byte(fmt.Sprintf(`{
-		"task_id": "%s",
-		"source": "gcm",
-		"service": "test_service",
-		"command": "convert_and_copy_file",
-		"parameters": {
-			"path_local_ftp": "/net_traff",
-			"path_main_ftp": "/net_traff_txt",
-			"files": ["test_pcap_file.pcap", "test_pcap_file_http.pcap"]
-		}
-	}`, uuid.New().String())))*/
+
 	assert.NoError(t, err)
 
 	sub, err := nc.SubscribeSync(replyTo)

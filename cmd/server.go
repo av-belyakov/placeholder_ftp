@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"runtime"
 	"strings"
 
 	"github.com/av-belyakov/simplelogger"
@@ -31,12 +30,16 @@ func server(ctx context.Context) {
 		log.Fatalf("error module 'confighandler': %s", err.Error())
 	}
 
-	//******************************************************
-	//********** инициализация модуля логирования **********
-	loggingConf := confApp.GetSimpleLoggerPackage()
-	simpleLogger, err := simplelogger.NewSimpleLogger(ctx, Root_Dir, getLoggerSettings(loggingConf))
+	// ********************************************************************************
+	// ********************* инициализация модуля логирования *************************
+	var listLog []simplelogger.OptionsManager
+	for _, v := range confApp.GetSimpleLoggerPackage() {
+		listLog = append(listLog, v)
+	}
+	opts := simplelogger.CreateOptions(listLog...)
+	simpleLogger, err := simplelogger.NewSimpleLogger(ctx, Root_Dir, opts)
 	if err != nil {
-		log.Fatalf("error module 'simplelogger': %s", err.Error())
+		log.Fatalf("error module 'simplelogger': %v", err)
 	}
 
 	//*********************************************************************************
@@ -50,18 +53,16 @@ func server(ctx context.Context) {
 		IndexDB:            confDB.StorageNameDB,
 		NameRegionalObject: confApp.NameRegionalObject,
 	}); err != nil {
-		_, f, l, _ := runtime.Caller(0)
-		_ = simpleLogger.Write("error", fmt.Sprintf(" '%s' %s:%d", err.Error(), f, l-7))
-
+		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
 		log.Println(err.Error())
 	} else {
 		simpleLogger.SetDataBaseInteraction(esc)
 	}
 
-	//*****************************************************************
+	//******************************************************************
 	//********** инициализация модуля взаимодействия с Zabbix **********
 	zabbixConf := confApp.GetZabbixAPI()
-	channelZabbix := make(chan ci.Messager)
+	chZabbix := make(chan ci.Messager)
 	wzis := wrappers.WrappersZabbixInteractionSettings{
 		NetworkPort: zabbixConf.NetworkPort,
 		NetworkHost: zabbixConf.NetworkHost,
@@ -80,15 +81,15 @@ func server(ctx context.Context) {
 		})
 	}
 	wzis.EventTypes = eventTypes
-	wrappers.WrappersZabbixInteraction(ctx, wzis, simpleLogger, channelZabbix)
+	wrappers.WrappersZabbixInteraction(ctx, wzis, simpleLogger, chZabbix)
 
 	//******************************************************************
 	//********** инициализация обработчика логирования данных **********
-	logging := logginghandler.New()
-	go logginghandler.LoggingHandler(ctx, simpleLogger, channelZabbix, logging.GetChan())
+	logging := logginghandler.New(simpleLogger, chZabbix)
+	logging.Start(ctx)
 
-	//***************************************************
-	//********** инициализация NATS API модуля **********
+	//******************************************************************
+	//****************** инициализация NATS API модуля *****************
 	confNatsSAPI := confApp.GetConfigNATS()
 	natsOptsAPI := []natsapi.NatsApiOptions{
 		natsapi.WithHost(confNatsSAPI.Host),
@@ -98,13 +99,11 @@ func server(ctx context.Context) {
 	apiNats, err := natsapi.New(logging, confApp.GetNameRegionalObject(), natsOptsAPI...)
 	if err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
-
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
 	chNatsReqApi, err := apiNats.Start(ctx)
 	if err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
-
 		log.Fatalf("error module 'natsapi': %s\n", err.Error())
 	}
 
@@ -161,8 +160,9 @@ func server(ctx context.Context) {
 		log.Fatalf("error create tmp directory '%s'\n", err.Error())
 	}
 
+	infoMsg := getInformationMessage(confApp.NameRegionalObject, confLocalFtp, confMainFtp)
 	// вывод информационного сообщения при старте приложения
-	_ = simpleLogger.Write("info", strings.ToLower(getInformationMessage(confLocalFtp, confMainFtp)))
+	_ = simpleLogger.Write("info", strings.ToLower(infoMsg))
 
 	if err = router(ctx, handlerList, chNatsReqApi); err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())

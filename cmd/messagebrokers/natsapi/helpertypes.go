@@ -43,9 +43,9 @@ type MainResponse struct {
 
 // ProcessedInformation подробная информация полученная после обрабатывания запроса
 type ProcessedInformation struct {
-	Error               string `json:"error"`
 	LinkOld             string `json:"link_old"`
 	LinkNew             string `json:"link_new"`
+	Error               string `json:"error"`
 	SizeBeforProcessing int    `json:"size_befor_processing"`
 	SizeAfterProcessing int    `json:"size_after_processing"`
 }
