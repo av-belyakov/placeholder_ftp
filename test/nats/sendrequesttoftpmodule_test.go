@@ -66,19 +66,33 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 			}
 		}`,*/
 		//с ftp.cloud.gcm на ftp.cloud.gcm
+		//Калининград
 		[]byte(fmt.Sprintf(`{
-			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
-			"source": "rcmspb",
-			"service": "placeholder_ftp_client_test",
-			"command": "convert_and_copy_file",
-			"parameters": {
-				"links": [
-				  "ftp://zsiem-ftp.rcm.spbfsb.ru/traf/500044/1739437517_2025_02_13____12_05_17_534997.pcap",
-				  "ftp://zsiem-ftp.rcm.spbfsb.ru/traf/500036/1739442290_2025_02_13____13_24_50_768481.pcap"
+		"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
+		"source": "rcmkgd",
+		"service": "placeholder_ftp_client_test",
+		"command": "convert_and_copy_file",
+		"parameters": {
+			"links": [
+				"ftp://10.8.0.7//traff//430017//1739965622_2025_02_19____14_47_02_287796.pcap"
 				]
-			}
-		}`,
+			  }
+			}`,
 		)))
+	//Санкт-Петербург
+	/*[]byte(fmt.Sprintf(`{
+		"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
+		"source": "rcmspb",
+		"service": "placeholder_ftp_client_test",
+		"command": "convert_and_copy_file",
+		"parameters": {
+			"links": [
+			  "ftp://zsiem-ftp.rcm.spbfsb.ru/traf/500044/1739437517_2025_02_13____12_05_17_534997.pcap",
+			  "ftp://zsiem-ftp.rcm.spbfsb.ru/traf/500036/1739442290_2025_02_13____13_24_50_768481.pcap"
+			]
+		}
+	}`,
+	)))*/
 
 	//"ftp://ftp.cloud.gcm/traffic/8030164/1663128065_2022_09_14____07_01_05_749644.pcap",
 	//"ftp://ftp.cloud.gcm/traffic/8030165/1668058908_2022_11_10____08_41_48_422075.pcap",
