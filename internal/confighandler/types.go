@@ -21,11 +21,11 @@ type Information struct {
 // ConfigLogs настройки логирования
 type ConfigLogs struct {
 	ZabbixAPI           ZabbixOptions
-	SimpleLoggerPackage []LoggerOption
+	SimpleLoggerPackage []*LoggerOption
 }
 
 type Logs struct {
-	Logging []LoggerOption
+	Logging []*LoggerOption
 }
 
 type LoggerOption struct {

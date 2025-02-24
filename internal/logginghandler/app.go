@@ -7,40 +7,46 @@ import (
 	"github.com/av-belyakov/placeholder_ftp/cmd/commoninterfaces"
 )
 
-// LoggingHandler обработчик и распределитель логов
-func LoggingHandler(
-	ctx context.Context,
-	writerLoggingData commoninterfaces.WriterLoggingData,
-	chanSystemMonitoring chan<- commoninterfaces.Messager,
-	logging <-chan commoninterfaces.Messager) {
+// New конструктор обработчиа логов (это просто мост соединяющий несколько сервисов логирования)
+func New(writer commoninterfaces.WriterLoggingData, chSysMonit chan<- commoninterfaces.Messager) *LoggingChan {
+	return &LoggingChan{
+		dataWriter:           writer,
+		chanSystemMonitoring: chSysMonit,
+		chanLogging:          make(chan commoninterfaces.Messager),
+	}
+}
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
+// Start обработчик и распределитель логов
+func (lc *LoggingChan) Start(ctx context.Context) {
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
 
-		case msg := <-logging:
-			//**********************************************************************
-			//здесь так же может быть вывод в консоль, с индикацией цветов соответствующих
-			//определенному типу сообщений но для этого надо включить вывод на stdout
-			//в конфигурационном фале
-			_ = writerLoggingData.Write(msg.GetType(), msg.GetMessage())
+			case msg := <-lc.chanLogging:
+				//****************************************************************************
+				//здесь так же может быть вывод в консоль, с индикацией цветов соответствующих
+				//определенному типу сообщений но для этого надо включить вывод на stdout
+				//в конфигурационном фале
+				lc.dataWriter.Write(msg.GetType(), msg.GetMessage())
 
-			if msg.GetType() == "error" || msg.GetType() == "warning" {
-				msg := NewMessageLogging()
-				msg.SetType("error")
-				msg.SetMessage(fmt.Sprintf("%s: %s", msg.GetType(), msg.GetMessage()))
+				if msg.GetType() == "error" || msg.GetType() == "warning" {
+					msg := NewMessageLogging()
+					msg.SetType("error")
+					msg.SetMessage(fmt.Sprintf("%s: %s", msg.GetType(), msg.GetMessage()))
 
-				chanSystemMonitoring <- msg
-			}
+					lc.chanSystemMonitoring <- msg
+				}
 
-			if msg.GetType() == "info" {
-				msg := NewMessageLogging()
-				msg.SetType("info")
-				msg.SetMessage(msg.GetMessage())
+				if msg.GetType() == "info" {
+					msg := NewMessageLogging()
+					msg.SetType("info")
+					msg.SetMessage(msg.GetMessage())
 
-				chanSystemMonitoring <- msg
+					lc.chanSystemMonitoring <- msg
+				}
 			}
 		}
-	}
+	}()
 }

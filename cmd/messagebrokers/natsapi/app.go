@@ -177,12 +177,14 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 			listProcessedFile := []ProcessedInformation(nil)
 			for _, v := range msg.GetData() {
 				processedFile := ProcessedInformation{
+					Error:               "'no error'",
 					LinkOld:             v.GetLinkOld(),
 					LinkNew:             v.GetLinkNew(),
 					SizeBeforProcessing: v.GetSizeBeforProcessing(),
 					SizeAfterProcessing: v.GetSizeAfterProcessing(),
 				}
 
+				//ошибки по обработки каждой ссылке
 				if v.GetError() != nil {
 					processedFile.Error = v.GetError().Error()
 				}
@@ -191,11 +193,13 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 			}
 
 			mainResponse := MainResponse{
+				Error:             "'no error'",
 				Source:            rc.Source,
 				RequestId:         rc.TaskId,
 				ListProcessedFile: listProcessedFile,
 			}
 
+			//обработка глобальной ошибки
 			if msg.GetError() != nil {
 				mainResponse.Error = msg.GetError().Error()
 			}

@@ -3,7 +3,7 @@ module github.com/av-belyakov/placeholder_ftp
 go 1.23.3
 
 require (
-	github.com/av-belyakov/simplelogger v0.0.0-20250113074237-c90989ef4b7e
+	github.com/av-belyakov/simplelogger v0.0.0-20250221120631-077109604215
 	github.com/av-belyakov/zabbixapicommunicator v0.0.0-20241225064839-9c19184470aa
 	github.com/elastic/go-elasticsearch/v8 v8.17.0
 	github.com/go-playground/validator/v10 v10.23.0
