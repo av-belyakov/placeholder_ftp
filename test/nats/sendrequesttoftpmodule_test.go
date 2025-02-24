@@ -52,7 +52,7 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 		}`*/
 
 		//с ftp-users.cloud.gcm на ftp.cloud.gcm
-		/*[]byte(fmt.Sprintf(`{
+		[]byte(fmt.Sprintf(`{
 			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
 			"source": "gcm",
 			"service": "placeholder_ftp_client",
@@ -64,10 +64,11 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 				  "ftp://ftp-users.cloud.gcm/net_traff/1657648219_2022_07_12____20_50_19_597902.pcap"
 				]
 			}
-		}`,*/
-		//с ftp.cloud.gcm на ftp.cloud.gcm
-		//Калининград
-		[]byte(fmt.Sprintf(`{
+		}`,
+		)))
+	//с ftp.cloud.gcm на ftp.cloud.gcm
+	//Калининград
+	/*[]byte(fmt.Sprintf(`{
 		"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
 		"source": "rcmkgd",
 		"service": "placeholder_ftp_client_test",

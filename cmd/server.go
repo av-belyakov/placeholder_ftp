@@ -160,8 +160,9 @@ func server(ctx context.Context) {
 		log.Fatalf("error create tmp directory '%s'\n", err.Error())
 	}
 
+	infoMsg := getInformationMessage(confApp.NameRegionalObject, confLocalFtp, confMainFtp)
 	// вывод информационного сообщения при старте приложения
-	_ = simpleLogger.Write("info", strings.ToLower(getInformationMessage(confLocalFtp, confMainFtp)))
+	_ = simpleLogger.Write("info", strings.ToLower(infoMsg))
 
 	if err = router(ctx, handlerList, chNatsReqApi); err != nil {
 		_ = simpleLogger.Write("error", supportingfunctions.CustomError(err).Error())
