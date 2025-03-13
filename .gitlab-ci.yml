@@ -8,7 +8,7 @@ stages:
   - deploy
   - deploy-gcm
 
-.build-runner-tags: &build-tags
+.main-runner-tags: &main-tags
   tags:
     - placeholder_ftp
 
@@ -50,12 +50,14 @@ stages:
 #выводим версию приложения
 get_version:
   stage: .pre
+  <<: *main-tags
   script:
     - 'V=`awk ''/[0-9].[0-9].[0-9]/ {gsub(/"/, ""); print $2}'' $CI_PROJECT_DIR/internal/appversion/version.go`; echo "version $V"'
 
 #синхронизируем файл README.md
 sync-file-readme:
   stage: sync
+  <<: *main-tags
   rules:
     - *readme-commit
   script:
@@ -87,6 +89,7 @@ sync-file-readme:
 #синхронизируем файл docker-compose.yml (test или GCM)
 sync-file-docker-compose:
   stage: sync
+  <<: *main-tags
   rules:
     - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
       changes:
@@ -99,6 +102,7 @@ sync-file-docker-compose:
 #синхронизируем файл docker-compose.rcm.yml (для РЦМ)
 sync-file-docker-compose-rcm:
   stage: sync
+  <<: *main-tags
   rules:
     - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
       changes:
@@ -131,7 +135,7 @@ sync-file-docker-compose-rcm:
 #сборка тестового образа
 build-test:
   stage: build
-  <<: *build-tags
+  <<: *main-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
@@ -150,7 +154,7 @@ build-test:
 #сборка основного образа
 build-prod:
   stage: build
-  <<: *build-tags
+  <<: *main-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
