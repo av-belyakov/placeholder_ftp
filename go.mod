@@ -11,7 +11,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jlaffaye/ftp v0.2.0
 	github.com/joho/godotenv v1.5.1
-	github.com/nats-io/nats.go v1.38.0
+	github.com/nats-io/nats.go v1.39.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
 )
