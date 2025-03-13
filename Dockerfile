@@ -20,8 +20,8 @@ RUN echo -e "build_image" && \
     apk update && \
     apk add --no-cache git && \
     #это для загрузки с github
-    #git clone -b ${BRANCH} https://github.com/av-belyakov/placeholder_ftp.git ./src/ && \
-    git clone -b ${BRANCH} http://gitlab.cloud.gcm/a.belyakov/placeholder_ftp.git ./src/ && \
+    git clone -b ${BRANCH} https://github.com/av-belyakov/placeholder_ftp.git ./src/ && \
+    #git clone -b ${BRANCH} http://gitlab.cloud.gcm/a.belyakov/placeholder_ftp.git ./src/ && \
     go build -C ./src/cmd/ -o ../app
 
 FROM alpine

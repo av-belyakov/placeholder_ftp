@@ -9,7 +9,7 @@ services:
       - GO_PHFTP_DBWLOGPASSWD=$DBWLOGPASSWD
     image: gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:test
     restart: unless-stopped
-    #пробрасываем user ID для корректной записи в логов
+    #пробрасываем user ID для корректной записи логов
     user: root
     command: chmod 777 /opt/placeholder_ftp/logs && \
              chown 1501:1501 /opt/placeholder_ftp/logs
