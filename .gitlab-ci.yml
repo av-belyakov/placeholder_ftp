@@ -6,10 +6,15 @@ stages:
   - sync
   - build
   - deploy
+  - deploy-gcm
 
-default:
+.build-runner-tags: &build-tags
   tags:
     - placeholder_ftp
+
+.deploy-runner-tags: &deploy-tags
+  tags:
+    - placeholder_ftp_gcm    
 
 .docker-login-script: &docker-login
   - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -126,6 +131,7 @@ sync-file-docker-compose-rcm:
 #сборка тестового образа
 build-test:
   stage: build
+  <<: *build-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
@@ -144,6 +150,7 @@ build-test:
 #сборка основного образа
 build-prod:
   stage: build
+  <<: *build-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
@@ -204,3 +211,20 @@ deploy-prod:
     #РЦМ Ростов-на-Дону
     - "curl -X POST --fail -F token=$RCMROS_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/771/trigger/pipeline"
   environment: production
+
+#развертывание сборки предназначенной для ГЦМ
+deploy-prod-gcm:
+  stage: deploy-gcm
+  <<: *deploy-tags
+  rules:
+    - if: $CI_JOB_NAME == "deploy-prod"
+  before_script:
+    - echo "Start deploy placeholder_ftp application for GCM"
+  script: 
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml down 
+    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:latest || true
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build
+
+
+  
