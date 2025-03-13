@@ -42,8 +42,20 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 
 	nc, err := nats.Connect(
 		fmt.Sprintf("%s:%d", api.host, api.port),
+		//имя клиента
+		nats.Name("thehivehook"),
+		//неограниченное количество попыток переподключения
 		nats.MaxReconnects(-1),
-		nats.ReconnectWait(3*time.Second))
+		//время ожидания до следующей попытки переподключения (по умолчанию 2 сек.)
+		nats.ReconnectWait(3*time.Second),
+		//обработка разрыва соединения с NATS
+		nats.DisconnectErrHandler(func(c *nats.Conn, err error) {
+			api.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("the connection with NATS has been disconnected (%w)", err)).Error())
+		}),
+		//обработка переподключения к NATS
+		nats.ReconnectHandler(func(c *nats.Conn) {
+			api.logger.Send("info", "the connection to NATS has been re-established")
+		}))
 	if err != nil {
 		return api.sendingChannel, supportingfunctions.CustomError(err)
 	}
@@ -52,16 +64,6 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 		<-ctx.Done()
 		nc.Close()
 	}(ctx, nc)
-
-	//обработка разрыва соединения с NATS
-	nc.SetDisconnectErrHandler(func(c *nats.Conn, err error) {
-		api.logger.Send("error", supportingfunctions.CustomError(fmt.Errorf("the connection with NATS has been disconnected (%w)", err)).Error())
-	})
-
-	//обработка переподключения к NATS
-	nc.SetReconnectHandler(func(c *nats.Conn) {
-		api.logger.Send("info", "the connection to NATS has been re-established")
-	})
 
 	api.natsConnection = nc
 
