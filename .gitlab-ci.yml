@@ -222,11 +222,12 @@ deploy-prod:
 deploy-prod-gcm:
   stage: deploy-gcm
   <<: *deploy-tags
+  before_script:
+    - echo "Start deploy placeholder_ftp application for GCM"
+    - echo "Job name $CI_JOB_NAME"
   rules:
     - if: $CI_JOB_NAME == "deploy-test"
     #"deploy-prod"
-  before_script:
-    - echo "Start deploy placeholder_ftp application for GCM"
   script: 
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml down 
