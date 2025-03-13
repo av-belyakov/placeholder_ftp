@@ -38,6 +38,7 @@ stages:
     changes:
       - docker-compose.yml
       - docker-compose.rcm.yml
+      - docker-compose.test-gcm.yml
     when: never
 
 .is-branch-dev-test-commit: &dev-test-commit
@@ -168,7 +169,7 @@ build-prod:
     - docker push $CI_REGISTRY_IMAGE:latest
     - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
 
-#развёртывание тестовой сборки (пока что это будет GCM)
+#развёртывание тестовой сборки (пока что это будет ГЦМ)
 deploy-test:
   stage: deploy
   <<: *main-tags
