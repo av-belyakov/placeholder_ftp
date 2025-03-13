@@ -173,6 +173,7 @@ build-prod:
 #развёртывание тестовой сборки (пока что это будет GCM)
 deploy-test:
   stage: deploy
+  <<: *main-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
@@ -185,6 +186,7 @@ deploy-test:
 #развёртывание основной сборки (все регионы)
 deploy-prod:
   stage: deploy
+  <<: *main-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
