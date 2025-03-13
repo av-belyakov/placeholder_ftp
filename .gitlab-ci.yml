@@ -85,18 +85,17 @@ sync-file-readme:
     #РЦМ Ростов-на-Дону
     - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMROS_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/771/repository/files/README.md'
 
-#синхронизируем файл docker-compose.yml (test или GCM)
+#синхронизируем файл docker-compose.test-gcm.yml (Test GCM)
 sync-file-docker-compose:
   stage: sync
   <<: *main-tags
   rules:
     - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
       changes:
-        - docker-compose.yml
+        - docker-compose.test-gcm.yml
       when: on_success
   script:
-    #Главный центр мониторинга (или test)
-    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_TEST_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update docker-compose.yml" -F content="< $CI_PROJECT_DIR/docker-compose.yml" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/docker-compose.yml'
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_TEST_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update docker-compose.yml" -F content="< $CI_PROJECT_DIR/docker-compose.test-gcm.yml" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/docker-compose.yml'
 
 #синхронизируем файл docker-compose.rcm.yml (для РЦМ)
 sync-file-docker-compose-rcm:
@@ -217,7 +216,7 @@ deploy-prod:
     - "curl -X POST --fail -F token=$RCMROS_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/771/trigger/pipeline"
   environment: production
 
-#развертывание сборки предназначенной для ГЦМ
+#развертывание сборки предназначенной для ГЦМ (продуктовое приложение)
 deploy-prod-gcm:
   stage: deploy
   <<: *deploy-tags

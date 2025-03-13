@@ -7,9 +7,9 @@ services:
       - GO_PHFTP_LOCALFTP_PASSWD=$LOCALFTP_PASSWD
       - GO_PHFTP_MAINFTP_PASSWD=$MAINFTP_PASSWD
       - GO_PHFTP_DBWLOGPASSWD=$DBWLOGPASSWD
-    image: gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:latest
+    image: gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:test
     restart: unless-stopped
-    #пробрасываем user ID для корректной записи в логи
+    #пробрасываем user ID для корректной записи логов
     user: root
     command: chmod 777 /opt/placeholder_ftp/logs && \
              chown 1501:1501 /opt/placeholder_ftp/logs
@@ -19,5 +19,3 @@ services:
       #для корректного отображения даты с учетом временной зоны
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-
-
