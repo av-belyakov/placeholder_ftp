@@ -217,7 +217,7 @@ deploy-prod-gcm:
   stage: deploy-gcm
   <<: *deploy-tags
   rules:
-    - if: $CI_JOB_NAME == "deploy-prod"
+    - if: $CI_JOB_NAME == "deploy-test"#"deploy-prod"
   before_script:
     - echo "Start deploy placeholder_ftp application for GCM"
   script: 
