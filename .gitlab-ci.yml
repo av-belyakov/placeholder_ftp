@@ -7,9 +7,13 @@ stages:
   - build
   - deploy
 
-default:
+.main-runner-tags: &main-tags
   tags:
     - placeholder_ftp
+
+.deploy-runner-tags: &deploy-tags
+  tags:
+    - placeholder_ftp_gcm
 
 .docker-login-script: &docker-login
   - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -45,17 +49,19 @@ default:
 #выводим версию приложения
 get_version:
   stage: .pre
+  <<: *main-tags
   script:
     - 'V=`awk ''/[0-9].[0-9].[0-9]/ {gsub(/"/, ""); print $2}'' $CI_PROJECT_DIR/internal/appversion/version.go`; echo "version $V"'
 
 #синхронизируем файл README.md
 sync-file-readme:
   stage: sync
+  <<: *main-tags
   rules:
     - *readme-commit
   script:
-    #Главный центр мониторинга (или Test)
-    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/README.md'
+    #Главный центр мониторинга (или test)
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_TEST_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/README.md'
     #РЦМ Санкт-Петербург
     - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMSPB_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/745/repository/files/README.md'
     #РЦМ Калининград
@@ -82,18 +88,20 @@ sync-file-readme:
 #синхронизируем файл docker-compose.yml (test или GCM)
 sync-file-docker-compose:
   stage: sync
+  <<: *main-tags
   rules:
     - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
       changes:
         - docker-compose.yml
       when: on_success
   script:
-    #Главный центр мониторинга (или Test)
-    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update docker-compose.yml" -F content="< $CI_PROJECT_DIR/docker-compose.yml" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/docker-compose.yml'
+    #Главный центр мониторинга (или test)
+    - 'curl -v --request PUT --header PRIVATE-TOKEN:$GCM_TEST_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update docker-compose.yml" -F content="< $CI_PROJECT_DIR/docker-compose.yml" http://gitlab.cloud.gcm/api/v4/projects/709/repository/files/docker-compose.yml'
 
 #синхронизируем файл docker-compose.rcm.yml (для РЦМ)
 sync-file-docker-compose-rcm:
   stage: sync
+  <<: *main-tags
   rules:
     - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
       changes:
@@ -126,6 +134,7 @@ sync-file-docker-compose-rcm:
 #сборка тестового образа
 build-test:
   stage: build
+  <<: *main-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
@@ -144,6 +153,7 @@ build-test:
 #сборка основного образа
 build-prod:
   stage: build
+  <<: *main-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
@@ -162,18 +172,20 @@ build-prod:
 #развёртывание тестовой сборки (пока что это будет GCM)
 deploy-test:
   stage: deploy
+  <<: *main-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
     - *dev-test-commit
     - *master-commit
   script:
-    #ГЦМ TEST
-    - "curl -X POST --fail -F token=$GCM_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
+    #тест ГЦМ
+    - "curl -X POST --fail -F token=$GCM_TEST_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/709/trigger/pipeline"
 
 #развёртывание основной сборки (все регионы)
 deploy-prod:
   stage: deploy
+  <<: *main-tags
   rules:
     - *readme-no-commit
     - *docker-compose-no-commit
@@ -204,3 +216,17 @@ deploy-prod:
     #РЦМ Ростов-на-Дону
     - "curl -X POST --fail -F token=$RCMROS_TRIGGER -F ref=master http://gitlab.cloud.gcm/api/v4/projects/771/trigger/pipeline"
   environment: production
+
+#развертывание сборки предназначенной для ГЦМ
+deploy-prod-gcm:
+  stage: deploy
+  <<: *deploy-tags
+  rules:
+    - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
+  before_script:
+    - echo "Start deploy placeholder_ftp application for GCM"
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml down
+    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:latest || true
+    - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build
