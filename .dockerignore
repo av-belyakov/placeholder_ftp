@@ -7,4 +7,6 @@ logs
 test
 tmp_files
 docker-compose.yml
+docker-compose.rcm.yml
+docker-compose.test-gcm.yml
 text.txt
