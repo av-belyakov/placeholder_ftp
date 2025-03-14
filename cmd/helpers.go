@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/av-belyakov/placeholder_ftp/internal/appname"
@@ -17,7 +18,12 @@ func getInformationMessage(name string, confLocalFtp, confMainFtp confighandler.
 		appStatus = fmt.Sprintf("%v%s%v", Ansi_Bright_Red, envValue, Ansi_Reset)
 	}
 
-	msg := fmt.Sprintf("Application '%s' v%s was successfully launched", appname.GetAppName(), appversion.GetAppVersion())
+	version, err := appversion.GetAppVersion()
+	if err != nil {
+		log.Println(err)
+	}
+
+	msg := fmt.Sprintf("Application '%s' v%s was successfully launched", appname.GetAppName(), version)
 
 	fmt.Printf("\n%v%v%s.%v\n", Bold_Font, Ansi_Bright_Green, msg, Ansi_Reset)
 	fmt.Printf("%v%vApplication status is '%s'.%v\n", Underlining, Ansi_Bright_Green, appStatus, Ansi_Reset)

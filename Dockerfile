@@ -13,13 +13,14 @@ RUN echo 'packages_image' && \
 FROM golang:1.23.6-alpine AS build_image
 LABEL temporary=''
 ARG BRANCH
+ARG VERSION
 WORKDIR /go/
 COPY --from=packages_image /go ./
 RUN echo -e "build_image" && \
     rm -r ./src && \
     apk update && \
     apk add --no-cache git && \
-    git clone -b ${BRANCH} https://github.com/av-belyakov/placeholder_ftp.git ./src/ && \
+    git clone -b ${BRANCH} https://github.com/av-belyakov/placeholder_ftp.git ./src/${VERSION}/ && \
     go build -C ./src/cmd/ -o ../app
 
 FROM alpine
@@ -32,8 +33,9 @@ RUN adduser -u 1501 -G groupcontainer -D ${USERNAME} --home ${US_DIR}
 USER ${USERNAME}
 WORKDIR ${US_DIR}
 RUN mkdir ./logs
-COPY --from=build_image /go/src/app ./
-COPY --from=build_image /go/src/README.md ./ 
+COPY --from=build_image /go/src/${VERSION}/app ./
+COPY --from=build_image /go/src/${VERSION}/README.md ./
+COPY --from=build_image /go/src/${VERSION}/internal/appversion/version ./  
 COPY config/* ./config/
 
 ENTRYPOINT [ "./app" ]
