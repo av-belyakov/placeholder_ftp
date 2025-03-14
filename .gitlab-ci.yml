@@ -52,7 +52,7 @@ get_version:
   stage: .pre
   <<: *main-tags
   script:
-    - 'V=`awk ''/[0-9].[0-9].[0-9]/ {gsub(/"/, ""); print $2}'' $CI_PROJECT_DIR/internal/appversion/version`; echo "version $V"'
+    - 'V=`awk ''/[0-9].[0-9].[0-9]/ {print $2}'' $CI_PROJECT_DIR/internal/appversion/version`; echo "version $V"'
 
 #синхронизируем файл README.md
 sync-file-readme:
