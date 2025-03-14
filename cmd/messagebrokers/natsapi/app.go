@@ -43,7 +43,7 @@ func (api *apiNatsModule) Start(ctx context.Context) (<-chan ci.ChannelRequester
 	nc, err := nats.Connect(
 		fmt.Sprintf("%s:%d", api.host, api.port),
 		//имя клиента
-		nats.Name("placeholder_ftp"),
+		nats.Name(fmt.Sprintf("placeholder_ftp_%s", api.nameRegionalObject)),
 		//неограниченное количество попыток переподключения
 		nats.MaxReconnects(-1),
 		//время ожидания до следующей попытки переподключения (по умолчанию 2 сек.)
