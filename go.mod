@@ -1,6 +1,6 @@
 module github.com/av-belyakov/placeholder_ftp
 
-go 1.23.3
+go 1.24.1
 
 require (
 	github.com/av-belyakov/simplelogger v0.0.0-20250221120631-077109604215

@@ -4,13 +4,13 @@
 # для удаления временного образа, можно через ci/cd, можно руками 
 # docker image prune -a --force --filter="label=temporary"
 
-FROM golang:1.23.7-alpine AS packages_image
+FROM golang:1.24.1-alpine AS packages_image
 WORKDIR /go/src
 COPY go.mod go.sum ./
 RUN echo 'packages_image' && \
     go mod download
 
-FROM golang:1.23.7-alpine AS build_image
+FROM golang:1.24.1-alpine AS build_image
 LABEL temporary=''
 ARG BRANCH
 ARG VERSION
