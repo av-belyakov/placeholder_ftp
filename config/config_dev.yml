@@ -1,26 +1,26 @@
 COMMONINFO:
-  file_name: "config_dev"
-  name_regional_object: "rcmmsk"
-  main_ftp_path_result_directory: "folder_two"
-  max_writing_file_limit: 45
-NATS:
-  prefix: "test"
-  host: "nats.cloud.gcm"
+  file_name: config_prod
+  name_regional_object: gcm_test #имя РЦМ (каждый меняет на свои)
+  main_ftp_path_result_directory: placeholder_ftp_share #директория на MAINFTP (настройки не менять)
+  max_writing_file_limit: 45 #максимально допустимый размер файла (настройки не менять)
+NATS: #ГЦМ (настройки не менять)
+  prefix: test
+  host: nats.cloud.gcm
   port: 4222
   cache_ttl: 3600
   subscriptions:
-    listener_command: "phftp.commands.test"
-LOCALFTP:
-  host: "127.0.0.1"
+    listener_command: phftp.commands
+LOCALFTP: #настройки FTP сервера РЦМ (каждый меняет на свои)
+  host: ftp.cloud.gcm
   port: 21
-  username: "someuser"
-MAINFTP:
-  host: "127.0.0.1"
+  username: ftp
+MAINFTP: #FTP сервер ГЦМ (настройки не менять)
+  host: ftp.cloud.gcm
   port: 21
-  username: "someuser"
-DATABASEWRITELOG:
-  host: "datahook.cloud.gcm"
+  username: ftp
+DATABASEWRITELOG: #БД для логов, ГЦМ (настройки не менять)
+  host: datahook.cloud.gcm
   port: 9200
-  user: "log_writer"
-  name_db: ""
-  storage_name_db: "placeholder_ftp_package"
+  namedb:
+  storage_name_db: placeholder_ftp
+  user: log_writer
