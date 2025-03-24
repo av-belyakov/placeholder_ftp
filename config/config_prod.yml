@@ -1,26 +1,26 @@
 COMMONINFO:
-  file_name: "config_prod"
-  name_regional_object: "gcm"
-  main_ftp_path_result_directory: "placeholder_ftp_share"
+  file_name: config_prod
+  name_regional_object: gcm
+  main_ftp_path_result_directory: placeholder_ftp_share
   max_writing_file_limit: 10
 NATS:
-  prefix: "test"
-  host: "nats.cloud.gcm"
+  prefix:
+  host: nats.cloud.gcm
   port: 4222
   cache_ttl: 3600
   subscriptions:
-    listener_command: "phftp.commands.test"
+    listener_command: phftp.commands
 LOCALFTP:
-  host: "ftp.cloud.gcm"
+  host: ftp.cloud.gcm
   port: 21
-  username: "ftp"
+  username: ftp
 MAINFTP:
-  host: "ftp.cloud.gcm"
+  host: ftp.cloud.gcm
   port: 21
-  username: "ftp"
+  username: ftp
 DATABASEWRITELOG:
-  host: "datahook.cloud.gcm"
+  host: datahook.cloud.gcm
   port: 9200
-  namedb: ""
-  storage_name_db: "placeholder_ftp"
-  user: "log_writer"
+  namedb:
+  storage_name_db: placeholder_ftp
+  user: log_writer
