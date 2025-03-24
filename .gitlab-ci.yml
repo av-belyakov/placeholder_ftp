@@ -54,14 +54,14 @@ stages:
 .is-branch-master-commit: &master-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
 
-#выводим версию приложения
+# версия приложения
 get_version:
   stage: .pre
   <<: *deploy-prod-tags
   script:
     - 'V=`awk ''/[0-9].[0-9].[0-9]/; {print $2}'' $CI_PROJECT_DIR/internal/appversion/version`; echo "version $V"'
 
-#синхронизируем файл README.md
+# синхронизация README.md
 sync-file-readme:
   stage: sync
   <<: *deploy-prod-tags
@@ -91,7 +91,7 @@ sync-file-readme:
     #РЦМ Ростов-на-Дону
     - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMROS_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update README.md" -F content="< $CI_PROJECT_DIR/README.md" http://gitlab.cloud.gcm/api/v4/projects/771/repository/files/README.md'
 
-#синхронизируем файл docker-compose.rcm.yml (для РЦМ)
+# синхронизация docker-compose.rcm.yml (для РЦМ)
 sync-file-docker-compose-rcm:
   stage: sync
   <<: *deploy-prod-tags
@@ -124,7 +124,7 @@ sync-file-docker-compose-rcm:
     #РЦМ Ростов-на-Дону
     - 'curl -v --request PUT --header PRIVATE-TOKEN:$RCMROS_SYNC_FILES_TOKEN -F branch=master -F author_email=nobody@mail.org -F author_name=auto_sync -F commit_message="Update docker-compose.yml" -F content="< $CI_PROJECT_DIR/docker-compose.rcm.yml" http://gitlab.cloud.gcm/api/v4/projects/771/repository/files/docker-compose.yml'
 
-#сборка тестового образа
+# сборка тестового образа
 build-test:
   stage: build
   <<: *build-tags
@@ -145,7 +145,7 @@ build-test:
     - docker push $CI_REGISTRY_IMAGE:test
     - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
 
-#сборка основного образа
+# сборка основного образа
 build-prod:
   stage: build
   <<: *build-tags
@@ -162,7 +162,7 @@ build-prod:
     - docker push $CI_REGISTRY_IMAGE:latest
     - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
 
-#развёртывает тестовую сборку (GCM.test)
+# развёртывание тестовой сборки (GCM.test)
 deploy-test:
   stage: deploy
   <<: *deploy-test-tags
@@ -182,7 +182,7 @@ deploy-test:
     - docker rmi gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:test || true
     - docker-compose -f $CI_PROJECT_DIR/docker-compose.test.yml up -d --force-recreate --build
 
-#развёртывает основную сборку (GCM)
+# развёртывание основной сборки (GCM)
 deploy-prod-gcm:
   stage: deploy
   <<: *deploy-prod-tags
@@ -202,7 +202,7 @@ deploy-prod-gcm:
     - docker rmi gitlab.cloud.gcm:5050/a.belyakov/placeholder_ftp:latest || true
     - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build
 
-#развёртывание основной сборки (все регионы)
+# развёртывание основной сборки (все регионы)
 deploy-prod:
   stage: deploy
   <<: *deploy-prod-tags
