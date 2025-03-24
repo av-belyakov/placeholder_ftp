@@ -124,7 +124,10 @@
 	    "link_new": "ftp://ftp.cloud.gcm/traff/test_pcap_file.pcap.txt",
       "size_befor_processing": 0, //размер файла до обработки
 	    "size_after_processing": 0 //размер файла после обработки
-	  }
+	  },
+    {
+      ...
+    }
   ]
 }
 ```
