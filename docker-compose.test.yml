@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   app:
-    container_name: placeholder_ftp
+    container_name: placeholder_ftp.gcm-test
     environment:
       - GO_PHFTP_LOCALFTP_PASSWD=$LOCALFTP_PASSWD
       - GO_PHFTP_MAINFTP_PASSWD=$MAINFTP_PASSWD
@@ -14,7 +14,7 @@ services:
     command: chmod 777 /opt/placeholder_ftp/logs && \
              chown 1501:1501 /opt/placeholder_ftp/logs
     volumes:
-      - /var/log/placeholder_ftp:/opt/placeholder_ftp/logs:rw
+      - /var/log/placeholder_ftp.gcm-test:/opt/placeholder_ftp/logs:rw
       - ./config:/opt/placeholder_ftp/config:ro
       #для корректного отображения даты с учетом временной зоны
       - /etc/timezone:/etc/timezone:ro
