@@ -115,6 +115,7 @@ func (api *apiNatsModule) handlerIncomingJSON(ctx context.Context, m *nats.Msg) 
 	}
 
 	if response.Error != "" {
+		response.Time = time.Now().Format(time.RFC3339)
 		res, err := json.Marshal(response)
 		if err != nil {
 			api.logger.Send("error", supportingfunctions.CustomError(err).Error())
@@ -142,10 +143,10 @@ func (api *apiNatsModule) handlerIncomingJSON(ctx context.Context, m *nats.Msg) 
 	//отправляем сообщение информирующее получателя о том что, запрос был принят
 	//тем региональным объектом для которого он был предназначени и находится в
 	//процессе обработки
-	m.Respond([]byte(fmt.Sprintf(`{
+	m.Respond(fmt.Appendf(nil, `{
 		"cm_name": "%s",
 		"is_processing": "true"
-	  }`, api.nameRegionalObject)))
+	  }`, api.nameRegionalObject))
 
 	go api.handlerIncomingCommands(ctx, rc, m)
 }
@@ -159,7 +160,6 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 	defer func(cancel context.CancelFunc, ch chan ci.ChannelResponser) {
 		cancel()
 		close(ch)
-		ch = nil
 	}(ctxTimeoutCancel, chRes)
 
 	api.sendingChannel <- &RequestFromNats{
@@ -195,6 +195,7 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 			}
 
 			mainResponse := MainResponse{
+				Time:              time.Now().Format(time.RFC3339),
 				Error:             "'no error'",
 				Source:            rc.Source,
 				RequestId:         rc.TaskId,

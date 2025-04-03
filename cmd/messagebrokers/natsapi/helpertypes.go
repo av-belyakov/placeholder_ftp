@@ -36,6 +36,7 @@ type RequestCommand struct {
 // MainResponse основной ответ, на запрос стороннего сервиса
 type MainResponse struct {
 	ListProcessedFile []ProcessedInformation `json:"processed_information"`
+	Time              string                 `json:"time"`
 	RequestId         string                 `json:"request_id"`
 	Source            string                 `json:"source"`
 	Error             string                 `json:"error"`
