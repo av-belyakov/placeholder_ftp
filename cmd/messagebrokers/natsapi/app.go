@@ -170,6 +170,8 @@ func (api *apiNatsModule) handlerIncomingCommands(ctx context.Context, rc Reques
 		ChanOutput: chRes,
 	}
 
+	api.logger.Send("info", fmt.Sprintf("the issue has been accepted for processing (task id '%s', the command '%s', from service '%s')", rc.TaskId, rc.Command, rc.Service))
+
 	for {
 		select {
 		case <-ctxTimeout.Done():
