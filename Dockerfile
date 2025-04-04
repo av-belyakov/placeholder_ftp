@@ -25,9 +25,11 @@ RUN echo -e "build_image" && \
 
 FROM alpine
 LABEL author='Artemij Belyakov'
+ARG STATUS
 ARG VERSION
 ARG USERNAME=dockeruser
 ARG US_DIR=/opt/placeholder_ftp
+ENV GO_PHFTP_MAIN=${STATUS}
 RUN addgroup --g 1501 groupcontainer
 RUN adduser -u 1501 -G groupcontainer -D ${USERNAME} --home ${US_DIR}
 USER ${USERNAME}
