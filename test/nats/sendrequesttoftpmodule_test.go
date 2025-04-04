@@ -65,7 +65,7 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 				]
 			}
 		}`,
-		)))*/
+		)))
 		//с ftp.cloud.gcm на ftp.cloud.gcm
 		[]byte(fmt.Sprintf(`{
 			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
@@ -79,7 +79,32 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 			}
 		}`,
 		)))
-	//с ftp.cloud.gcm на ftp.cloud.gcm
+		//Смоленск
+		[]byte(fmt.Sprintf(`{
+		"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
+		"source": "rcmlnx",
+		"service": "placeholder_ftp_client_test",
+		"command": "convert_and_copy_file",
+		"parameters": {
+			"links": [
+				"ftp://10.67.1.21//traffic/690006/1745428144_2025_04_23____20_09_04_118652.pcap"
+				]
+			  }
+			}`,
+		)))*/
+		//Нижний Новгород
+		[]byte(fmt.Sprintf(`{
+					"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
+					"source": "rcmniz",
+					"service": "placeholder_ftp_client_test",
+					"command": "convert_and_copy_file",
+					"parameters": {
+						"links": [
+							"ftp://192.168.113.220//550034/1745479857_2025_04_24____10_30_57_580263.pcap"
+							]
+						  }
+						}`,
+		)))
 	//Калининград
 	/*[]byte(fmt.Sprintf(`{
 		"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
