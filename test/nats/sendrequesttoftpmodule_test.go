@@ -69,7 +69,7 @@ func TestSendMsgToModuleFTP(t *testing.T) {
 		//с ftp.cloud.gcm на ftp.cloud.gcm
 		[]byte(fmt.Sprintf(`{
 			"task_id": "6ffab1ea-27ad-4129-925c-e2680c267d62",
-			"source": "gcm-test",
+			"source": "gcm_test",
 			"service": "placeholder_ftp_client",
 			"command": "convert_and_copy_file",
 			"parameters": {

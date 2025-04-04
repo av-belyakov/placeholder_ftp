@@ -144,9 +144,10 @@ func (api *apiNatsModule) handlerIncomingJSON(ctx context.Context, m *nats.Msg) 
 	//тем региональным объектом для которого он был предназначени и находится в
 	//процессе обработки
 	m.Respond(fmt.Appendf(nil, `{
+		"time": "%s",
 		"cm_name": "%s",
 		"is_processing": "true"
-	  }`, api.nameRegionalObject))
+	  }`, time.Now().Format(time.RFC3339), api.nameRegionalObject))
 
 	go api.handlerIncomingCommands(ctx, rc, m)
 }
