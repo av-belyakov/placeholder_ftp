@@ -2,7 +2,7 @@ COMMONINFO:
   file_name: config_prod
   name_regional_object: gcm
   main_ftp_path_result_directory: placeholder_ftp_share
-  max_writing_file_limit: 10
+  max_writing_file_limit: 45
 NATS:
   prefix:
   host: nats.cloud.gcm

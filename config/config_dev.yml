@@ -1,11 +1,11 @@
 COMMONINFO:
-  file_name: config_prod
+  file_name: config_dev
   name_regional_object: gcm_test #имя РЦМ (каждый меняет на свои)
   main_ftp_path_result_directory: placeholder_ftp_share #директория на MAINFTP (настройки не менять)
   max_writing_file_limit: 45 #максимально допустимый размер файла (настройки не менять)
 NATS: #ГЦМ (настройки не менять)
   prefix: test
-  host: nats.cloud.gcm
+  host: 192.168.9.208
   port: 4222
   cache_ttl: 3600
   subscriptions:
